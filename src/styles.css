@@ -1,0 +1,52 @@
+#root {
+  height: 100vh;
+}
+.App {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  /* background: #222; */
+}
+
+.url-input {
+  width: 500px;
+  height: 30px;
+  margin: 16px;
+}
+
+.url-submit-btn {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.response-area {
+  flex: 1;
+  height: 100%;
+  border: 1px solid gray;
+}
+
+.verses-list {
+  flex: 1;
+  height: 100%;
+  border: 1px solid gray;
+  overflow: auto;
+}
+
+.verse-wrapper {
+  margin: 16px;
+  font-family: "Amiri Quran";
+  color: rgb(14, 2, 121);
+  font-size: 42px;
+  font-weight: 400;
+}
+
+.view-area {
+  display: flex;
+  width: 100vw;
+  box-sizing: border-box;
+  height: calc(100vh - 80px);
+}
