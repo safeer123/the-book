@@ -1,10 +1,10 @@
-import React, { useMemo, useState } from 'react';
-import { AutoComplete as AutoCompleteAntd, Input } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import { AutoComplete as AutoCompleteAntd, Input, Button } from 'antd';
 import { styled } from 'styled-components';
 import { useChapters } from '../../data/use-chapters';
 import { Selection } from '../types';
 import { useVerses } from '../../data/use-verses';
-import { getOptionKey, parseOptionKey } from './utils';
+import { getExtStr, getOptionKey, parseOptionKey } from './utils';
 
 const AutoComplete = styled(AutoCompleteAntd)`
   .main-search-dropdown .ant-select-dropdown-menu-item-group-title {
@@ -30,7 +30,7 @@ const AutoComplete = styled(AutoCompleteAntd)`
   }
 `;
 
-const renderTitle = (title: string, ext: string) => (
+const renderTitle = (title: string, ext: string, onClickExt?:()=>void) => (
   <div
       style={{
         display: 'flex',
@@ -38,9 +38,12 @@ const renderTitle = (title: string, ext: string) => (
       }}
     >
       {title}
-      <span>
-        {ext}
-      </span>
+      {
+        Boolean(ext) &&
+        <Button type='link' disabled={!Boolean(onClickExt)} onClick={onClickExt}>
+          {ext} results
+        </Button>
+      }
   </div>
 );
 
@@ -68,6 +71,7 @@ interface SearchProps {
 const Search: React.FC<SearchProps> = ({ setSelection }) => {
 
     const [searchKey, setSearchKey] = useState("");
+    const [dropdownVisible, setDropdownVisible] = useState(false);
 
     const {
       data: chapterData,
@@ -89,28 +93,39 @@ const Search: React.FC<SearchProps> = ({ setSelection }) => {
         chapter => chapter.name_simple.toLowerCase().includes(searchKey.toLowerCase())
         ).map(chapter => renderItem(getOptionKey(chapter), chapter.name_simple, chapter.name_arabic));
 
-      const filteredVerseItems = versesData?.verses?.filter(
+      const filteredVerseItems = searchKey.trim() ? versesData?.verses?.filter(
         verse => verse?.translation?.toLowerCase()?.includes(searchKey.toLowerCase())
         ).map(verse => {
           const chapter = getChapterFromVerseKey(verse.verse_key);
           return renderItem(getOptionKey(verse), `${verse.verse_key} ${chapter?.name_simple}`, chapter?.name_arabic || '');
-        });
-  
+        }) : undefined;
 
-      const extSura = (filteredChapterItems || []).length === 0 ? "No Match" : (filteredChapterItems || []).length;
-      const extAya = (filteredVerseItems || []).length === 0 ? "No Match" : (filteredVerseItems || []).length;
+      const onClickExtSura = () => {
+        setDropdownVisible(false);
+        setSelection({chapters: filteredChapterItems?.map(item => Number(parseOptionKey(item?.value)?.[1]))});
+      }
 
-      return [
+      const onClickExtAya = () => {
+        setDropdownVisible(false);
+        setSelection({verses: filteredVerseItems?.map(item => parseOptionKey(item?.value)?.[1])});
+      }
+
+      const [extSura, extSuraClickEnabled] = getExtStr(filteredChapterItems);
+      const [extAya, extAyaClickEnabled] = getExtStr(filteredVerseItems);
+
+      const options = [
         {
-          label: renderTitle(`Sura (Chapter)`, `${extSura}`),
+          label: renderTitle(`Sura (Chapter)`, extSura, extSuraClickEnabled ? onClickExtSura : undefined),
           options: filteredChapterItems || [],
         },
         {
-          label: renderTitle(`Aya (Verse)`, `${extAya}`),
+          label: renderTitle(`Aya (Verse)`, extAya, extAyaClickEnabled ? onClickExtAya : undefined),
           options: filteredVerseItems || [],
         },
       ];
-    }, [searchKey, chapterData]);
+
+      return options;
+    }, [searchKey, chapterData, setSelection]);
 
     const onSelect = (item: unknown) => {
       const [typeToken, id] = parseOptionKey(item as string);
@@ -124,6 +139,31 @@ const Search: React.FC<SearchProps> = ({ setSelection }) => {
       }
     }
 
+    const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if(e.key === 'Enter') {
+        setDropdownVisible(false);
+        let chapters: number[] = [];
+        let verses: string[] = [];
+        if(options[0]?.options?.length > 0) {
+          chapters = options[0]?.options.map(opt => {
+            return Number(parseOptionKey(opt.value)[1]);
+          });
+        }
+        if(options[1]?.options?.length > 0) {
+          verses = options[1]?.options.map(opt => {
+            return parseOptionKey(opt.value)[1];
+          });
+        }
+        setSelection({chapters, verses});
+      }
+    }
+
+    useEffect(() => {
+      if(searchKey === "") {
+        setSelection({});
+      }
+    }, [searchKey]);
+
     return (
       <AutoComplete
         popupClassName="main-search-dropdown"
@@ -132,7 +172,10 @@ const Search: React.FC<SearchProps> = ({ setSelection }) => {
         options={options}
         onSelect={onSelect}
         onSearch={e => setSearchKey(e)}
+        onKeyDown={onKeyDown}
         value={searchKey}
+        open={dropdownVisible}
+        onDropdownVisibleChange={state => setDropdownVisible(state)}
       >
         <Input.Search size="large" placeholder="Search in Quran.." allowClear/>
       </AutoComplete>

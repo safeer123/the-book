@@ -121,7 +121,14 @@ const Results = ({chapters, verses}: Props) => {
   }, [verseData, chapterData, selectedChapters, selectedVerses]);
 
   const activeKeys = useMemo(() => {
-    return items?.length === 1 ? [items?.[0]?.key || ''] : [];
+    if(items?.length === 1) {
+      return [items?.[0]?.key || ''];
+    }
+    const verseItems = items?.filter(item => (item?.key as string)?.split("-")[0] === 've');
+    if(verseItems?.length > 0) {
+      return verseItems.map(item => item?.key || '');
+    }
+    return undefined;
   }, [items]);
 
   if(versesLoading || chaptersLoading) {
@@ -129,7 +136,7 @@ const Results = ({chapters, verses}: Props) => {
   }
 
   return (
-      <Collapse accordion items={items} activeKey={activeKeys}/>
+      <Collapse items={items} activeKey={activeKeys}/>
   );
 };
 
