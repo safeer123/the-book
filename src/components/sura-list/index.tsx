@@ -35,7 +35,7 @@ const SuraList = () => {
         <Search setSelection={setSelection}/>
       </PageHeader>
       <Content>
-          <Results chapters={selection?.chapters}/>
+          <Results chapters={selection?.chapters} verses={selection?.verses}/>
       </Content>
     </Wrapper>  
   );

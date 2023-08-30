@@ -5,7 +5,8 @@ import { useVerses } from "../../data/use-verses";
 import { useChapters } from "../../data/use-chapters";
 import type { CollapseProps } from 'antd';
 import { Collapse, Spin } from 'antd';
-import { ChapterItem } from "../types";
+import { ChapterItem, Verse } from "../types";
+import ChapterTitle from "./chapter-title";
 
 const SpinWrapper = styled.div`
   width: 100%;
@@ -15,18 +16,6 @@ const SpinWrapper = styled.div`
   .ant-spin {
     margin: 20%;
   }
-`;
-
-const ChapterTitle = styled.div`
-  font-size: 24px;
-  color: #605757;
-  background-color: #EFEFEF;
-  padding-right: 16px;
-`;
-
-const ArabicTitle = styled.span`
-  font-family: "Amiri Quran";
-  color: #621515;
 `;
 
 const ArabicVerseWrapper = styled.div`
@@ -45,7 +34,7 @@ const EngTranslation = styled.div`
 
 interface Props {
   chapters?: number[];
-  verses?: number[];
+  verses?: string[];
 }
 
 const Results = ({chapters, verses}: Props) => {
@@ -59,7 +48,7 @@ const Results = ({chapters, verses}: Props) => {
     isLoading: chaptersLoading,
   } = useChapters();
 
-  const filteredChapters = useMemo(() => {
+  const selectedChapters = useMemo(() => {
     const chapterItems: ChapterItem[] = [];
     (chapters || []).forEach(chapterIndex => {
       if(chapterData?.suraByKey?.[chapterIndex]) {
@@ -69,13 +58,23 @@ const Results = ({chapters, verses}: Props) => {
     return chapterItems;
   }, [chapterData, chapters]);
 
+  const selectedVerses = useMemo(() => {
+    const verseItems: Verse[] = [];
+    (verses || []).forEach(verseKey => {
+      if(verseData?.ayaByKey?.[verseKey]) {
+        verseItems.push(verseData?.ayaByKey?.[verseKey]);
+      }
+    });
+    return verseItems;
+  }, [verseData, verses]);
+
   const items: CollapseProps['items'] = useMemo(() => {
 
-    if(!verseData || !filteredChapters) return [];
+    if(!verseData || !selectedChapters) return [];
 
-    const chaptersToShow = filteredChapters.length === 0 ? chapterData?.chapters : filteredChapters;
+    const chaptersToShow = (selectedChapters.length === 0 && !verses?.length) ? chapterData?.chapters : selectedChapters;
 
-    return chaptersToShow?.map((chapter) => {
+    const chapterCollapseItems = (chaptersToShow || []).map((chapter) => {
       const verseKeyList = [];
       for(let i = 1; i <= chapter?.verses_count; i+= 1) {
         verseKeyList.push(`${chapter.id}:${i}`);
@@ -83,33 +82,54 @@ const Results = ({chapters, verses}: Props) => {
 
       return {
         key: `ch-${chapter.id}`,
-        label: <ChapterTitle><ArabicTitle>{chapter?.name_arabic}</ArabicTitle> - {chapter?.name_simple} - ({chapter?.translated_name?.name})</ChapterTitle>,
-        children: <div>
-        {
-          verseKeyList.map(verseKey => (
-            <div key={verseKey}>
-              <ArabicVerseWrapper key={verseKey}>
-                {verseData?.ayaByKey?.[verseKey]?.text_uthmani}
-              </ArabicVerseWrapper>
-              <EngTranslation dangerouslySetInnerHTML={{
-                __html: sanitizeHtml(verseData?.ayaByKey?.[verseKey]?.translation || '')
-              }} />
-            </div>
-
-          ))
-        }
-
-      </div>,
+        label: <ChapterTitle chapter={chapter} />,
+        children: 
+              <div>
+                {
+                  verseKeyList.map(verseKey => (
+                    <div key={verseKey}>
+                      <ArabicVerseWrapper key={verseKey}>
+                        {verseData?.ayaByKey?.[verseKey]?.text_uthmani}
+                      </ArabicVerseWrapper>
+                      <EngTranslation dangerouslySetInnerHTML={{
+                        __html: sanitizeHtml(verseData?.ayaByKey?.[verseKey]?.translation || '')
+                      }} />
+                    </div>
+                  ))
+                }
+              </div>,
       };
     });
-  }, [verseData, chapterData, filteredChapters])
+
+    const verseCollapseItems = (selectedVerses || []).map(verse => {
+      const chapter = chapterData?.suraByKey?.[Number(verse.verse_key.split(":")[0])];
+      return {
+        key: `ve-${verse.verse_key}`,
+        label: <ChapterTitle chapter={chapter} verseInfo={verse.verse_key}/>,
+        children: <div>
+              <ArabicVerseWrapper>
+                {verse?.text_uthmani}
+              </ArabicVerseWrapper>
+              <EngTranslation dangerouslySetInnerHTML={{
+                __html: sanitizeHtml(verse?.translation || '')
+              }} />
+            </div>,
+      };
+    });
+
+    return [...chapterCollapseItems, ...verseCollapseItems];
+  }, [verseData, chapterData, selectedChapters, selectedVerses]);
+
+  const activeKeys = useMemo(() => {
+    return items?.length === 1 ? [items?.[0]?.key || ''] : [];
+  }, [items]);
 
   if(versesLoading || chaptersLoading) {
     return <SpinWrapper><Spin /></SpinWrapper>;
   }
 
   return (
-      <Collapse accordion items={items} />
+      <Collapse accordion items={items} activeKey={activeKeys}/>
   );
 };
 
