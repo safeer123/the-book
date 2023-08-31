@@ -7,6 +7,8 @@ import type { CollapseProps } from 'antd';
 import { Collapse, Spin } from 'antd';
 import { ChapterItem, Verse } from "../types";
 import ChapterTitle from "./chapter-title";
+import { BISMI } from "../../data/constants";
+import VerseNumber from "./verse-number";
 
 const SpinWrapper = styled.div`
   width: 100%;
@@ -20,9 +22,27 @@ const SpinWrapper = styled.div`
 
 const ArabicVerseWrapper = styled.div`
   margin: 16px;
+`;
+
+const ArabicVerseText = styled.span`
   font-family: "Amiri Quran";
   color: rgb(14, 2, 121);
   font-size: 42px;
+  font-weight: 400;
+  font-style: normal;
+
+  svg {
+    width: 36px;
+    margin-bottom: -10px;
+    margin-right: 16px;
+  }
+`;
+
+const BismiWrapper = styled.div`
+  margin: 24px 16px;
+  font-family: "Amiri Quran";
+  color: rgb(57, 44, 177);
+  font-size: 36px;
   font-weight: 400;
 `;
 
@@ -86,11 +106,24 @@ const Results = ({chapters, verses}: Props) => {
         children: 
               <div>
                 {
+                  chapter?.bismillah_pre && 
+                  <BismiWrapper>{BISMI}</BismiWrapper>
+                }
+                {
                   verseKeyList.map(verseKey => (
                     <div key={verseKey}>
                       <ArabicVerseWrapper key={verseKey}>
-                        {verseData?.ayaByKey?.[verseKey]?.text_uthmani}
+                      <cite dir="rtl">
+                        <ArabicVerseText>
+                        
+                          {verseData?.ayaByKey?.[verseKey]?.text_uthmani}
+                          <VerseNumber number={verseKey.split(":")[1]} />
+                          
+                        </ArabicVerseText>
+                      </cite>
+                         
                       </ArabicVerseWrapper>
+
                       <EngTranslation dangerouslySetInnerHTML={{
                         __html: sanitizeHtml(verseData?.ayaByKey?.[verseKey]?.translation || '')
                       }} />
@@ -108,7 +141,14 @@ const Results = ({chapters, verses}: Props) => {
         label: <ChapterTitle chapter={chapter} verseInfo={verse.verse_key}/>,
         children: <div>
               <ArabicVerseWrapper>
-                {verse?.text_uthmani}
+                <cite dir="rtl">
+                  <ArabicVerseText>
+                  
+                    {verse?.text_uthmani}
+                    <VerseNumber number={verse.verse_key.split(":")[1]} />
+                    
+                  </ArabicVerseText>
+                </cite>
               </ArabicVerseWrapper>
               <EngTranslation dangerouslySetInnerHTML={{
                 __html: sanitizeHtml(verse?.translation || '')
