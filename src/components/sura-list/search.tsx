@@ -7,6 +7,10 @@ import { useVerses } from '../../data/use-verses';
 import { getExtStr, getOptionKey, parseOptionKey } from './utils';
 
 const AutoComplete = styled(AutoCompleteAntd)`
+  -webkit-box-shadow: -17px 16px 10px -21px rgba(0,0,0,0.75);
+  -moz-box-shadow: -17px 16px 10px -21px rgba(0,0,0,0.75);
+  box-shadow: -17px 16px 10px -21px rgba(0,0,0,0.75);
+
   .main-search-dropdown .ant-select-dropdown-menu-item-group-title {
     color: #666;
     font-weight: bold;
@@ -30,6 +34,18 @@ const AutoComplete = styled(AutoCompleteAntd)`
   }
 `;
 
+const ArabicTitle = styled.span`
+  font-family: "Amiri Quran";
+  color: rgb(14, 2, 121);
+  font-size: 16px;
+`
+
+const ItemWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+`
+
+
 const renderTitle = (title: string, ext: string, onClickExt?:()=>void) => (
   <div
       style={{
@@ -50,17 +66,12 @@ const renderTitle = (title: string, ext: string, onClickExt?:()=>void) => (
 const renderItem = (value: string, title: string, arabicTitle: string) => ({
   value,
   label: (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-      }}
-    >
+    <ItemWrapper>
       {title}
-      <span>
+      <ArabicTitle>
         {arabicTitle}
-      </span>
-    </div>
+      </ArabicTitle>
+    </ItemWrapper>
   ),
 });
 
@@ -110,8 +121,8 @@ const Search: React.FC<SearchProps> = ({ setSelection }) => {
         setSelection({verses: filteredVerseItems?.map(item => parseOptionKey(item?.value)?.[1])});
       }
 
-      const [extSura, extSuraClickEnabled] = getExtStr(filteredChapterItems);
-      const [extAya, extAyaClickEnabled] = getExtStr(filteredVerseItems);
+      const [extSura, extSuraClickEnabled] = getExtStr(filteredChapterItems, searchKey);
+      const [extAya, extAyaClickEnabled] = getExtStr(filteredVerseItems, searchKey);
 
       const options = [
         {

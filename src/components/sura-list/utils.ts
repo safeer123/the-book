@@ -11,7 +11,10 @@ export const parseOptionKey = (key: string) => {
     return key.split('-');
 }
 
-export const getExtStr = (itemList?: any[]): [string, boolean] => {
+export const getExtStr = (itemList?: any[], searchKey?: string): [string, boolean] => {
+    if(!(searchKey || "").trim()) {
+      return ["", false];
+    }
     if((itemList || []).length === 0) {
       return ["No Match", false];
     }

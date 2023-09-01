@@ -1,5 +1,7 @@
 #root {
   height: 100vh;
+  background-color: rgba(255, 255, 255, 0.651);
+  background-image: url(https://www.transparenttextures.com/patterns/textured-paper.png);
 }
 .App {
   font-family: sans-serif;
@@ -49,4 +51,24 @@ body {
   width: 100vw;
   box-sizing: border-box;
   height: calc(100vh - 80px);
+}
+
+.scrollable::-webkit-scrollbar {
+    width: 20px;
+}
+        
+.scrollable::-webkit-scrollbar-track {
+    border-radius: 8px;
+    background-image: url("https://i.ibb.co/5150925/tracks.png");
+    background-position: -5px;
+    background-repeat: repeat-y;
+    background-size: 50px;
+}
+        
+.scrollable::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+  background-image: url("https://i.ibb.co/q95CBdZ/train.png");
+    background-position:center center;
+    background-repeat: no-repeat;
+    background-size: 35px;
 }

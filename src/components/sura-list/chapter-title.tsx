@@ -4,11 +4,11 @@ import { ChapterItem } from "../types";
 const TitleWrapper = styled.div`
   font-size: 18px;
   color: #605757;
-  background-color: #EFEFEF;
   gap: 24px;
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  margin-right: 16px;
 `;
 
 const ArabicTitle = styled.span`

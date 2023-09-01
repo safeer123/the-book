@@ -4,11 +4,35 @@ import sanitizeHtml from 'sanitize-html';
 import { useVerses } from "../../data/use-verses";
 import { useChapters } from "../../data/use-chapters";
 import type { CollapseProps } from 'antd';
-import { Collapse, Spin } from 'antd';
+import { Collapse as CollapseAntd, Spin } from 'antd';
 import { ChapterItem, Verse } from "../types";
 import ChapterTitle from "./chapter-title";
 import { BISMI } from "../../data/constants";
 import VerseNumber from "./verse-number";
+
+
+const Collapse = styled(CollapseAntd)`
+  border: none;
+  background-color: transparent;
+
+  && .ant-collapse-content {
+    background-color: transparent;
+    border-top: none;
+    border-top: 0.5px dashed #545454;
+  }
+
+  && .ant-collapse-header {
+    padding: 0px 0px;
+    align-items: center;
+  }
+
+  && .ant-collapse-item {
+    border-bottom: none;
+    -webkit-box-shadow: -15px 17px 9px -18px rgba(0,0,0,0.75);
+    -moz-box-shadow: -15px 17px 9px -18px rgba(0,0,0,0.75);
+    box-shadow: -15px 17px 9px -18px rgba(0,0,0,0.75);
+  }
+`;
 
 const SpinWrapper = styled.div`
   width: 100%;

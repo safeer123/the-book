@@ -18,9 +18,6 @@ const Content = styled.div`
   text-align: right;
   max-height: calc(100% - 72px);
   overflow-y: auto;
-  border-top: 1px solid #d9d9d9;
-  border-bottom: 1px solid #d9d9d9;
-  border-radius: 8px;
 `;
 
 
@@ -34,7 +31,7 @@ const SuraList = () => {
       <PageHeader>
         <Search setSelection={setSelection}/>
       </PageHeader>
-      <Content>
+      <Content className="scrollable">
           <Results chapters={selection?.chapters} verses={selection?.verses}/>
       </Content>
     </Wrapper>  
