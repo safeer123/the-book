@@ -1,10 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { AutoComplete as AutoCompleteAntd, Input, Button } from 'antd';
+import { AutoComplete as AutoCompleteAntd, Input, Button, Checkbox } from 'antd';
 import { styled } from 'styled-components';
 import { useChapters } from '../../data/use-chapters';
 import { Selection } from '../types';
 import { useVerses } from '../../data/use-verses';
 import { getExtStr, getOptionKey, parseOptionKey } from './utils';
+import type { CheckboxChangeEvent } from 'antd/es/checkbox';
+import { matchKeyword } from './search-utils';
+
+const SearchPanelWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+`
 
 const AutoComplete = styled(AutoCompleteAntd)`
   -webkit-box-shadow: -17px 16px 10px -21px rgba(0,0,0,0.75);
@@ -45,6 +53,10 @@ const ItemWrapper = styled.div`
   justify-content: space-between;
 `
 
+interface OptionType {
+  value: string;
+  label: JSX.Element;
+}
 
 const renderTitle = (title: string, ext: string, onClickExt?:()=>void) => (
   <div
@@ -83,6 +95,11 @@ const Search: React.FC<SearchProps> = ({ setSelection }) => {
 
     const [searchKey, setSearchKey] = useState("");
     const [dropdownVisible, setDropdownVisible] = useState(false);
+    const [config, setConfig] = useState({
+      ignoreCase: true,
+      fullWord: false,
+    });
+
 
     const {
       data: chapterData,
@@ -100,16 +117,24 @@ const Search: React.FC<SearchProps> = ({ setSelection }) => {
 
     const options = useMemo(() => {
 
-      const filteredChapterItems = chapterData?.chapters?.filter(
-        chapter => chapter.name_simple.toLowerCase().includes(searchKey.toLowerCase())
-        ).map(chapter => renderItem(getOptionKey(chapter), chapter.name_simple, chapter.name_arabic));
+      let filteredChapterItems: OptionType[] = [];
+      let filteredVerseItems: OptionType[] | undefined = [];
 
-      const filteredVerseItems = searchKey.trim() ? versesData?.verses?.filter(
-        verse => verse?.translation?.toLowerCase()?.includes(searchKey.toLowerCase())
-        ).map(verse => {
-          const chapter = getChapterFromVerseKey(verse.verse_key);
-          return renderItem(getOptionKey(verse), `${verse.verse_key} ${chapter?.name_simple}`, chapter?.name_arabic || '');
-        }) : undefined;
+      if(searchKey.trim()) {
+        filteredChapterItems = chapterData?.chapters?.filter(
+          chapter => matchKeyword({target: chapter.name_simple, searchKey, config })
+          ).map(chapter => renderItem(getOptionKey(chapter), chapter.name_simple, chapter.name_arabic)) || [];
+  
+        filteredVerseItems = searchKey.trim() ? versesData?.verses?.filter(
+          verse => matchKeyword({target: verse?.translation || '', searchKey, config })
+          ).map(verse => {
+            const chapter = getChapterFromVerseKey(verse.verse_key);
+            return renderItem(getOptionKey(verse), `${verse.verse_key} ${chapter?.name_simple}`, chapter?.name_arabic || '');
+          }) : undefined;
+      } else {
+        filteredChapterItems = chapterData?.chapters?.map(chapter => renderItem(getOptionKey(chapter), chapter.name_simple, chapter.name_arabic)) || [];
+      }
+
 
       const onClickExtSura = () => {
         setDropdownVisible(false);
@@ -136,7 +161,7 @@ const Search: React.FC<SearchProps> = ({ setSelection }) => {
       ];
 
       return options;
-    }, [searchKey, chapterData, setSelection]);
+    }, [searchKey, chapterData, setSelection, config]);
 
     const onSelect = (item: unknown) => {
       const [typeToken, id] = parseOptionKey(item as string);
@@ -169,6 +194,20 @@ const Search: React.FC<SearchProps> = ({ setSelection }) => {
       }
     }
 
+    const onChangeFullWordCheck = (e: CheckboxChangeEvent) => {
+      setConfig({
+        ...config,
+        fullWord: e.target.checked,
+      });
+    };
+    
+    const onChangeIgnoreCase = (e: CheckboxChangeEvent) => {
+      setConfig({
+        ...config,
+        ignoreCase: e.target.checked,
+      });
+    };
+
     useEffect(() => {
       if(searchKey === "") {
         setSelection({});
@@ -176,20 +215,29 @@ const Search: React.FC<SearchProps> = ({ setSelection }) => {
     }, [searchKey]);
 
     return (
-      <AutoComplete
-        popupClassName="main-search-dropdown"
-        popupMatchSelectWidth={500}
-        style={{ width: '40%' }}
-        options={options}
-        onSelect={onSelect}
-        onSearch={e => setSearchKey(e)}
-        onKeyDown={onKeyDown}
-        value={searchKey}
-        open={dropdownVisible}
-        onDropdownVisibleChange={state => setDropdownVisible(state)}
-      >
-        <Input.Search size="large" placeholder="Search in Quran.." allowClear/>
-      </AutoComplete>
+      <SearchPanelWrapper>
+        <AutoComplete
+          popupClassName="main-search-dropdown"
+          popupMatchSelectWidth={500}
+          style={{ width: '40%' }}
+          options={options}
+          onSelect={onSelect}
+          onSearch={e => setSearchKey(e)}
+          onKeyDown={onKeyDown}
+          value={searchKey}
+          open={dropdownVisible}
+          onDropdownVisibleChange={state => setDropdownVisible(state)}
+        >
+          <Input.Search size="large" placeholder="Search in Quran.." allowClear/>
+        </AutoComplete>
+        <Checkbox checked={config?.fullWord} onChange={onChangeFullWordCheck}>
+          {"Full word"}
+        </Checkbox>
+        <Checkbox checked={config?.ignoreCase} onChange={onChangeIgnoreCase}>
+          {"Ignore case"}
+        </Checkbox>
+      </SearchPanelWrapper>
+
     );
   }
 
