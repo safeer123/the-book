@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { Verse } from './types';
+import { Verse } from 'types';
 
 export default function App() {
 	const [apiUrl, setApiUrl] = useState('');

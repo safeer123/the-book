@@ -8,8 +8,8 @@ import {
 } from 'antd';
 import { styled } from 'styled-components';
 import { useChapters } from 'data/use-chapters';
-import { Selection } from '../types';
-import { useVerses } from '../../data/use-verses';
+import { Selection } from 'types';
+import { useVerses } from 'data/use-verses';
 import { getExtStr, getOptionKey, parseOptionKey } from './utils';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 import { matchKeyword } from './search-utils';

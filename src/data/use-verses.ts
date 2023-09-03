@@ -1,6 +1,6 @@
 import { useQuery, UseQueryResult } from 'react-query';
 import axios from 'axios';
-import { TransaltionItem, Verse } from '../components/types';
+import { TransaltionItem, Verse } from '../types';
 
 type VerseData = {
 	verses: Verse[];

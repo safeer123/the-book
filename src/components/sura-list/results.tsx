@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 import styled from 'styled-components';
 import sanitizeHtml from 'sanitize-html';
-import { useVerses } from '../../data/use-verses';
-import { useChapters } from '../../data/use-chapters';
+import { useVerses } from 'data/use-verses';
+import { useChapters } from 'data/use-chapters';
 import type { CollapseProps } from 'antd';
 import { Collapse as CollapseAntd, Spin } from 'antd';
-import { ChapterItem, Verse } from '../types';
+import { ChapterItem, Verse } from 'types';
 import ChapterTitle from './chapter-title';
-import { BISMI } from '../../data/constants';
+import { BISMI } from 'data/constants';
 import VerseNumber from './verse-number';
 
 const getTransaltionHTML = (tr: string, highlightKey: string) => {

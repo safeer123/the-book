@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { ChapterItem } from '../types';
+import { ChapterItem } from 'types';
 
 const TitleWrapper = styled.div`
 	font-size: 18px;

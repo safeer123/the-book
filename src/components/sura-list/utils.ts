@@ -1,4 +1,4 @@
-import { ChapterItem, Verse } from '../types';
+import { ChapterItem, Verse } from '../../types';
 
 export const getOptionKey = (item: Verse | ChapterItem) => {
 	if ('verses_count' in item) {

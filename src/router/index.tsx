@@ -1,7 +1,7 @@
 import { Link, createBrowserRouter, RouterProvider } from 'react-router-dom';
-import ApiTest from '../components/api-test';
-import SuraList from '../components/sura-list';
-import WordGame from '../components/word-game';
+import ApiTest from 'components/api-test';
+import SuraList from 'components/sura-list';
+import WordGame from 'components/word-game';
 import { styled } from 'styled-components';
 
 const HomeWrapper = styled.div`

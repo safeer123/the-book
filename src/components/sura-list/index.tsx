@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import Search from './search';
 import Results from './results';
 import { useState } from 'react';
-import { Selection } from '../types';
+import { Selection } from 'types';
 
 const Wrapper = styled.div`
 	padding: 16px;

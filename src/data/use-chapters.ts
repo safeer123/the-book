@@ -1,6 +1,6 @@
 import { useQuery, UseQueryResult } from 'react-query';
 import axios from 'axios';
-import { ChapterItem } from '../components/types';
+import { ChapterItem } from '../types';
 
 const URL_CHAPTERS = 'https://api.quran.com/api/v4/chapters';
 
