@@ -4,6 +4,7 @@ import {
 	Input,
 	Button,
 	Checkbox,
+	Spin,
 } from 'antd';
 import { styled } from 'styled-components';
 import { useChapters } from '../../data/use-chapters';
@@ -270,6 +271,7 @@ const Search: React.FC<SearchProps> = ({ setSelection }) => {
 				value={searchKey}
 				open={dropdownVisible}
 				onDropdownVisibleChange={(state) => setDropdownVisible(state)}
+				notFoundContent={chaptersLoading || versesLoading ? <Spin /> : null}
 			>
 				<Input.Search size="large" placeholder="Search in Quran.." allowClear />
 			</AutoComplete>
