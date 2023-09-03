@@ -32,7 +32,7 @@ const SuraList = () => {
         <Search setSelection={setSelection}/>
       </PageHeader>
       <Content className="scrollable">
-          <Results chapters={selection?.chapters} verses={selection?.verses}/>
+          <Results chapters={selection?.chapters} verses={selection?.verses} searchKeys={selection?.searchKeys || []}/>
       </Content>
     </Wrapper>  
   );

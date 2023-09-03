@@ -143,7 +143,10 @@ const Search: React.FC<SearchProps> = ({ setSelection }) => {
 
       const onClickExtAya = () => {
         setDropdownVisible(false);
-        setSelection({verses: filteredVerseItems?.map(item => parseOptionKey(item?.value)?.[1])});
+        setSelection({
+          verses: filteredVerseItems?.map(item => parseOptionKey(item?.value)?.[1]), 
+          searchKeys: searchKey.split(",")
+        });
       }
 
       const [extSura, extSuraClickEnabled] = getExtStr(filteredChapterItems, searchKey);
@@ -171,7 +174,7 @@ const Search: React.FC<SearchProps> = ({ setSelection }) => {
       }
       if(typeToken === 've') {
         setSearchKey(id || '');
-        setSelection({verses: [id]})
+        setSelection({verses: [id], searchKeys: searchKey.split(",")})
       }
     }
 
@@ -190,7 +193,7 @@ const Search: React.FC<SearchProps> = ({ setSelection }) => {
             return parseOptionKey(opt.value)[1];
           });
         }
-        setSelection({chapters, verses});
+        setSelection({chapters, verses, searchKeys: searchKey.split(",")});
       }
     }
 

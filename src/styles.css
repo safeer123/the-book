@@ -53,6 +53,10 @@ body {
   height: calc(100vh - 80px);
 }
 
+.text-highlight {
+  background: rgb(219 255 6 / 30%);
+}
+
 .scrollable::-webkit-scrollbar {
     width: 20px;
 }

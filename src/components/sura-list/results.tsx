@@ -10,6 +10,15 @@ import ChapterTitle from "./chapter-title";
 import { BISMI } from "../../data/constants";
 import VerseNumber from "./verse-number";
 
+const getTransaltionHTML = (tr: string, highlightKey: string) => {
+  let _htmlOut = sanitizeHtml(tr);
+  const index = _htmlOut.toLowerCase().indexOf(highlightKey.toLowerCase());
+  if(highlightKey.trim() && index !== -1) {
+    _htmlOut = _htmlOut.substring(0,index) + "<span class='text-highlight'>" + _htmlOut.substring(index,index+highlightKey.length) + "</span>" + _htmlOut.substring(index + highlightKey.length);
+  }
+  return _htmlOut;
+}
+
 
 const Collapse = styled(CollapseAntd)`
   border: none;
@@ -79,9 +88,10 @@ const EngTranslation = styled.div`
 interface Props {
   chapters?: number[];
   verses?: string[];
+  searchKeys: string[];
 }
 
-const Results = ({chapters, verses}: Props) => {
+const Results = ({chapters, verses, searchKeys}: Props) => {
   const {
     data: verseData,
     isLoading: versesLoading
@@ -149,7 +159,7 @@ const Results = ({chapters, verses}: Props) => {
                       </ArabicVerseWrapper>
 
                       <EngTranslation dangerouslySetInnerHTML={{
-                        __html: sanitizeHtml(verseData?.ayaByKey?.[verseKey]?.translation || '')
+                        __html: getTransaltionHTML(verseData?.ayaByKey?.[verseKey]?.translation || '', searchKeys?.[0] || '')
                       }} />
                     </div>
                   ))
@@ -175,7 +185,7 @@ const Results = ({chapters, verses}: Props) => {
                 </cite>
               </ArabicVerseWrapper>
               <EngTranslation dangerouslySetInnerHTML={{
-                __html: sanitizeHtml(verse?.translation || '')
+                __html: getTransaltionHTML(verse?.translation || '', searchKeys?.[0] || '')
               }} />
             </div>,
       };

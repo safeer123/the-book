@@ -26,4 +26,5 @@ export interface ChapterItem {
 export interface Selection {
     chapters?: number[];
     verses?: string[];
+    searchKeys?: string[];
 }
