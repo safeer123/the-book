@@ -7,7 +7,7 @@ import {
 	Spin,
 } from 'antd';
 import { styled } from 'styled-components';
-import { useChapters } from '../../data/use-chapters';
+import { useChapters } from 'data/use-chapters';
 import { Selection } from '../types';
 import { useVerses } from '../../data/use-verses';
 import { getExtStr, getOptionKey, parseOptionKey } from './utils';

@@ -32,6 +32,9 @@
 		"import/resolver": {
 			"typescript": {
 				"project": "./tsconfig.json"
+			},
+			"node": {
+				"paths": ["src"]
 			}
 		},
 		"react": {
