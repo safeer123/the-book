@@ -1,32 +1,38 @@
-import { useQuery, UseQueryResult } from "react-query";
-import axios from "axios";
-import { ChapterItem } from "../components/types";
+import { useQuery, UseQueryResult } from 'react-query';
+import axios from 'axios';
+import { ChapterItem } from '../components/types';
 
-const url_chapters = "https://api.quran.com/api/v4/chapters";
+const URL_CHAPTERS = 'https://api.quran.com/api/v4/chapters';
 
 type SuraByKey = {
-  [key:number]: ChapterItem;
-}
+	[key: number]: ChapterItem;
+};
 
 interface ChapterData {
-  chapters: ChapterItem[];
-  suraByKey: SuraByKey;
+	chapters: ChapterItem[];
+	suraByKey: SuraByKey;
 }
 
 export const useChapters = (): UseQueryResult<ChapterData> => {
-    return useQuery(["quran-chapters"], async () => {
-      const { data }: { data: {chapters: ChapterItem[]} } = await axios.get(
-        url_chapters
-      );
+	return useQuery(
+		['quran-chapters'],
+		async () => {
+			const { data }: { data: { chapters: ChapterItem[] } } = await axios.get(
+				URL_CHAPTERS
+			);
 
-      const suraByKey = data?.chapters?.reduce((lookup, chapter) => ({ ...lookup, [chapter.id]: chapter }), {});
+			const suraByKey = data?.chapters?.reduce(
+				(lookup, chapter) => ({ ...lookup, [chapter.id]: chapter }),
+				{}
+			);
 
-      return {
-        chapters: data?.chapters,
-        suraByKey,
-      };
-    }, 
-    {
-      staleTime: Infinity
-    });
-  };
+			return {
+				chapters: data?.chapters,
+				suraByKey,
+			};
+		},
+		{
+			staleTime: Infinity,
+		}
+	);
+};
