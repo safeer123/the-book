@@ -8,11 +8,12 @@ import {
 } from 'antd';
 import { styled } from 'styled-components';
 import { useChapters } from 'data/use-chapters';
-import { Selection } from 'types';
-import { useVerses } from 'data/use-verses';
 import { getExtStr, getOptionKey, parseOptionKey } from './utils';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
-import { matchKeyword } from './search-utils';
+import { useSearchParams } from 'react-router-dom';
+import useSearch from 'data/use-search';
+import { ChapterToken, SearchConfig, VerseToken } from 'types';
+import { searchConfigFromURLParams } from 'utils/search-utils';
 
 const SearchPanelWrapper = styled.div`
 	display: flex;
@@ -90,11 +91,7 @@ const renderItem = (value: string, title: string, arabicTitle: string) => ({
 	),
 });
 
-interface SearchProps {
-	setSelection: React.Dispatch<React.SetStateAction<Selection>>;
-}
-
-const Search: React.FC<SearchProps> = ({ setSelection }) => {
+const Search: React.FC = () => {
 	const [searchKey, setSearchKey] = useState('');
 	const [dropdownVisible, setDropdownVisible] = useState(false);
 	const [config, setConfig] = useState({
@@ -102,78 +99,53 @@ const Search: React.FC<SearchProps> = ({ setSelection }) => {
 		fullWord: false,
 	});
 
-	const { data: chapterData, isLoading: chaptersLoading } = useChapters();
+	const { data: chapterData } = useChapters();
 
-	const { data: versesData, isLoading: versesLoading } = useVerses();
+	const [searchParams, setSearchParams] = useSearchParams();
+
+	const { result, loading } = useSearch({ searchKey, config });
 
 	const getChapterFromVerseKey = (verseKey: string) => {
 		return chapterData?.suraByKey?.[Number(verseKey.split(':')[0])];
 	};
 
+	const submitSearchQuery = (k: string, conf: SearchConfig, only = '') => {
+		setSearchParams({
+			k,
+			w: conf.fullWord ? '1' : '0',
+			c: conf.ignoreCase ? '1' : '0',
+			only,
+		});
+	};
+
 	const options = useMemo(() => {
-		let filteredChapterItems: OptionType[] = [];
-		let filteredVerseItems: OptionType[] | undefined = [];
-
-		if (searchKey.trim()) {
-			filteredChapterItems =
-				chapterData?.chapters
-					?.filter((chapter) =>
-						matchKeyword({ target: chapter.name_simple, searchKey, config })
-					)
-					.map((chapter) =>
-						renderItem(
-							getOptionKey(chapter),
-							chapter.name_simple,
-							chapter.name_arabic
-						)
-					) || [];
-
-			filteredVerseItems = searchKey.trim()
-				? versesData?.verses
-						?.filter((verse) =>
-							matchKeyword({
-								target: verse?.translation || '',
-								searchKey,
-								config,
-							})
-						)
-						.map((verse) => {
-							const chapter = getChapterFromVerseKey(verse.verse_key);
-							return renderItem(
-								getOptionKey(verse),
-								`${verse.verse_key} ${chapter?.name_simple || ''}`,
-								chapter?.name_arabic || ''
-							);
-						})
-				: undefined;
-		} else {
-			filteredChapterItems =
-				chapterData?.chapters?.map((chapter) =>
-					renderItem(
-						getOptionKey(chapter),
-						chapter.name_simple,
-						chapter.name_arabic
-					)
-				) || [];
-		}
+		const filteredChapterItems: OptionType[] =
+			result.chapters?.map((chapter) =>
+				renderItem(
+					getOptionKey(chapter),
+					chapter.name_simple,
+					chapter.name_arabic
+				)
+			) || [];
+		const filteredVerseItems: OptionType[] | undefined = result.verses?.map(
+			(verse) => {
+				const chapter = getChapterFromVerseKey(verse.verse_key);
+				return renderItem(
+					getOptionKey(verse),
+					`${verse.verse_key} ${chapter?.name_simple || ''}`,
+					chapter?.name_arabic || ''
+				);
+			}
+		);
 
 		const onClickExtSura = () => {
 			setDropdownVisible(false);
-			setSelection({
-				chapters: filteredChapterItems?.map((item) =>
-					Number(parseOptionKey(item?.value)?.[1])
-				),
-			});
+			submitSearchQuery(searchKey, config, ChapterToken);
 		};
 
 		const onClickExtAya = () => {
 			setDropdownVisible(false);
-			setSelection({
-				verses: filteredVerseItems?.map(
-					(item) => parseOptionKey(item?.value)?.[1]
-				),
-				searchKeys: searchKey.split(','),
-			});
+			submitSearchQuery(searchKey, config, VerseToken);
 		};
 
 		const [extSura, extSuraClickEnabled] = getExtStr(
@@ -205,36 +177,25 @@ const Search: React.FC<SearchProps> = ({ setSelection }) => {
 		];
 
 		return opts;
-	}, [searchKey, chapterData, setSelection, config]);
+	}, [searchKey, result, chapterData]);
 
 	const onSelect = (item: unknown) => {
 		const [typeToken, id] = parseOptionKey(item as string);
-		if (typeToken === 'ch') {
-			setSearchKey(chapterData?.suraByKey[Number(id)]?.name_simple || '');
-			setSelection({ chapters: [Number(id)] });
+		let k = '';
+		if (typeToken === ChapterToken) {
+			k = chapterData?.suraByKey[Number(id)]?.name_simple || '';
 		}
-		if (typeToken === 've') {
-			setSearchKey(id || '');
-			setSelection({ verses: [id], searchKeys: searchKey.split(',') });
+		if (typeToken === VerseToken) {
+			k = id || '';
 		}
+		setSearchKey(k);
+		submitSearchQuery(k, config, typeToken);
 	};
 
 	const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (e.key === 'Enter') {
 			setDropdownVisible(false);
-			let chapters: number[] = [];
-			let verses: string[] = [];
-			if (options[0]?.options?.length > 0) {
-				chapters = options[0]?.options.map((opt) => {
-					return Number(parseOptionKey(opt.value)[1]);
-				});
-			}
-			if (options[1]?.options?.length > 0) {
-				verses = options[1]?.options.map((opt) => {
-					return parseOptionKey(opt.value)[1];
-				});
-			}
-			setSelection({ chapters, verses, searchKeys: searchKey.split(',') });
+			submitSearchQuery(searchKey, config);
 		}
 	};
 
@@ -252,11 +213,22 @@ const Search: React.FC<SearchProps> = ({ setSelection }) => {
 		});
 	};
 
+	const onBlur = () => {
+		submitSearchQuery(searchKey, config);
+	};
+
 	useEffect(() => {
-		if (searchKey === '') {
-			setSelection({});
+		if (searchParams.get('k') !== searchKey) {
+			setSearchKey(searchParams.get('k') || '');
 		}
-	}, [searchKey]);
+		const conf = searchConfigFromURLParams(searchParams);
+		if (
+			conf.fullWord !== config.fullWord ||
+			conf.ignoreCase !== config.ignoreCase
+		) {
+			setConfig(conf);
+		}
+	}, [searchParams]);
 
 	return (
 		<SearchPanelWrapper>
@@ -267,11 +239,12 @@ const Search: React.FC<SearchProps> = ({ setSelection }) => {
 				options={options}
 				onSelect={onSelect}
 				onSearch={(e) => setSearchKey(e)}
+				onBlur={onBlur}
 				onKeyDown={onKeyDown}
 				value={searchKey}
 				open={dropdownVisible}
 				onDropdownVisibleChange={(state) => setDropdownVisible(state)}
-				notFoundContent={chaptersLoading || versesLoading ? <Spin /> : null}
+				notFoundContent={loading ? <Spin /> : null}
 			>
 				<Input.Search size="large" placeholder="Search in Quran.." allowClear />
 			</AutoComplete>

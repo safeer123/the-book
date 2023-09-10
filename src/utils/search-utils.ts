@@ -1,3 +1,5 @@
+import { SearchConfig } from 'types';
+
 const escapeRegExp = (str: string) => {
 	return str.replace(/([.*+?^=!:${}()|[\]/\\])/g, '\\$1');
 };
@@ -10,7 +12,7 @@ const wordSearchRegex = (searchKey: string) =>
 interface Args {
 	target: string;
 	searchKey: string;
-	config: { ignoreCase: boolean; fullWord: boolean };
+	config: SearchConfig;
 }
 
 export const matchKeyword = ({
@@ -26,3 +28,25 @@ export const matchKeyword = ({
 
 	return Boolean(searchKey.trim()) && testRes;
 };
+
+export const searchConfigFromURLParams = (
+	searchParams: URLSearchParams
+): SearchConfig => {
+	return {
+		fullWord: searchParams?.get('w') === '1',
+		ignoreCase: searchParams?.get('c') === '1',
+	};
+};
+
+export function debounce<Params extends unknown[]>(
+	func: (...args: Params) => unknown,
+	timeout: number
+): (...args: Params) => void {
+	let timer: NodeJS.Timeout;
+	return (...args: Params) => {
+		clearTimeout(timer);
+		timer = setTimeout(() => {
+			func(...args);
+		}, timeout);
+	};
+}

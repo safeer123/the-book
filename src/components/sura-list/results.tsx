@@ -1,14 +1,15 @@
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 import sanitizeHtml from 'sanitize-html';
 import { useVerses } from 'data/use-verses';
 import { useChapters } from 'data/use-chapters';
 import type { CollapseProps } from 'antd';
 import { Collapse as CollapseAntd, Spin } from 'antd';
-import { ChapterItem, Verse } from 'types';
+import { ChapterItem, Verse, VerseToken } from 'types';
 import ChapterTitle from './chapter-title';
 import { BISMI } from 'data/constants';
 import VerseNumber from './verse-number';
+import { debounce } from 'utils/search-utils';
 
 const getTransaltionHTML = (tr: string, highlightKey: string) => {
 	let htmlOut = sanitizeHtml(tr);
@@ -90,45 +91,49 @@ const EngTranslation = styled.div`
 `;
 
 interface Props {
-	chapters?: number[];
-	verses?: string[];
+	selectedChapters?: ChapterItem[];
+	selectedVerses?: Verse[];
 	searchKeys: string[];
 }
 
-const Results = ({ chapters, verses, searchKeys }: Props) => {
+const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 	const { data: verseData, isLoading: versesLoading } = useVerses();
 
 	const { data: chapterData, isLoading: chaptersLoading } = useChapters();
 
-	const selectedChapters = useMemo(() => {
-		const chapterItems: ChapterItem[] = [];
-		(chapters || []).forEach((chapterIndex) => {
-			if (chapterData?.suraByKey?.[chapterIndex]) {
-				chapterItems.push(chapterData?.suraByKey?.[chapterIndex]);
-			}
-		});
-		return chapterItems;
-	}, [chapterData, chapters]);
+	const onTextSelectionUpdate = useCallback(
+		debounce(() => {
+			document.dispatchEvent(
+				new CustomEvent('text-selection', {
+					detail: document.getSelection()?.toString(),
+				})
+			);
+		}, 1000),
+		[]
+	);
 
-	const selectedVerses = useMemo(() => {
-		const verseItems: Verse[] = [];
-		(verses || []).forEach((verseKey) => {
-			if (verseData?.ayaByKey?.[verseKey]) {
-				verseItems.push(verseData?.ayaByKey?.[verseKey]);
+	useEffect(() => {
+		const onSelection = () => {
+			const selectionString = document.getSelection()?.toString() || '';
+			if (
+				selectionString &&
+				selectionString.length > 2 &&
+				selectionString.length < 80
+			) {
+				onTextSelectionUpdate();
 			}
-		});
-		return verseItems;
-	}, [verseData, verses]);
+		};
+		document.addEventListener('selectionchange', onSelection);
+
+		return () => {
+			document.removeEventListener('selectionchange', onSelection);
+		};
+	}, []);
 
 	const items: CollapseProps['items'] = useMemo(() => {
 		if (!verseData || !selectedChapters) return [];
 
-		const chaptersToShow =
-			selectedChapters.length === 0 && !verses?.length
-				? chapterData?.chapters
-				: selectedChapters;
-
-		const chapterCollapseItems = (chaptersToShow || []).map((chapter) => {
+		const chapterCollapseItems = (selectedChapters || []).map((chapter) => {
 			const verseKeyList = [];
 			for (let i = 1; i <= chapter?.verses_count; i += 1) {
 				verseKeyList.push(`${chapter.id}:${i}`);
@@ -203,7 +208,7 @@ const Results = ({ chapters, verses, searchKeys }: Props) => {
 			return [items?.[0]?.key || ''];
 		}
 		const verseItems = items?.filter(
-			(item) => (item?.key as string)?.split('-')[0] === 've'
+			(item) => (item?.key as string)?.split('-')[0] === VerseToken
 		);
 		if (verseItems?.length > 0) {
 			return verseItems.map((item) => item?.key || '');

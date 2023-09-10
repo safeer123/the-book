@@ -23,8 +23,11 @@ export interface ChapterItem {
 	};
 }
 
-export interface Selection {
-	chapters?: number[];
-	verses?: string[];
-	searchKeys?: string[];
+export interface SearchConfig {
+	ignoreCase: boolean;
+	fullWord: boolean;
 }
+
+export const ChapterToken = 'ch';
+export const VerseToken = 've';
+export type TokenType = 'ch' | 've';
