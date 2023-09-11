@@ -9,11 +9,17 @@ const fullWordSearchRegex = (searchKey: string) =>
 const wordSearchRegex = (searchKey: string) =>
 	`^.*?${searchKey.split(',').join('.*?')}.*?$`;
 
+const verseKeyRegex = /^\d+:\d+$/m;
+
 interface Args {
 	target: string;
 	searchKey: string;
 	config: SearchConfig;
 }
+
+export const matchVerseKey = (searchKey: string): boolean => {
+	return verseKeyRegex.test(searchKey);
+};
 
 export const matchKeyword = ({
 	target,

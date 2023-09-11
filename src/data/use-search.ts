@@ -9,7 +9,7 @@ import {
 	ChapterToken,
 } from 'types';
 import { useVerses } from 'data/use-verses';
-import { matchKeyword } from 'utils/search-utils';
+import { matchKeyword, matchVerseKey } from 'utils/search-utils';
 
 interface Props {
 	searchKey: string;
@@ -23,13 +23,29 @@ const useSearch = ({ searchKey, config, only }: Props) => {
 	const { data: versesData, isLoading: versesLoading } = useVerses();
 
 	const result = useMemo(() => {
+		if (!chapterData || !versesData) {
+			return {
+				chapters: [],
+				verses: [],
+			};
+		}
+
 		let filteredChapterItems: ChapterItem[] = [];
 		let filteredVerseItems: Verse[] | undefined = [];
 
 		const shouldSearchChapter = only !== VerseToken;
 		const shouldSearchVerse = only !== ChapterToken;
 
-		if (searchKey.trim()) {
+		if (!searchKey.trim()) {
+			// empty searchKey: we can show all chapters
+			filteredChapterItems = chapterData?.chapters || [];
+		} else if (matchVerseKey(searchKey.trim())) {
+			// if match with a verse key
+			filteredVerseItems = versesData?.ayaByKey[searchKey.trim()]
+				? [versesData?.ayaByKey[searchKey.trim()]]
+				: [];
+		} else {
+			// otherwise search in translations
 			if (shouldSearchChapter) {
 				filteredChapterItems =
 					chapterData?.chapters?.filter((chapter) =>
@@ -48,15 +64,15 @@ const useSearch = ({ searchKey, config, only }: Props) => {
 					  )
 					: undefined;
 			}
-		} else {
-			filteredChapterItems = chapterData?.chapters || [];
 		}
 
 		return {
 			chapters: filteredChapterItems || [],
 			verses: filteredVerseItems || [],
 		};
-	}, [searchKey, chapterData, config]);
+	}, [searchKey, chapterData, versesData, config]);
+
+	// console.log(result);
 
 	return {
 		result,
