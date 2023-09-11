@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import sanitizeHtml from 'sanitize-html';
 import { useVerses } from 'data/use-verses';
@@ -97,8 +97,8 @@ interface Props {
 }
 
 const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
+	const [selectionEnabled, setSelectionEnabled] = useState(false);
 	const { data: verseData, isLoading: versesLoading } = useVerses();
-
 	const { data: chapterData, isLoading: chaptersLoading } = useChapters();
 
 	const onTextSelectionUpdate = useCallback(
@@ -114,13 +114,15 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 
 	useEffect(() => {
 		const onSelection = () => {
-			const selectionString = document.getSelection()?.toString() || '';
-			if (
-				selectionString &&
-				selectionString.length > 2 &&
-				selectionString.length < 80
-			) {
-				onTextSelectionUpdate();
+			if (selectionEnabled) {
+				const selectionString = document.getSelection()?.toString() || '';
+				if (
+					selectionString &&
+					selectionString.length > 2 &&
+					selectionString.length < 80
+				) {
+					onTextSelectionUpdate();
+				}
 			}
 		};
 		document.addEventListener('selectionchange', onSelection);
@@ -128,7 +130,7 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 		return () => {
 			document.removeEventListener('selectionchange', onSelection);
 		};
-	}, []);
+	}, [selectionEnabled]);
 
 	const items: CollapseProps['items'] = useMemo(() => {
 		if (!verseData || !selectedChapters) return [];
@@ -224,7 +226,14 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 		);
 	}
 
-	return <Collapse items={items} activeKey={activeKeys} />;
+	return (
+		<div
+			onMouseEnter={() => setSelectionEnabled(true)}
+			onMouseLeave={() => setSelectionEnabled(false)}
+		>
+			<Collapse items={items} activeKey={activeKeys} />
+		</div>
+	);
 };
 
 export default Results;
