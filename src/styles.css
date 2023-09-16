@@ -1,78 +1,78 @@
 #root {
-  height: 100vh;
-  background-color: rgba(255, 255, 255, 0.651);
-  background-image: url(https://www.transparenttextures.com/patterns/textured-paper.png);
+	height: 100vh;
+	background-color: rgba(255, 255, 255, 0.651);
+	background-image: url(https://www.transparenttextures.com/patterns/textured-paper.png);
 }
 .App {
-  font-family: sans-serif;
-  text-align: center;
+	font-family: sans-serif;
+	text-align: center;
 }
 
 body {
-  padding: 0;
-  margin: 0;
-  /* background: #222; */
+	padding: 0;
+	margin: 0;
+	/* background: #222; */
 }
 
 .url-input {
-  width: 500px;
-  height: 30px;
-  margin: 16px;
+	width: 500px;
+	height: 30px;
+	margin: 16px;
 }
 
 .url-submit-btn {
-  padding: 8px;
-  cursor: pointer;
+	padding: 8px;
+	cursor: pointer;
 }
 
 .response-area {
-  flex: 1;
-  height: 100%;
-  border: 1px solid gray;
+	flex: 1;
+	height: 250px;
+	border: 1px solid gray;
 }
 
 .verses-list {
-  flex: 1;
-  height: 100%;
-  border: 1px solid gray;
-  overflow: auto;
+	flex: 1;
+	height: 100%;
+	border: 1px solid gray;
+	overflow: auto;
 }
 
 .verse-wrapper {
-  margin: 16px;
-  font-family: "Amiri Quran";
-  color: rgb(14, 2, 121);
-  font-size: 42px;
-  font-weight: 400;
+	margin: 16px;
+	font-family: 'Amiri Quran';
+	color: rgb(14, 2, 121);
+	font-size: 42px;
+	font-weight: 400;
 }
 
 .view-area {
-  display: flex;
-  width: 100vw;
-  box-sizing: border-box;
-  height: calc(100vh - 80px);
+	display: flex;
+	width: 100vw;
+	box-sizing: border-box;
+	height: calc(100vh - 80px);
 }
 
 .text-highlight {
-  background: rgb(219 255 6 / 30%);
+	background: rgb(219 255 6 / 30%);
 }
 
 .scrollable::-webkit-scrollbar {
-    width: 20px;
+	width: 20px;
 }
-        
+
 .scrollable::-webkit-scrollbar-track {
-    border-radius: 8px;
-    background-image: url("https://i.ibb.co/5150925/tracks.png");
-    background-position: -5px;
-    background-repeat: repeat-y;
-    background-size: 50px;
+	border-radius: 8px;
+	background-image: url('https://i.ibb.co/5150925/tracks.png');
+	background-position: -5px;
+	background-repeat: repeat-y;
+	background-size: 50px;
 }
-        
+
 .scrollable::-webkit-scrollbar-thumb {
-    border-radius: 8px;
-  background-image: url("https://i.ibb.co/q95CBdZ/train.png");
-    background-position:center center;
-    background-repeat: no-repeat;
-    background-size: 35px;
+	border-radius: 8px;
+	background-image: url('https://i.ibb.co/q95CBdZ/train.png');
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: 35px;
 }

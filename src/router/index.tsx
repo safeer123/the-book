@@ -17,10 +17,10 @@ const router = createBrowserRouter([
 		element: (
 			<HomeWrapper>
 				<div>
-					<Link to="/api-test">Home</Link>
+					<Link to="/api-test">Test APIs</Link>
 				</div>
 				<div>
-					<Link to="/suras">Sura List</Link>
+					<Link to="/suras">Search in The Book</Link>
 				</div>
 			</HomeWrapper>
 		),
