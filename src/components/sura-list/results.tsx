@@ -3,13 +3,19 @@ import styled from 'styled-components';
 import sanitizeHtml from 'sanitize-html';
 import { useVerses } from 'data/use-verses';
 import { useChapters } from 'data/use-chapters';
-import type { CollapseProps } from 'antd';
-import { Collapse as CollapseAntd, Spin } from 'antd';
-import { ChapterItem, Verse, VerseToken } from 'types';
+import {
+	Button,
+	CollapseProps,
+	Collapse as CollapseAntd,
+	Spin,
+	Tooltip,
+} from 'antd';
+import { ChapterItem, TafsirConfig, Verse, VerseToken } from 'types';
 import ChapterTitle from './chapter-title';
 import { BISMI } from 'data/constants';
 import VerseNumber from './verse-number';
 import { debounce } from 'utils/search-utils';
+import TafsirDrawer from './tafsir-drawer';
 
 const getTransaltionHTML = (tr: string, highlightKey: string) => {
 	let htmlOut = sanitizeHtml(tr);
@@ -97,9 +103,34 @@ interface Props {
 }
 
 const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
+	const [tafsirConfig, setTafsirConfig] = useState<TafsirConfig | undefined>(
+		undefined
+	);
+
 	const [selectionEnabled, setSelectionEnabled] = useState(false);
 	const { data: verseData, isLoading: versesLoading } = useVerses();
 	const { data: chapterData, isLoading: chaptersLoading } = useChapters();
+
+	const engTranslation = (
+		trText: string,
+		searchKey: string,
+		verseKey: string
+	) => {
+		return (
+			<EngTranslation>
+				<span
+					dangerouslySetInnerHTML={{
+						__html: getTransaltionHTML(trText, searchKey),
+					}}
+				/>
+				<Tooltip title="Tafsir" placement="bottom">
+					<Button type="text" onClick={() => setTafsirConfig({ verseKey })}>
+						{'📖'}
+					</Button>
+				</Tooltip>
+			</EngTranslation>
+		);
+	};
 
 	const onTextSelectionUpdate = useCallback(
 		debounce(() => {
@@ -158,14 +189,11 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 									</cite>
 								</ArabicVerseWrapper>
 
-								<EngTranslation
-									dangerouslySetInnerHTML={{
-										__html: getTransaltionHTML(
-											verseData?.ayaByKey?.[verseKey]?.translation || '',
-											searchKeys?.[0] || ''
-										),
-									}}
-								/>
+								{engTranslation(
+									verseData?.ayaByKey?.[verseKey]?.translation || '',
+									searchKeys?.[0] || '',
+									verseKey
+								)}
 							</div>
 						))}
 					</div>
@@ -189,14 +217,11 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 								</ArabicVerseText>
 							</cite>
 						</ArabicVerseWrapper>
-						<EngTranslation
-							dangerouslySetInnerHTML={{
-								__html: getTransaltionHTML(
-									verse?.translation || '',
-									searchKeys?.[0] || ''
-								),
-							}}
-						/>
+						{engTranslation(
+							verse?.translation || '',
+							searchKeys?.[0] || '',
+							verse.verse_key
+						)}
 					</div>
 				),
 			};
@@ -232,6 +257,10 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 			onMouseLeave={() => setSelectionEnabled(false)}
 		>
 			<Collapse items={items} activeKey={activeKeys} />
+			<TafsirDrawer
+				tafsirConfig={tafsirConfig}
+				onClose={() => setTafsirConfig(undefined)}
+			/>
 		</div>
 	);
 };

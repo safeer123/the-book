@@ -31,3 +31,23 @@ export interface SearchConfig {
 export const ChapterToken = 'ch';
 export const VerseToken = 've';
 export type TokenType = 'ch' | 've';
+
+export interface TafsirConfig {
+	verseKey?: string;
+	chapterId?: number;
+}
+
+export interface TafsirInfoItem {
+	author_name: string;
+	id: number;
+	language_name: string;
+	name: string;
+	slug: string;
+}
+
+export interface TafsirDataItem {
+	resource_id: number;
+	text: string;
+}
+
+export type TafsirItem = TafsirInfoItem & TafsirDataItem;
