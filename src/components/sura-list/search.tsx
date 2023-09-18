@@ -123,7 +123,7 @@ const Search: React.FC = () => {
 			result.chapters?.map((chapter) =>
 				renderItem(
 					getOptionKey(chapter),
-					chapter.name_simple,
+					`${chapter.id}. ${chapter.name_simple}`,
 					chapter.name_arabic
 				)
 			) || [];
