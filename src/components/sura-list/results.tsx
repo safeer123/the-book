@@ -16,6 +16,7 @@ import { BISMI } from 'data/constants';
 import VerseNumber from './verse-number';
 import { debounce } from 'utils/search-utils';
 import TafsirDrawer from './tafsir-drawer';
+import useURLNavigation from 'data/use-url-navigation';
 
 const getTransaltionHTML = (tr: string, highlightKey: string) => {
 	let htmlOut = sanitizeHtml(tr);
@@ -79,6 +80,7 @@ const ArabicVerseText = styled.span`
 		width: 36px;
 		margin-bottom: -10px;
 		margin-right: 16px;
+		cursor: pointer;
 	}
 `;
 
@@ -110,6 +112,7 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 	const [selectionEnabled, setSelectionEnabled] = useState(false);
 	const { data: verseData, isLoading: versesLoading } = useVerses();
 	const { data: chapterData, isLoading: chaptersLoading } = useChapters();
+	const { toVersePage } = useURLNavigation();
 
 	const engTranslation = (
 		trText: string,
@@ -184,7 +187,10 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 									<cite dir="rtl">
 										<ArabicVerseText>
 											{verseData?.ayaByKey?.[verseKey]?.text_uthmani}
-											<VerseNumber number={verseKey.split(':')[1]} />
+											<VerseNumber
+												number={verseKey.split(':')[1]}
+												onClick={() => toVersePage(verseKey)}
+											/>
 										</ArabicVerseText>
 									</cite>
 								</ArabicVerseWrapper>
@@ -213,7 +219,10 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 							<cite dir="rtl">
 								<ArabicVerseText>
 									{verse?.text_uthmani}
-									<VerseNumber number={verse.verse_key.split(':')[1]} />
+									<VerseNumber
+										number={verse.verse_key.split(':')[1]}
+										onClick={() => toVersePage(verse.verse_key)}
+									/>
 								</ArabicVerseText>
 							</cite>
 						</ArabicVerseWrapper>

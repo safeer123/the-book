@@ -1,3 +1,4 @@
+import useURLNavigation from 'data/use-url-navigation';
 import styled from 'styled-components';
 import { ChapterItem } from 'types';
 
@@ -9,6 +10,7 @@ const TitleWrapper = styled.div`
 	justify-content: flex-end;
 	align-items: center;
 	margin-right: 16px;
+	cursor: pointer;
 `;
 
 const ArabicTitle = styled.span`
@@ -34,8 +36,9 @@ interface Props {
 }
 
 const ChapterTitle = ({ chapter, verseInfo }: Props) => {
+	const { toChapterPage } = useURLNavigation();
 	return (
-		<TitleWrapper>
+		<TitleWrapper onClick={() => toChapterPage(chapter?.id || 1)}>
 			<VerseDetails>
 				{verseInfo || `${chapter?.verses_count || ''} Verses`}
 			</VerseDetails>

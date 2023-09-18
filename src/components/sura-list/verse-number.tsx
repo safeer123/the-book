@@ -1,10 +1,11 @@
 interface Props {
 	number: string;
+	onClick: () => void;
 }
 
-const VerseNumber = ({ number }: Props) => {
+const VerseNumber = ({ number, onClick }: Props) => {
 	return (
-		<svg viewBox="0 -400 1250 1625">
+		<svg viewBox="0 -400 1250 1625" onClick={onClick}>
 			<defs>
 				<pattern
 					id="Checkerboard"
