@@ -10,6 +10,7 @@ const wordSearchRegex = (searchKey: string) =>
 	`^.*?${searchKey.split(',').join('.*?')}.*?$`;
 
 const verseKeyRegex = /^\d+:\d+$/m;
+const suraNumberRegex = /^[1-9]\d*$/m;
 
 interface Args {
 	target: string;
@@ -19,6 +20,10 @@ interface Args {
 
 export const matchVerseKey = (searchKey: string): boolean => {
 	return verseKeyRegex.test(searchKey);
+};
+
+export const matchSuraNumber = (searchKey: string): boolean => {
+	return suraNumberRegex.test(searchKey) && +searchKey <= 114;
 };
 
 export const matchKeyword = ({

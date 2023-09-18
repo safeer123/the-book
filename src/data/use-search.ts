@@ -9,7 +9,11 @@ import {
 	ChapterToken,
 } from 'types';
 import { useVerses } from 'data/use-verses';
-import { matchKeyword, matchVerseKey } from 'utils/search-utils';
+import {
+	matchKeyword,
+	matchSuraNumber,
+	matchVerseKey,
+} from 'utils/search-utils';
 
 interface Props {
 	searchKey: string;
@@ -39,30 +43,39 @@ const useSearch = ({ searchKey, config, only }: Props) => {
 		if (!searchKey.trim()) {
 			// empty searchKey: we can show all chapters
 			filteredChapterItems = chapterData?.chapters || [];
-		} else if (matchVerseKey(searchKey.trim())) {
-			// if match with a verse key
-			filteredVerseItems = versesData?.ayaByKey[searchKey.trim()]
-				? [versesData?.ayaByKey[searchKey.trim()]]
-				: [];
 		} else {
-			// otherwise search in translations
+			// otherwise search in translations or suras
 			if (shouldSearchChapter) {
-				filteredChapterItems =
-					chapterData?.chapters?.filter((chapter) =>
-						matchKeyword({ target: chapter.name_simple, searchKey, config })
-					) || [];
+				if (matchSuraNumber(searchKey.trim())) {
+					// if match with a sura number
+					filteredChapterItems = chapterData?.suraByKey[+searchKey.trim()]
+						? [chapterData?.suraByKey[+searchKey.trim()]]
+						: [];
+				} else {
+					filteredChapterItems =
+						chapterData?.chapters?.filter((chapter) =>
+							matchKeyword({ target: chapter.name_simple, searchKey, config })
+						) || [];
+				}
 			}
 
 			if (shouldSearchVerse) {
-				filteredVerseItems = searchKey.trim()
-					? versesData?.verses?.filter((verse) =>
-							matchKeyword({
-								target: verse?.translation || '',
-								searchKey,
-								config,
-							})
-					  )
-					: undefined;
+				if (matchVerseKey(searchKey.trim())) {
+					// if match with a verse key
+					filteredVerseItems = versesData?.ayaByKey[searchKey.trim()]
+						? [versesData?.ayaByKey[searchKey.trim()]]
+						: [];
+				} else {
+					filteredVerseItems = searchKey.trim()
+						? versesData?.verses?.filter((verse) =>
+								matchKeyword({
+									target: verse?.translation || '',
+									searchKey,
+									config,
+								})
+						  )
+						: undefined;
+				}
 			}
 		}
 
