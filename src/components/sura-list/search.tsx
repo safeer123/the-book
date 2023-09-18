@@ -181,15 +181,8 @@ const Search: React.FC = () => {
 
 	const onSelect = (item: unknown) => {
 		const [typeToken, id] = parseOptionKey(item as string);
-		let k = '';
-		if (typeToken === ChapterToken) {
-			k = chapterData?.suraByKey[Number(id)]?.name_simple || '';
-		}
-		if (typeToken === VerseToken) {
-			k = id || '';
-		}
-		setSearchKey(k);
-		submitSearchQuery(k, config, typeToken);
+		setSearchKey(id);
+		submitSearchQuery(id, config, typeToken);
 	};
 
 	const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
