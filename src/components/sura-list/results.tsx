@@ -18,16 +18,18 @@ import { debounce } from 'utils/search-utils';
 import TafsirDrawer from './tafsir-drawer';
 import useURLNavigation from 'data/use-url-navigation';
 
-const getTransaltionHTML = (tr: string, highlightKey: string) => {
+const getTransaltionHTML = (tr: string, highlightKey?: string) => {
 	let htmlOut = sanitizeHtml(tr);
-	const index = htmlOut.toLowerCase().indexOf(highlightKey.toLowerCase());
-	if (highlightKey.trim() && index !== -1) {
-		htmlOut =
-			htmlOut.substring(0, index) +
-			"<span class='text-highlight'>" +
-			htmlOut.substring(index, index + highlightKey.length) +
-			'</span>' +
-			htmlOut.substring(index + highlightKey.length);
+	if (highlightKey && highlightKey.trim()) {
+		const index = htmlOut.toLowerCase().indexOf(highlightKey.toLowerCase());
+		if (index !== -1) {
+			htmlOut =
+				htmlOut.substring(0, index) +
+				"<span class='text-highlight'>" +
+				htmlOut.substring(index, index + highlightKey.length) +
+				'</span>' +
+				htmlOut.substring(index + highlightKey.length);
+		}
 	}
 	return htmlOut;
 };
@@ -116,8 +118,8 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 
 	const engTranslation = (
 		trText: string,
-		searchKey: string,
-		verseKey: string
+		verseKey: string,
+		searchKey?: string
 	) => {
 		return (
 			<EngTranslation>
@@ -197,7 +199,6 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 
 								{engTranslation(
 									verseData?.ayaByKey?.[verseKey]?.translation || '',
-									searchKeys?.[0] || '',
 									verseKey
 								)}
 							</div>
@@ -228,8 +229,8 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 						</ArabicVerseWrapper>
 						{engTranslation(
 							verse?.translation || '',
-							searchKeys?.[0] || '',
-							verse.verse_key
+							verse.verse_key,
+							searchKeys?.[0] || ''
 						)}
 					</div>
 				),
