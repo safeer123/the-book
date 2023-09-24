@@ -208,34 +208,57 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 			};
 		});
 
-		const verseCollapseItems = (selectedVerses || []).map((verse) => {
-			const chapter =
-				chapterData?.suraByKey?.[Number(verse.verse_key.split(':')[0])];
-			return {
-				key: `ve-${verse.verse_key}`,
-				label: <ChapterTitle chapter={chapter} verseInfo={verse.verse_key} />,
-				children: (
-					<div>
-						<ArabicVerseWrapper>
-							<cite dir="rtl">
-								<ArabicVerseText>
-									{verse?.text_uthmani}
-									<VerseNumber
-										number={verse.verse_key.split(':')[1]}
-										onClick={() => toVersePage(verse.verse_key)}
-									/>
-								</ArabicVerseText>
-							</cite>
-						</ArabicVerseWrapper>
-						{engTranslation(
-							verse?.translation || '',
-							verse.verse_key,
-							searchKeys?.[0] || ''
-						)}
-					</div>
-				),
-			};
+		const verseRangeItems: {
+			chapter: ChapterItem | undefined;
+			verses: Verse[];
+		}[] = [];
+		let currChapter = 0;
+		(selectedVerses || []).forEach((verseItem: Verse) => {
+			const [chapterNum] = verseItem.verse_key.split(':');
+			if (currChapter !== +chapterNum) {
+				verseRangeItems.push({
+					chapter: chapterData?.suraByKey?.[Number(chapterNum)],
+					verses: [verseItem],
+				});
+				currChapter = +chapterNum;
+			} else if (verseRangeItems[verseRangeItems.length - 1]) {
+				verseRangeItems[verseRangeItems.length - 1].verses.push(verseItem);
+			}
 		});
+
+		const verseCollapseItems = (verseRangeItems || []).map(
+			({ chapter, verses }) => {
+				const verseInfo = verses.map((ve) => ve.verse_key).join(', ');
+				return {
+					key: `ch-ve-range-${chapter?.id || ''}-${verses[0].verse_key}`,
+					label: <ChapterTitle chapter={chapter} verseInfo={verseInfo} />,
+					children: (
+						<>
+							{verses.map((verse) => (
+								<div key={verse.verse_key}>
+									<ArabicVerseWrapper>
+										<cite dir="rtl">
+											<ArabicVerseText>
+												{verse?.text_uthmani}
+												<VerseNumber
+													number={verse.verse_key.split(':')[1]}
+													onClick={() => toVersePage(verse.verse_key)}
+												/>
+											</ArabicVerseText>
+										</cite>
+									</ArabicVerseWrapper>
+									{engTranslation(
+										verse?.translation || '',
+										verse.verse_key,
+										searchKeys?.[0] || ''
+									)}
+								</div>
+							))}
+						</>
+					),
+				};
+			}
+		);
 
 		return [...chapterCollapseItems, ...verseCollapseItems];
 	}, [verseData, chapterData, selectedChapters, selectedVerses]);

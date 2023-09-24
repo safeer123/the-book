@@ -13,6 +13,7 @@ import {
 	matchKeyword,
 	matchSuraNumber,
 	matchVerseKey,
+	matchVerseKeyRange,
 } from 'utils/search-utils';
 
 interface Props {
@@ -65,6 +66,21 @@ const useSearch = ({ searchKey, config, only }: Props) => {
 					filteredVerseItems = versesData?.ayaByKey[searchKey.trim()]
 						? [versesData?.ayaByKey[searchKey.trim()]]
 						: [];
+				} else if (matchVerseKeyRange(searchKey.trim())) {
+					// if match with a verse key range
+					const [suraNum, range] = searchKey.trim().split(':');
+					const [startNum, endNum] = range.split('-');
+					if (
+						chapterData?.suraByKey[+suraNum] &&
+						+startNum <= chapterData?.suraByKey[+suraNum]?.verses_count &&
+						+endNum <= chapterData?.suraByKey[+suraNum]?.verses_count &&
+						+startNum < +endNum
+					) {
+						for (let i = +startNum; i <= +endNum; i += 1) {
+							const key = `${suraNum}:${i}`;
+							filteredVerseItems?.push(versesData?.ayaByKey[key]);
+						}
+					}
 				} else {
 					filteredVerseItems = searchKey.trim()
 						? versesData?.verses?.filter((verse) =>

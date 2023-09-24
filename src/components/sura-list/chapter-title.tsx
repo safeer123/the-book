@@ -1,6 +1,7 @@
 import useURLNavigation from 'data/use-url-navigation';
 import styled from 'styled-components';
 import { ChapterItem } from 'types';
+import { verseInfoText } from 'utils/result-utils';
 
 const TitleWrapper = styled.div`
 	font-size: 18px;
@@ -37,10 +38,13 @@ interface Props {
 
 const ChapterTitle = ({ chapter, verseInfo }: Props) => {
 	const { toChapterPage } = useURLNavigation();
+
+	const verseInfoDisplay = verseInfoText(verseInfo);
+
 	return (
 		<TitleWrapper onClick={() => toChapterPage(chapter?.id || 1)}>
 			<VerseDetails>
-				{verseInfo || `${chapter?.verses_count || ''} Verses`}
+				{verseInfoDisplay || `${chapter?.verses_count || ''} Verses`}
 			</VerseDetails>
 			<span>({chapter?.translated_name?.name})</span>
 			<span>{chapter?.name_simple}</span>
