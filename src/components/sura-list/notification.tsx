@@ -18,6 +18,10 @@ const ToastWrapper = styled.div`
 	font-size: 16px;
 `;
 
+const ButtonStyled = styled(Button)`
+	width: fit-content;
+`;
+
 const Context = createContext({ name: 'text-selection-context' });
 
 const NotificationProvider: FC<PropsWithChildren> = ({ children }) => {
@@ -41,17 +45,19 @@ const NotificationProvider: FC<PropsWithChildren> = ({ children }) => {
 		api.info({
 			message: (
 				<ToastWrapper>
-					<span>Search all references</span>
-					<Button
+					<span>
+						Search all references of <strong>{text}</strong>?
+					</span>
+					<ButtonStyled
 						type="primary"
 						size="small"
 						onClick={() => searchText(text, api)}
 					>
-						<strong>{text}</strong>
-					</Button>
+						Search
+					</ButtonStyled>
 				</ToastWrapper>
 			),
-			placement: 'topLeft',
+			placement: 'bottomLeft',
 			duration: 3,
 		});
 	};

@@ -111,10 +111,10 @@ const Search: React.FC = () => {
 
 	const submitSearchQuery = (k: string, conf: SearchConfig, only = '') => {
 		setSearchParams({
-			k,
+			...(k ? { k } : {}),
 			w: conf.fullWord ? '1' : '0',
 			c: conf.ignoreCase ? '1' : '0',
-			only,
+			...(only ? { only } : {}),
 		});
 	};
 
