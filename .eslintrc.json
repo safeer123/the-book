@@ -42,6 +42,7 @@
 		}
 	},
 	"rules": {
+		"import/no-extraneous-dependencies": "off",
 		"import/no-named-as-default": "off",
 		"linebreak-style": "off",
 		// Configure prettier
