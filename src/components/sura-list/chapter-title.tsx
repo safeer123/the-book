@@ -31,6 +31,14 @@ const VerseDetails = styled.span`
 	font-size: 14px;
 `;
 
+const RevelationPlaceInfo = styled.div`
+	color: #505050;
+	background-color: #bdbdbd75;
+	padding: 0px 10px;
+	border-radius: 9px;
+	border: 1px solid #777;
+`;
+
 interface Props {
 	chapter?: ChapterItem;
 	verseInfo?: string;
@@ -43,6 +51,10 @@ const ChapterTitle = ({ chapter, verseInfo }: Props) => {
 
 	return (
 		<TitleWrapper onClick={() => toChapterPage(chapter?.id || 1)}>
+			{!verseInfo && (
+				<RevelationPlaceInfo>{chapter?.revelation_place}</RevelationPlaceInfo>
+			)}
+
 			<VerseDetails>
 				{verseInfoDisplay || `${chapter?.verses_count || ''} Verses`}
 			</VerseDetails>
