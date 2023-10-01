@@ -37,6 +37,10 @@ export interface TafsirConfig {
 	chapterId?: number;
 }
 
+export interface ChapterInfoConfig {
+	chapterId?: number;
+}
+
 export interface TafsirInfoItem {
 	author_name: string;
 	id: number;
@@ -51,3 +55,11 @@ export interface TafsirDataItem {
 }
 
 export type TafsirItem = TafsirInfoItem & TafsirDataItem;
+
+export interface ChapterInfoItem {
+	chapter_id: number;
+	language_name: string;
+	short_text: string;
+	source: string;
+	text: string;
+}

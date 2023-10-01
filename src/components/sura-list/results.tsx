@@ -10,13 +10,20 @@ import {
 	Spin,
 	Tooltip,
 } from 'antd';
-import { ChapterItem, TafsirConfig, Verse, VerseToken } from 'types';
+import {
+	ChapterInfoConfig,
+	ChapterItem,
+	TafsirConfig,
+	Verse,
+	VerseToken,
+} from 'types';
 import ChapterTitle from './chapter-title';
 import { BISMI } from 'data/constants';
 import VerseNumber from './verse-number';
 import { debounce } from 'utils/search-utils';
 import TafsirDrawer from './tafsir-drawer';
 import useURLNavigation from 'data/use-url-navigation';
+import { useTafsirInfoById } from 'data/use-tafsirs';
 
 const getTransaltionHTML = (tr: string, highlightKey?: string) => {
 	let htmlOut = sanitizeHtml(tr);
@@ -110,11 +117,16 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 	const [tafsirConfig, setTafsirConfig] = useState<TafsirConfig | undefined>(
 		undefined
 	);
+	const [chapterInfoConfig, setChapterInfoConfig] = useState<
+		ChapterInfoConfig | undefined
+	>(undefined);
 
 	const [selectionEnabled, setSelectionEnabled] = useState(false);
 	const { data: verseData, isLoading: versesLoading } = useVerses();
 	const { data: chapterData, isLoading: chaptersLoading } = useChapters();
 	const { toVersePage } = useURLNavigation();
+
+	const { isLoading: tafsirMetaInfoLoading } = useTafsirInfoById();
 
 	const engTranslation = (
 		trText: string,
@@ -179,7 +191,12 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 
 			return {
 				key: `ch-${chapter.id}`,
-				label: <ChapterTitle chapter={chapter} />,
+				label: (
+					<ChapterTitle
+						chapter={chapter}
+						setChapterInfoConfig={setChapterInfoConfig}
+					/>
+				),
 				children: (
 					<div>
 						{chapter?.bismillah_pre && <BismiWrapper>{BISMI}</BismiWrapper>}
@@ -231,7 +248,13 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 				const verseInfo = verses.map((ve) => ve.verse_key).join(', ');
 				return {
 					key: `ch-ve-range-${chapter?.id || ''}-${verses[0].verse_key}`,
-					label: <ChapterTitle chapter={chapter} verseInfo={verseInfo} />,
+					label: (
+						<ChapterTitle
+							chapter={chapter}
+							verseInfo={verseInfo}
+							setChapterInfoConfig={setChapterInfoConfig}
+						/>
+					),
 					children: (
 						<>
 							{verses.map((verse) => (
@@ -276,7 +299,7 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 		return undefined;
 	}, [items]);
 
-	if (versesLoading || chaptersLoading) {
+	if (versesLoading || chaptersLoading || tafsirMetaInfoLoading) {
 		return (
 			<SpinWrapper>
 				<Spin />
@@ -292,7 +315,11 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 			<Collapse items={items} activeKey={activeKeys} />
 			<TafsirDrawer
 				tafsirConfig={tafsirConfig}
-				onClose={() => setTafsirConfig(undefined)}
+				chapterInfoConfig={chapterInfoConfig}
+				onClose={() => {
+					setTafsirConfig(undefined);
+					setChapterInfoConfig(undefined);
+				}}
 			/>
 		</div>
 	);

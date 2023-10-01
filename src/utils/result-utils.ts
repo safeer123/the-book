@@ -7,3 +7,7 @@ export const verseInfoText = (infoStr?: string): string | undefined => {
 	}
 	return infoStr;
 };
+
+export const capitalizeFirstLetter = (str: string) => {
+	return str[0].toUpperCase() + str.slice(1);
+};

@@ -1,17 +1,9 @@
-import { Button, Drawer as AntDrawer, Space, AutoComplete, Spin } from 'antd';
+import { AutoComplete, Spin } from 'antd';
 import { useTafsirs } from 'data/use-tafsirs';
 import { FC, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { TafsirConfig, TafsirItem } from 'types';
 import sanitizeHtml from 'sanitize-html';
-
-const Drawer = styled(AntDrawer)`
-	&& .ant-drawer-wrapper-body {
-		position: relative;
-		background-color: rgba(255, 255, 255, 0.651);
-		background-image: url(https://www.transparenttextures.com/patterns/textured-paper.png);
-	}
-`;
 
 const SpinnerWrapper = styled.div`
 	position: absolute;
@@ -44,10 +36,9 @@ const TafsirContentWrapper = styled.div`
 
 interface Props {
 	tafsirConfig?: TafsirConfig;
-	onClose: () => void;
 }
 
-const TafsirDrawer: FC<Props> = ({ tafsirConfig, onClose }) => {
+const TafsirByVerse: FC<Props> = ({ tafsirConfig }) => {
 	const [tafsirSelected, setTafsirSelected] = useState<
 		TafsirItem | undefined
 	>();
@@ -90,46 +81,31 @@ const TafsirDrawer: FC<Props> = ({ tafsirConfig, onClose }) => {
 	}, [tafsirItems]);
 
 	return (
-		<Drawer
-			title={`Verse ${tafsirConfig?.verseKey || ''}`}
-			placement="right"
-			width={'70%'}
-			size={'large'}
-			onClose={onClose}
-			open={Boolean(tafsirConfig)}
-			extra={
-				<Space>
-					<Button onClick={onClose}>Close</Button>
-				</Space>
-			}
-		>
-			<div>
-				<AutoComplete
-					style={{ width: 400 }}
-					value={getTafsirTitle(tafsirSelected)}
-					options={options}
-					placeholder="Select Tafsir"
-					filterOption={(inputValue, option) =>
-						option?.label.toUpperCase().indexOf(option.label.toUpperCase()) !==
-						-1
-					}
-					onSelect={onSelect}
-					notFoundContent={isLoading ? <Spin /> : null}
-				/>
+		<div>
+			<AutoComplete
+				style={{ width: 400 }}
+				value={getTafsirTitle(tafsirSelected)}
+				options={options}
+				placeholder="Select Tafsir"
+				filterOption={(inputValue, option) =>
+					option?.label.toUpperCase().indexOf(option.label.toUpperCase()) !== -1
+				}
+				onSelect={onSelect}
+				notFoundContent={isLoading ? <Spin /> : null}
+			/>
 
-				<TafsirContentWrapper
-					dangerouslySetInnerHTML={{
-						__html: sanitizeHtml(tafsirSelected?.text || ''),
-					}}
-				/>
-				{isLoading && (
-					<SpinnerWrapper>
-						<Spin />
-					</SpinnerWrapper>
-				)}
-			</div>
-		</Drawer>
+			<TafsirContentWrapper
+				dangerouslySetInnerHTML={{
+					__html: sanitizeHtml(tafsirSelected?.text || ''),
+				}}
+			/>
+			{isLoading && (
+				<SpinnerWrapper>
+					<Spin />
+				</SpinnerWrapper>
+			)}
+		</div>
 	);
 };
 
-export default TafsirDrawer;
+export default TafsirByVerse;
