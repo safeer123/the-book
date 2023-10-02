@@ -10,11 +10,27 @@ const Wrapper = styled.div`
 	flex-direction: row-reverse;
 	align-items: flex-end;
 	gap: 1px;
+
+	.bar-item {
+		background-color: #0e478919;
+
+		&:hover {
+			background-color: #82bc06a2;
+		}
+	}
+
+	.bar-item-selected {
+		background-color: #e344005e;
+
+		&:hover {
+			background-color: #e34400cf;
+		}
+	}
 `;
 
 const BarItem = styled.div`
 	flex: 1;
-	background-color: #0e478919;
+
 	max-width: 15px;
 	cursor: pointer;
 
@@ -36,11 +52,11 @@ const SmartBarChart = ({ data }: Props) => {
 		<Wrapper>
 			{data?.map((record) => {
 				const height = `${(100 * record.value) / maxValue}%`;
-				const bg = record.color ? { background: record.color } : {};
 				return (
 					<Tooltip key={record?.id} title={record.tooltip}>
 						<BarItem
-							style={{ height, ...bg }}
+							className={record.selected ? 'bar-item-selected' : 'bar-item'}
+							style={{ height }}
 							onClick={(e) => {
 								e.stopPropagation();
 								record.onClick?.();

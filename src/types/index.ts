@@ -70,6 +70,6 @@ export interface BarChartRecordItem {
 	id: string;
 	value: number;
 	tooltip?: ReactNode;
-	color?: string;
+	selected?: boolean;
 	onClick?: () => void;
 }

@@ -4,8 +4,6 @@ import { useVerses } from './use-verses';
 import { BarChartRecordItem } from 'types';
 import useURLNavigation from './use-url-navigation';
 
-const SELECTED_ITEM_COLOR = '#e3440095';
-
 interface Props {
 	chapterId: number;
 	verseInfo?: string;
@@ -43,9 +41,7 @@ const useChapterBarRecords = ({
 						id: verseKey,
 						value: verseData?.ayaByKey?.[verseKey]?.text_uthmani?.length || 0,
 						tooltip: verseKey,
-						color: selectedVerses?.has(verseKey)
-							? SELECTED_ITEM_COLOR
-							: undefined,
+						selected: selectedVerses?.has(verseKey),
 						onClick: () => scrollToVerse(verseKey),
 					});
 				}
