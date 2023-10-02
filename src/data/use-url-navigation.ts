@@ -13,6 +13,7 @@ const useURLNavigation = () => {
 		});
 	};
 
+	// one or multiple verses Eg:- 2:45, 2:40-45
 	const toVersePage = (key: string) => {
 		setSearchParams({
 			k: key,

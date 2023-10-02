@@ -67,7 +67,7 @@ interface Props {
 }
 
 const ChapterHeader = ({ chapter, verseInfo, setChapterInfoConfig }: Props) => {
-	const { toChapterPage } = useURLNavigation();
+	const { toChapterPage, toVersePage } = useURLNavigation();
 
 	const barRecords = useChapterBarRecords({
 		chapterId: chapter?.id || 0,
@@ -78,6 +78,10 @@ const ChapterHeader = ({ chapter, verseInfo, setChapterInfoConfig }: Props) => {
 		threshold: 0,
 	});
 
+	const onRangeSelected = (indStart: number, indEnd: number) => {
+		toVersePage(`${chapter?.id || ''}:${indStart + 1}-${indEnd + 1}`);
+	};
+
 	const verseInfoDisplay = verseInfoText(verseInfo);
 
 	const navigateToChapter = () => toChapterPage(chapter?.id || 1);
@@ -86,7 +90,7 @@ const ChapterHeader = ({ chapter, verseInfo, setChapterInfoConfig }: Props) => {
 		<HeaderWrapper id={`ch-${chapter?.id || 0}`} ref={ref}>
 			{inView && (
 				<AvailableArea>
-					<SmartBarChart data={barRecords} />
+					<SmartBarChart data={barRecords} onRangeSelected={onRangeSelected} />
 				</AvailableArea>
 			)}
 
