@@ -3,8 +3,11 @@ import useURLNavigation from 'data/use-url-navigation';
 import styled from 'styled-components';
 import { ChapterInfoConfig, ChapterItem } from 'types';
 import { capitalizeFirstLetter, verseInfoText } from 'utils/result-utils';
+import SmartBarChart from './smart-bar-chart';
+import useChapterBarRecords from 'data/use-chapter-bar-record';
+import { useInView } from 'react-intersection-observer';
 
-const TitleWrapper = styled.div`
+const HeaderWrapper = styled.div`
 	font-size: 18px;
 	color: #605757;
 	gap: 24px;
@@ -12,6 +15,11 @@ const TitleWrapper = styled.div`
 	justify-content: flex-end;
 	align-items: center;
 	margin-right: 16px;
+`;
+
+const AvailableArea = styled.div`
+	flex: 1;
+	height: 40px;
 `;
 
 const ArabicTitle = styled.span`
@@ -58,15 +66,30 @@ interface Props {
 	setChapterInfoConfig: (info: ChapterInfoConfig) => void;
 }
 
-const ChapterTitle = ({ chapter, verseInfo, setChapterInfoConfig }: Props) => {
+const ChapterHeader = ({ chapter, verseInfo, setChapterInfoConfig }: Props) => {
 	const { toChapterPage } = useURLNavigation();
+
+	const barRecords = useChapterBarRecords({
+		chapterId: chapter?.id || 0,
+		verseInfo,
+	});
+
+	const { ref, inView } = useInView({
+		threshold: 0,
+	});
 
 	const verseInfoDisplay = verseInfoText(verseInfo);
 
 	const navigateToChapter = () => toChapterPage(chapter?.id || 1);
 
 	return (
-		<TitleWrapper>
+		<HeaderWrapper id={`ch-${chapter?.id || 0}`} ref={ref}>
+			{inView && (
+				<AvailableArea>
+					<SmartBarChart data={barRecords} />
+				</AvailableArea>
+			)}
+
 			{!verseInfo && (
 				<Tooltip
 					title={`Revealed in ${capitalizeFirstLetter(
@@ -100,8 +123,8 @@ const ChapterTitle = ({ chapter, verseInfo, setChapterInfoConfig }: Props) => {
 				{chapter?.name_arabic}
 			</ArabicTitle>
 			<ChapterIndex>({chapter?.id})</ChapterIndex>
-		</TitleWrapper>
+		</HeaderWrapper>
 	);
 };
 
-export default ChapterTitle;
+export default ChapterHeader;

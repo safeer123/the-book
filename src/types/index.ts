@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 export interface Verse {
 	id: number;
 	text_uthmani: string;
@@ -62,4 +64,12 @@ export interface ChapterInfoItem {
 	short_text: string;
 	source: string;
 	text: string;
+}
+
+export interface BarChartRecordItem {
+	id: string;
+	value: number;
+	tooltip?: ReactNode;
+	color?: string;
+	onClick?: () => void;
 }

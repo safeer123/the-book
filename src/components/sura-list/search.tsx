@@ -207,7 +207,9 @@ const Search: React.FC = () => {
 	};
 
 	const onBlur = () => {
-		submitSearchQuery(searchKey, config);
+		if (searchParams.get('k') !== searchKey) {
+			submitSearchQuery(searchKey, config);
+		}
 	};
 
 	useEffect(() => {

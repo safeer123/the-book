@@ -17,7 +17,7 @@ import {
 	Verse,
 	VerseToken,
 } from 'types';
-import ChapterTitle from './chapter-title';
+import ChapterHeader from './chapter-header';
 import { BISMI } from 'data/constants';
 import VerseNumber from './verse-number';
 import { debounce } from 'utils/search-utils';
@@ -183,6 +183,24 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 	const items: CollapseProps['items'] = useMemo(() => {
 		if (!verseData || !selectedChapters) return [];
 
+		const verseRangeItems: {
+			chapter: ChapterItem | undefined;
+			verses: Verse[];
+		}[] = [];
+		let currChapter = 0;
+		(selectedVerses || []).forEach((verseItem: Verse) => {
+			const [chapterNum] = verseItem.verse_key.split(':');
+			if (currChapter !== +chapterNum) {
+				verseRangeItems.push({
+					chapter: chapterData?.suraByKey?.[Number(chapterNum)],
+					verses: [verseItem],
+				});
+				currChapter = +chapterNum;
+			} else if (verseRangeItems[verseRangeItems.length - 1]) {
+				verseRangeItems[verseRangeItems.length - 1].verses.push(verseItem);
+			}
+		});
+
 		const chapterCollapseItems = (selectedChapters || []).map((chapter) => {
 			const verseKeyList = [];
 			for (let i = 1; i <= chapter?.verses_count; i += 1) {
@@ -192,7 +210,7 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 			return {
 				key: `ch-${chapter.id}`,
 				label: (
-					<ChapterTitle
+					<ChapterHeader
 						chapter={chapter}
 						setChapterInfoConfig={setChapterInfoConfig}
 					/>
@@ -201,7 +219,7 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 					<div>
 						{chapter?.bismillah_pre && <BismiWrapper>{BISMI}</BismiWrapper>}
 						{verseKeyList.map((verseKey) => (
-							<div key={verseKey}>
+							<div key={verseKey} id={`ve-${verseKey}`}>
 								<ArabicVerseWrapper key={verseKey}>
 									<cite dir="rtl">
 										<ArabicVerseText>
@@ -225,31 +243,13 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 			};
 		});
 
-		const verseRangeItems: {
-			chapter: ChapterItem | undefined;
-			verses: Verse[];
-		}[] = [];
-		let currChapter = 0;
-		(selectedVerses || []).forEach((verseItem: Verse) => {
-			const [chapterNum] = verseItem.verse_key.split(':');
-			if (currChapter !== +chapterNum) {
-				verseRangeItems.push({
-					chapter: chapterData?.suraByKey?.[Number(chapterNum)],
-					verses: [verseItem],
-				});
-				currChapter = +chapterNum;
-			} else if (verseRangeItems[verseRangeItems.length - 1]) {
-				verseRangeItems[verseRangeItems.length - 1].verses.push(verseItem);
-			}
-		});
-
 		const verseCollapseItems = (verseRangeItems || []).map(
 			({ chapter, verses }) => {
 				const verseInfo = verses.map((ve) => ve.verse_key).join(', ');
 				return {
 					key: `ch-ve-range-${chapter?.id || ''}-${verses[0].verse_key}`,
 					label: (
-						<ChapterTitle
+						<ChapterHeader
 							chapter={chapter}
 							verseInfo={verseInfo}
 							setChapterInfoConfig={setChapterInfoConfig}
@@ -258,7 +258,7 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 					children: (
 						<>
 							{verses.map((verse) => (
-								<div key={verse.verse_key}>
+								<div key={verse.verse_key} id={`ve-${verse.verse_key}`}>
 									<ArabicVerseWrapper>
 										<cite dir="rtl">
 											<ArabicVerseText>
