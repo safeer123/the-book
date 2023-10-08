@@ -202,7 +202,7 @@ const Search: React.FC = () => {
 	const onChangeIgnoreCase = (e: CheckboxChangeEvent) => {
 		setConfig({
 			...config,
-			ignoreCase: e.target.checked,
+			ignoreCase: !e.target.checked,
 		});
 	};
 
@@ -244,10 +244,10 @@ const Search: React.FC = () => {
 				<Input.Search size="large" placeholder="Search in Quran.." allowClear />
 			</AutoComplete>
 			<Checkbox checked={config?.fullWord} onChange={onChangeFullWordCheck}>
-				{'Full word'}
+				{'Match Whole Word'}
 			</Checkbox>
-			<Checkbox checked={config?.ignoreCase} onChange={onChangeIgnoreCase}>
-				{'Ignore case'}
+			<Checkbox checked={!config?.ignoreCase} onChange={onChangeIgnoreCase}>
+				{'Match Case'}
 			</Checkbox>
 		</SearchPanelWrapper>
 	);
