@@ -90,6 +90,11 @@ const ArabicVerseText = styled.span`
 		margin-bottom: -10px;
 		margin-right: 16px;
 		cursor: pointer;
+		filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
+
+		&:hover {
+			opacity: 0.8;
+		}
 	}
 `;
 

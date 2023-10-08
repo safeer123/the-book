@@ -13,29 +13,33 @@ const Wrapper = styled.div`
 
 	.bar-item {
 		background-color: #0e478919;
-
-		&:hover {
-			background-color: #82bc06a2;
-		}
 	}
 
 	.bar-item-selected {
 		background-color: #e344005e;
-
-		&:hover {
-			background-color: #e34400cf;
-		}
 	}
 `;
 
 const BarItem = styled.div`
 	flex: 1;
+`;
+
+const BarItemWrapper = styled.div`
+	flex: 1;
+	height: 100%;
+	display: flex;
+	align-items: flex-end;
 
 	max-width: 15px;
 	cursor: pointer;
 
 	&:hover {
-		background-color: #82bc06a2;
+		.bar-item {
+			background-color: #82bc06a2;
+		}
+		.bar-item-selected {
+			background-color: #e34400cf;
+		}
 	}
 `;
 
@@ -102,14 +106,8 @@ const SmartBarChart = ({ data, onRangeSelected }: Props) => {
 			{data?.map((record, index) => {
 				const height = `${(100 * record.value) / maxValue}%`;
 				return (
-					<Tooltip key={record?.id} title={record.tooltip}>
-						<BarItem
-							className={
-								record.selected || shouldHighlight(index)
-									? 'bar-item-selected'
-									: 'bar-item'
-							}
-							style={{ height }}
+					<Tooltip key={record?.id} title={record.tooltip} placement="bottom">
+						<BarItemWrapper
 							onClick={(e) => {
 								e.stopPropagation();
 								record.onClick?.();
@@ -120,7 +118,16 @@ const SmartBarChart = ({ data, onRangeSelected }: Props) => {
 								onSelectionEnd(index);
 							}}
 							onMouseEnter={() => onSelectionProgress(index)}
-						/>
+						>
+							<BarItem
+								className={
+									record.selected || shouldHighlight(index)
+										? 'bar-item-selected'
+										: 'bar-item'
+								}
+								style={{ height }}
+							/>
+						</BarItemWrapper>
 					</Tooltip>
 				);
 			})}
