@@ -1,55 +1,50 @@
 import { useMemo } from 'react';
 import { useChapters } from './use-chapters';
-import { useVerses } from './use-verses';
-import { BarChartRecordItem } from 'types';
+import { BarChartRecordItem, ChapterItem, Verse } from 'types';
 import useURLNavigation from './use-url-navigation';
 
 interface Props {
-	chapterId: number;
-	verseInfo?: string;
+	chapters?: ChapterItem[];
+	verses?: Verse[];
 }
 
 const useChapterBarRecords = ({
-	chapterId,
-	verseInfo,
+	chapters,
+	verses,
 }: Props): BarChartRecordItem[] => {
 	const { data: chapterData } = useChapters();
-	const { data: verseData } = useVerses();
-	const selectedVerses = useMemo(
-		() => new Set((verseInfo || '').split(',').map((s) => s.trim())),
-		[verseInfo]
-	);
 
-	const { toVersePage } = useURLNavigation();
+	const selectionSet = useMemo(() => {
+		const chapterList1 = (chapters || []).map((ch) => ch.id);
+		const chapterList2 = (verses || []).map((v) => +v.verse_key.split(':')[0]);
+		const lookupSet = new Set([...chapterList1, ...chapterList2]);
 
-	const scrollToVerse = (verseKey: string) => {
-		// /* scroll to the view */
-		// const verseEle = document.getElementById(`ve-${verseKey}`);
-		// verseEle?.scrollIntoView({ behavior: 'smooth' });
+		return lookupSet;
+	}, [chapters, verses]);
 
-		toVersePage(verseKey);
+	const { toChapterPage } = useURLNavigation();
+
+	const goToChapter = (chapterId: number) => {
+		toChapterPage(chapterId);
 	};
 
 	const records = useMemo(() => {
-		if (chapterData && verseData) {
-			const chapter = chapterData?.suraByKey?.[chapterId];
-			if (chapter) {
-				const rec = [];
-				for (let v = 1; v <= chapter?.verses_count; v += 1) {
-					const verseKey = `${chapter?.id}:${v}`;
-					rec.push({
-						id: verseKey,
-						value: verseData?.ayaByKey?.[verseKey]?.text_uthmani?.length || 0,
-						tooltip: verseKey,
-						selected: selectedVerses?.has(verseKey),
-						onClick: () => scrollToVerse(verseKey),
-					});
-				}
-				return rec;
+		if (chapterData) {
+			const chapterList = chapterData?.chapters;
+			if (chapterList) {
+				return chapterList.map((ch) => {
+					return {
+						id: `${ch.id}`,
+						value: ch?.verses_count || 0,
+						tooltip: `${ch.id}. ${ch.name_simple}`,
+						selected: selectionSet.has(ch.id),
+						onClick: () => goToChapter(ch.id),
+					};
+				});
 			}
 		}
 		return [];
-	}, [chapterData, verseData]);
+	}, [chapterData, selectionSet]);
 
 	return records;
 };

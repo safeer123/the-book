@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { ChapterInfoConfig, ChapterItem } from 'types';
 import { capitalizeFirstLetter, verseInfoText } from 'utils/result-utils';
 import SmartBarChart from './smart-bar-chart';
-import useChapterBarRecords from 'data/use-chapter-bar-record';
+import useVerseBarRecords from 'data/use-verse-bar-record';
 import { useInView } from 'react-intersection-observer';
 
 const HeaderWrapper = styled.div`
@@ -19,7 +19,7 @@ const HeaderWrapper = styled.div`
 
 const AvailableArea = styled.div`
 	flex: 1;
-	height: 40px;
+	height: 30px;
 `;
 
 const ArabicTitle = styled.span`
@@ -69,7 +69,7 @@ interface Props {
 const ChapterHeader = ({ chapter, verseInfo, setChapterInfoConfig }: Props) => {
 	const { toChapterPage, toVersePage } = useURLNavigation();
 
-	const barRecords = useChapterBarRecords({
+	const barRecords = useVerseBarRecords({
 		chapterId: chapter?.id || 0,
 		verseInfo,
 	});

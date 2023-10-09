@@ -8,6 +8,7 @@ const Wrapper = styled.div`
 	height: inherit;
 	display: flex;
 	flex-direction: row-reverse;
+	justify-content: flex-end;
 	align-items: flex-end;
 	gap: 1px;
 
@@ -17,6 +18,11 @@ const Wrapper = styled.div`
 
 	.bar-item-selected {
 		background-color: #e344005e;
+	}
+
+	.bar-wrapper-selected {
+		background-color: rgba(100, 100, 100, 0.2);
+		border: 0.2px dashed #1ec002a8;
 	}
 `;
 
@@ -29,11 +35,14 @@ const BarItemWrapper = styled.div`
 	height: 100%;
 	display: flex;
 	align-items: flex-end;
+	background-color: rgba(100, 100, 100, 0.05);
+	box-sizing: border-box;
 
 	max-width: 15px;
 	cursor: pointer;
 
 	&:hover {
+		background-color: rgba(100, 100, 100, 0.2);
 		.bar-item {
 			background-color: #82bc06a2;
 		}
@@ -108,6 +117,11 @@ const SmartBarChart = ({ data, onRangeSelected }: Props) => {
 				return (
 					<Tooltip key={record?.id} title={record.tooltip} placement="bottom">
 						<BarItemWrapper
+							className={
+								record.selected || shouldHighlight(index)
+									? 'bar-wrapper-selected'
+									: undefined
+							}
 							onClick={(e) => {
 								e.stopPropagation();
 								record.onClick?.();
