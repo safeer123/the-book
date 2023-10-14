@@ -8,6 +8,7 @@ import useSearch from 'data/use-search';
 import { searchConfigFromURLParams } from 'utils/search-utils';
 import { TokenType } from 'types';
 import ChapterBarChart from './chapter-bar-chart';
+import EmptyScreen from './empty';
 
 const Wrapper = styled.div`
 	padding: 16px;
@@ -49,6 +50,10 @@ const SuraList = () => {
 
 	const { result } = useSearch({ searchKey, config, only });
 
+	const showEmptyScreen =
+		Boolean(searchKey?.trim()) &&
+		result?.chapters?.length + result?.verses?.length === 0;
+
 	return (
 		<NotificationProvider>
 			<Wrapper>
@@ -56,11 +61,15 @@ const SuraList = () => {
 					<Search />
 				</PageHeader>
 				<Content className="scrollable">
-					<Results
-						selectedChapters={result?.chapters}
-						selectedVerses={result?.verses}
-						searchKeys={searchKeys}
-					/>
+					{showEmptyScreen ? (
+						<EmptyScreen />
+					) : (
+						<Results
+							selectedChapters={result?.chapters}
+							selectedVerses={result?.verses}
+							searchKeys={searchKeys}
+						/>
+					)}
 				</Content>
 				<Footer>
 					<ChapterBarChart
