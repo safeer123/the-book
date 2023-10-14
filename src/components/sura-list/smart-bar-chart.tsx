@@ -22,7 +22,8 @@ const Wrapper = styled.div`
 
 	.bar-wrapper-selected {
 		background-color: rgba(100, 100, 100, 0.2);
-		border: 0.2px dashed #1ec002a8;
+		// border: 0.2px dashed #1ec002a8;
+		box-sizing: content-box;
 	}
 `;
 
@@ -36,7 +37,7 @@ const BarItemWrapper = styled.div`
 	display: flex;
 	align-items: flex-end;
 	background-color: rgba(100, 100, 100, 0.05);
-	box-sizing: border-box;
+	box-sizing: content-box;
 
 	max-width: 15px;
 	cursor: pointer;

@@ -8,7 +8,7 @@ const useURLNavigation = () => {
 		setSearchParams({
 			k: `${id}`,
 			w: '0',
-			c: '1',
+			c: '0',
 			only: ChapterToken,
 		});
 	};
@@ -18,7 +18,7 @@ const useURLNavigation = () => {
 		setSearchParams({
 			k: key,
 			w: '0',
-			c: '1',
+			c: '0',
 			only: VerseToken,
 		});
 	};
