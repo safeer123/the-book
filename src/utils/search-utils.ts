@@ -34,12 +34,12 @@ export const matchSuraNumber = (searchKey: string): boolean => {
 export const matchKeyword = ({
 	target,
 	searchKey,
-	config: { ignoreCase, fullWord },
+	config: { matchCase, fullWord },
 }: Args): boolean => {
 	const regex = fullWord
 		? fullWordSearchRegex(escapeRegExp(searchKey))
 		: wordSearchRegex(escapeRegExp(searchKey));
-	const flags = ignoreCase ? 'mi' : 'm';
+	const flags = matchCase ? 'm' : 'mi';
 	const testRes = new RegExp(regex, flags).test(target);
 
 	return Boolean(searchKey.trim()) && testRes;
@@ -50,7 +50,7 @@ export const searchConfigFromURLParams = (
 ): SearchConfig => {
 	return {
 		fullWord: searchParams?.get('w') === '1',
-		ignoreCase: searchParams?.get('c') === '1',
+		matchCase: searchParams?.get('c') === '1',
 	};
 };
 

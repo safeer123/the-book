@@ -26,7 +26,7 @@ export interface ChapterItem {
 }
 
 export interface SearchConfig {
-	ignoreCase: boolean;
+	matchCase: boolean;
 	fullWord: boolean;
 }
 

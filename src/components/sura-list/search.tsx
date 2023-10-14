@@ -95,7 +95,7 @@ const Search: React.FC = () => {
 	const [searchKey, setSearchKey] = useState('');
 	const [dropdownVisible, setDropdownVisible] = useState(false);
 	const [config, setConfig] = useState({
-		ignoreCase: true,
+		matchCase: false,
 		fullWord: false,
 	});
 
@@ -113,7 +113,7 @@ const Search: React.FC = () => {
 		setSearchParams({
 			...(k ? { k } : {}),
 			w: conf.fullWord ? '1' : '0',
-			c: conf.ignoreCase ? '1' : '0',
+			c: conf.matchCase ? '1' : '0',
 			...(only ? { only } : {}),
 		});
 	};
@@ -199,10 +199,10 @@ const Search: React.FC = () => {
 		});
 	};
 
-	const onChangeIgnoreCase = (e: CheckboxChangeEvent) => {
+	const onChangeMatchCase = (e: CheckboxChangeEvent) => {
 		setConfig({
 			...config,
-			ignoreCase: !e.target.checked,
+			matchCase: e.target.checked,
 		});
 	};
 
@@ -219,7 +219,7 @@ const Search: React.FC = () => {
 		const conf = searchConfigFromURLParams(searchParams);
 		if (
 			conf.fullWord !== config.fullWord ||
-			conf.ignoreCase !== config.ignoreCase
+			conf.matchCase !== config.matchCase
 		) {
 			setConfig(conf);
 		}
@@ -246,7 +246,7 @@ const Search: React.FC = () => {
 			<Checkbox checked={config?.fullWord} onChange={onChangeFullWordCheck}>
 				{'Match Whole Word'}
 			</Checkbox>
-			<Checkbox checked={!config?.ignoreCase} onChange={onChangeIgnoreCase}>
+			<Checkbox checked={config?.matchCase} onChange={onChangeMatchCase}>
 				{'Match Case'}
 			</Checkbox>
 		</SearchPanelWrapper>
