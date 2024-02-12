@@ -9,6 +9,7 @@ import VideoPage from './video-page';
 import { useProjectStore } from './use-project-store';
 import { YouTubePlayer } from 'react-youtube';
 import PlayerStates from 'youtube-player/dist/constants/PlayerStates';
+import { UploadProjects } from './upload-projects';
 
 const Page = styled.div`
 	height: 100vh;
@@ -25,6 +26,8 @@ const SettingsArea = styled.div`
 	font-size: 24px;
 	cursor: pointer;
 	padding: 16px;
+	display: flex;
+	gap: 8px;
 
 	.ant-btn {
 		font-size: 24px;
@@ -77,7 +80,9 @@ const VideoTextBinding = () => {
 
 	const playerRef = useRef<YouTubePlayer | null>(null);
 
-	const { saveProject, projects } = useProjectStore({ setProjectConfig });
+	const { saveProject, loadProjects, projects } = useProjectStore({
+		setProjectConfig,
+	});
 
 	const hasUnsavedChanges = useMemo(() => {
 		const currentProjectInStore = projects.find(
@@ -125,6 +130,7 @@ const VideoTextBinding = () => {
 	return (
 		<Page>
 			<SettingsArea>
+				<UploadProjects loadProjects={loadProjects} />
 				<Popover
 					open={projectMenuVisible}
 					onOpenChange={(state) => setProjectMenuVisible(state)}

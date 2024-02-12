@@ -13,6 +13,7 @@ export const useProjectStore = ({
 	setProjectConfig: (p: ProjectConfig) => void;
 }): {
 	saveProject: (project: ProjectConfig) => void;
+	loadProjects: (projects: ProjectConfig[]) => void;
 	projects: ProjectConfig[];
 } => {
 	const [projectItems, setProjectItems] = useState<Projects>({});
@@ -31,6 +32,15 @@ export const useProjectStore = ({
 		setProjectConfig(savedProject);
 	};
 
+	const loadProjects = (projectList: ProjectConfig[]) => {
+		const projectMap: { [key: string]: ProjectConfig } = {};
+		projectList.forEach((p) => {
+			projectMap[p.videoUrl] = p;
+		});
+		localStorage.setItem(PROJECTS_KEY, JSON.stringify(projectMap));
+		setProjectItems(projectMap);
+	};
+
 	useEffect(() => {
 		const items = JSON.parse(
 			localStorage.getItem(PROJECTS_KEY) || '{}'
@@ -40,6 +50,7 @@ export const useProjectStore = ({
 
 	return {
 		saveProject,
+		loadProjects,
 		projects: Object.values(projectItems),
 	};
 };
