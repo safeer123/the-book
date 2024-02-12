@@ -25,6 +25,9 @@ import TafsirDrawer from './tafsir-drawer';
 import useURLNavigation from 'data/use-url-navigation';
 import { useTafsirInfoById } from 'data/use-tafsirs';
 
+const ARABIC_VERSE_CLASSNAME = 'arabic-verse-text';
+const TRANSLATION_CLASSNAME = 'translation-text';
+
 const getTransaltionHTML = (tr: string, highlightKey?: string) => {
 	let htmlOut = sanitizeHtml(tr);
 	if (highlightKey && highlightKey.trim()) {
@@ -115,10 +118,14 @@ const EngTranslation = styled.div`
 interface Props {
 	selectedChapters?: ChapterItem[];
 	selectedVerses?: Verse[];
-	searchKeys: string[];
+	searchKeys?: string[];
 }
 
-const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
+const Results = ({
+	selectedChapters,
+	selectedVerses,
+	searchKeys = [],
+}: Props) => {
 	const [tafsirConfig, setTafsirConfig] = useState<TafsirConfig | undefined>(
 		undefined
 	);
@@ -139,7 +146,7 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 		searchKey?: string
 	) => {
 		return (
-			<EngTranslation>
+			<EngTranslation className={TRANSLATION_CLASSNAME}>
 				<span
 					dangerouslySetInnerHTML={{
 						__html: getTransaltionHTML(trText, searchKey),
@@ -186,7 +193,7 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 	}, [selectionEnabled]);
 
 	const items: CollapseProps['items'] = useMemo(() => {
-		if (!verseData || !selectedChapters) return [];
+		if (!verseData) return [];
 
 		const verseRangeItems: {
 			chapter: ChapterItem | undefined;
@@ -227,7 +234,7 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 							<div key={verseKey} id={`ve-${verseKey}`}>
 								<ArabicVerseWrapper key={verseKey}>
 									<cite dir="rtl">
-										<ArabicVerseText>
+										<ArabicVerseText className={ARABIC_VERSE_CLASSNAME}>
 											{verseData?.ayaByKey?.[verseKey]?.text_uthmani}
 											<VerseNumber
 												number={verseKey.split(':')[1]}
@@ -266,7 +273,7 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 								<div key={verse.verse_key} id={`ve-${verse.verse_key}`}>
 									<ArabicVerseWrapper>
 										<cite dir="rtl">
-											<ArabicVerseText>
+											<ArabicVerseText className={ARABIC_VERSE_CLASSNAME}>
 												{verse?.text_uthmani}
 												<VerseNumber
 													number={verse.verse_key.split(':')[1]}
@@ -316,6 +323,7 @@ const Results = ({ selectedChapters, selectedVerses, searchKeys }: Props) => {
 		<div
 			onMouseEnter={() => setSelectionEnabled(true)}
 			onMouseLeave={() => setSelectionEnabled(false)}
+			className="verse-display-root"
 		>
 			<Collapse items={items} activeKey={activeKeys} />
 			<TafsirDrawer

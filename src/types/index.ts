@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import PlayerStates from 'youtube-player/dist/constants/PlayerStates';
 
 export interface Verse {
 	id: number;
@@ -72,4 +73,22 @@ export interface BarChartRecordItem {
 	tooltip?: ReactNode;
 	selected?: boolean;
 	onClick?: () => void;
+}
+
+export interface VerseBindingElement {
+	id: number;
+	t: number;
+	k: string;
+}
+
+export interface ProjectConfig {
+	id: string;
+	title: string;
+	videoUrl: string;
+	bindingConfig: VerseBindingElement[];
+}
+
+export interface VideoStatusInfo {
+	duration?: number;
+	playStatus?: PlayerStates;
 }
