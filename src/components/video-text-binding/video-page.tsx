@@ -270,7 +270,7 @@ const VideoPage = ({
 			</VideoWrapper>
 			<VerseDisplayWrapper>
 				<VerseList>
-					<Results selectedVerses={verses} />
+					{!versesLoading && <Results selectedVerses={verses} />}
 				</VerseList>
 			</VerseDisplayWrapper>
 			<ControlsWrapper>

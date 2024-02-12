@@ -1,5 +1,5 @@
 import { useVerses } from 'data/use-verses';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Verse, VerseBindingElement } from 'types';
 
 interface Props {
@@ -38,8 +38,11 @@ export const useVerseBinding = ({
 	};
 
 	const verses = useMemo(() => {
+		if (versesLoading) {
+			return [];
+		}
 		return searchBindingVerse(bindingConfig, currentTime);
-	}, [bindingConfig, currentTime, verseData]);
+	}, [bindingConfig, currentTime, verseData, versesLoading]);
 
 	return {
 		verses,
