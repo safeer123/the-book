@@ -1,5 +1,12 @@
 import { Button, Drawer as AntDrawer, Space, Input } from 'antd';
-import { ChangeEvent, FC, useMemo } from 'react';
+import {
+	ChangeEvent,
+	FC,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+} from 'react';
 import styled from 'styled-components';
 import { ProjectConfig, VerseBindingElement } from 'types';
 
@@ -88,6 +95,8 @@ const EditBindingConfiguration: FC<Props> = ({
 	downloadAsJson,
 	hasUnsavedChanges,
 }) => {
+	const currentTimeRef = useRef(0);
+
 	const { bindingConfig = [] } = projectConfig || {};
 	const [chapter, verse] = useMemo(() => {
 		if (projectConfig?.bindingConfig) {
@@ -112,16 +121,16 @@ const EditBindingConfiguration: FC<Props> = ({
 		} as ProjectConfig);
 	};
 
-	const addNextBinding = () => {
+	const addNextBinding = useCallback(() => {
 		setBindingConfig([
 			...bindingConfig,
 			{
-				t: Number(currentTime.toFixed(1)),
+				t: Number(currentTimeRef.current.toFixed(1)),
 				k: `${chapter}:${Number(verse) + 1}`,
 				id: (bindingConfig?.at(-1)?.id || 0) + 1,
 			},
 		]);
-	};
+	}, [bindingConfig, chapter, verse, setBindingConfig, currentTimeRef]);
 
 	const addBlankBinding = () => {
 		setBindingConfig([
@@ -175,6 +184,22 @@ const EditBindingConfiguration: FC<Props> = ({
 			}),
 		} as ProjectConfig);
 	};
+
+	useEffect(() => {
+		currentTimeRef.current = currentTime;
+	}, [currentTime, currentTimeRef]);
+
+	useEffect(() => {
+		const handleKeydown = (e: KeyboardEvent) => {
+			if (e.code === 'Equal') {
+				addNextBinding();
+			}
+		};
+		document.addEventListener('keydown', handleKeydown);
+		return () => {
+			document.removeEventListener('keydown', handleKeydown);
+		};
+	}, [addNextBinding]);
 
 	return (
 		<Drawer

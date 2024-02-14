@@ -207,7 +207,6 @@ const VideoPage = ({
 
 	useEffect(() => {
 		const handleKeydown = (e: KeyboardEvent) => {
-			console.log(e.code);
 			if (e.code === 'Space') {
 				playPause();
 			} else if (e.code === 'ArrowRight') {
