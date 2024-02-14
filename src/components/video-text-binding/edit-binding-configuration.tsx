@@ -225,6 +225,7 @@ const EditBindingConfiguration: FC<Props> = ({
 							type="text"
 							value={projectConfig?.title}
 							onChange={onChangeTitle}
+							onKeyDown={(e) => e.stopPropagation()}
 						/>
 					</InputItem>
 					<InputItem>
@@ -233,6 +234,7 @@ const EditBindingConfiguration: FC<Props> = ({
 							type="text"
 							value={projectConfig?.videoUrl}
 							onChange={onChangeURL}
+							onKeyDown={(e) => e.stopPropagation()}
 						/>
 					</InputItem>
 				</ProjectDetailsArea>
