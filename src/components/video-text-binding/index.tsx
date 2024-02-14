@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import styled from 'styled-components';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Popover, Tooltip } from 'antd';
 import EditBindingConfiguration from './edit-binding-configuration';
 import { ProjectConfig, VideoStatusInfo } from 'types';
@@ -97,7 +97,7 @@ const VideoTextBinding = () => {
 		}
 	}, [projects]);
 
-	const playPause = () => {
+	const playPause = useCallback(() => {
 		const currentState =
 			playerRef.current?.getPlayerState() as unknown as PlayerStates;
 		if (currentState !== PlayerStates.PLAYING) {
@@ -105,7 +105,7 @@ const VideoTextBinding = () => {
 		} else if (currentState === PlayerStates.PLAYING) {
 			playerRef.current?.pauseVideo();
 		}
-	};
+	}, [playerRef]);
 
 	const seekTo = (t: number) => {
 		playerRef.current?.seekTo(t, true);

@@ -1,5 +1,5 @@
 import { useVerses } from 'data/use-verses';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Verse, VerseBindingElement } from 'types';
 
 interface Props {
@@ -7,25 +7,31 @@ interface Props {
 	bindingConfig: VerseBindingElement[];
 }
 
+interface VerseBindingSearchElement extends VerseBindingElement {
+	index: number;
+}
+
 export const useVerseBinding = ({
 	currentTime = 0,
 	bindingConfig,
 }: Props): {
 	verses: Verse[];
+	timeToVerse: (step: number) => number;
 } => {
 	const { data: verseData, isLoading: versesLoading } = useVerses();
 
 	const searchBindingVerse = (
-		elements: VerseBindingElement[],
+		elements: VerseBindingSearchElement[],
 		t: number
-	): Verse[] => {
+	): [Verse[], number] => {
 		const N = elements.length;
-		if (N === 0) return [];
+		if (N === 0) return [[], -1];
 		else if (N === 1 && t >= elements[0].t) {
-			return elements[0].k
+			const verses = elements[0].k
 				.split(',')
 				.map((key) => verseData?.ayaByKey?.[key])
 				.filter((v) => !!v) as Verse[];
+			return [verses, elements[0].index];
 		} else {
 			// binary search
 			const nHalf = Math.floor(N / 2);
@@ -37,15 +43,30 @@ export const useVerseBinding = ({
 		}
 	};
 
-	const verses = useMemo(() => {
+	const bindingConfigForSearch = useMemo(() => {
+		return bindingConfig.map((b, index) => ({ ...b, index }));
+	}, [bindingConfig]);
+
+	const [verses, elementIndex] = useMemo(() => {
 		if (versesLoading) {
-			return [];
+			return [[], -1];
 		}
-		return searchBindingVerse(bindingConfig, currentTime);
-	}, [bindingConfig, currentTime, verseData, versesLoading]);
+		return searchBindingVerse(bindingConfigForSearch, currentTime);
+	}, [bindingConfigForSearch, currentTime, verseData, versesLoading]);
+
+	const timeToVerse = useCallback(
+		(step: number) => {
+			if (elementIndex >= 0 && bindingConfig?.[elementIndex + step]) {
+				return bindingConfig?.[elementIndex + step]?.t;
+			}
+			return -1;
+		},
+		[elementIndex, bindingConfig]
+	);
 
 	return {
 		verses,
+		timeToVerse,
 	};
 };
 

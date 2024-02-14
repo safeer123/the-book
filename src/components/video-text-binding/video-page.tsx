@@ -37,6 +37,7 @@ const VerseDisplayWrapper = styled.div`
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	cursor: pointer;
 `;
 
 const VerseList = styled.div`
@@ -161,7 +162,7 @@ const VideoPage = ({
 	seekTo,
 }: Props) => {
 	const [videoVisibility, setVideoVisibility] = useState(true);
-	const { verses } = useVerseBinding({
+	const { verses, timeToVerse } = useVerseBinding({
 		currentTime,
 		bindingConfig: projectConfig?.bindingConfig || [],
 	});
@@ -203,6 +204,29 @@ const VideoPage = ({
 			clearInterval(timerRef);
 		};
 	}, [playerRef]);
+
+	useEffect(() => {
+		const handleKeydown = (e: KeyboardEvent) => {
+			console.log(e.code);
+			if (e.code === 'Space') {
+				playPause();
+			} else if (e.code === 'ArrowRight') {
+				const tNext = timeToVerse(+1);
+				if (tNext > 0) {
+					seekTo(tNext);
+				}
+			} else if (e.code === 'ArrowLeft') {
+				const tNext = timeToVerse(-1);
+				if (tNext > 0) {
+					seekTo(tNext);
+				}
+			}
+		};
+		document.addEventListener('keydown', handleKeydown);
+		return () => {
+			document.removeEventListener('keydown', handleKeydown);
+		};
+	}, [playPause, timeToVerse]);
 
 	const opts: YouTubeProps['opts'] = useMemo(() => {
 		return {
@@ -268,7 +292,7 @@ const VideoPage = ({
 					/>
 				)}
 			</VideoWrapper>
-			<VerseDisplayWrapper>
+			<VerseDisplayWrapper onClick={playPause}>
 				<VerseList>
 					{!versesLoading && <Results selectedVerses={verses} />}
 				</VerseList>
