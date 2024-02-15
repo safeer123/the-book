@@ -131,17 +131,19 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 					onOpenChange={(state) => setProjectMenuVisible(state)}
 					content={
 						<ProjectsMenu>
-							<Button
-								key={'new-project'}
-								size="small"
-								type="primary"
-								onClick={() => {
-									newProject();
-									setProjectMenuVisible(false);
-								}}
-							>
-								{'＋ New Project'}
-							</Button>
+							{!viewerMode && (
+								<Button
+									key={'new-project'}
+									size="small"
+									type="primary"
+									onClick={() => {
+										newProject();
+										setProjectMenuVisible(false);
+									}}
+								>
+									{'＋ New Project'}
+								</Button>
+							)}
 							{(projects || []).map((p) => (
 								<ProjectItem
 									key={p.id}
