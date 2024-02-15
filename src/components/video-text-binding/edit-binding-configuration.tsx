@@ -240,7 +240,7 @@ const EditBindingConfiguration: FC<Props> = ({
 				</ProjectDetailsArea>
 				<BindingListItems>
 					{bindingConfig.map((element, index) => (
-						<BindingItem key={`${element.id}-${element.t}`}>
+						<BindingItem key={`${element.id}`}>
 							<Input
 								size="small"
 								type="number"

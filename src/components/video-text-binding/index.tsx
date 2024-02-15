@@ -68,7 +68,11 @@ const newProjectConfig = (): ProjectConfig => {
 	};
 };
 
-const VideoTextBinding = () => {
+interface Props {
+	viewerMode?: boolean;
+}
+
+const VideoTextBinding = ({ viewerMode = false }: Props) => {
 	const [projectMenuVisible, setProjectMenuVisible] = useState(false);
 	const [settingsDrawerVisibility, toggleSettingsDrawerVisibility] =
 		useState(false);
@@ -80,9 +84,11 @@ const VideoTextBinding = () => {
 
 	const playerRef = useRef<YouTubePlayer | null>(null);
 
-	const { saveProject, loadProjects, projects } = useProjectStore({
-		setProjectConfig,
-	});
+	const { saveProject, loadProjects, projects, downloadAsJson } =
+		useProjectStore({
+			setProjectConfig,
+			viewerMode,
+		});
 
 	const hasUnsavedChanges = useMemo(() => {
 		const currentProjectInStore = projects.find(
@@ -109,17 +115,6 @@ const VideoTextBinding = () => {
 
 	const seekTo = (t: number) => {
 		playerRef.current?.seekTo(t, true);
-	};
-
-	const downloadAsJson = () => {
-		const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
-			JSON.stringify(projects)
-		)}`;
-		const link = document.createElement('a');
-		link.href = jsonString;
-		link.download = 'verse-binding-projects.json';
-
-		link.click();
 	};
 
 	const newProject = () => {
@@ -167,14 +162,16 @@ const VideoTextBinding = () => {
 					<Button type="text">{'🎞️'}</Button>
 				</Popover>
 
-				<Tooltip title="Edit" placement="bottom">
-					<Button
-						type="text"
-						onClick={() => toggleSettingsDrawerVisibility(true)}
-					>
-						{'⚙'}
-					</Button>
-				</Tooltip>
+				{!viewerMode && (
+					<Tooltip title="Edit" placement="bottom">
+						<Button
+							type="text"
+							onClick={() => toggleSettingsDrawerVisibility(true)}
+						>
+							{'⚙'}
+						</Button>
+					</Tooltip>
+				)}
 			</SettingsArea>
 
 			<VideoPage
@@ -188,16 +185,18 @@ const VideoTextBinding = () => {
 				seekTo={seekTo}
 			/>
 
-			<EditBindingConfiguration
-				open={settingsDrawerVisibility}
-				onClose={() => toggleSettingsDrawerVisibility(false)}
-				projectConfig={projectConfig}
-				setProjectConfig={setProjectConfig}
-				currentTime={currentTime}
-				saveProject={() => projectConfig && saveProject(projectConfig)}
-				downloadAsJson={downloadAsJson}
-				hasUnsavedChanges={hasUnsavedChanges}
-			/>
+			{!viewerMode && (
+				<EditBindingConfiguration
+					open={settingsDrawerVisibility}
+					onClose={() => toggleSettingsDrawerVisibility(false)}
+					projectConfig={projectConfig}
+					setProjectConfig={setProjectConfig}
+					currentTime={currentTime}
+					saveProject={() => projectConfig && saveProject(projectConfig)}
+					downloadAsJson={downloadAsJson}
+					hasUnsavedChanges={hasUnsavedChanges}
+				/>
+			)}
 		</Page>
 	);
 };

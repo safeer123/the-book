@@ -24,7 +24,10 @@ const router = createBrowserRouter([
 					<Link to="/suras">Search in The Book</Link>
 				</div>
 				<div>
-					<Link to="/verse-binding">Recitation-to-verse binding</Link>
+					<Link to="/verse-binding">Recitation-to-verse binding editor</Link>
+				</div>
+				<div>
+					<Link to="/qbind">Recitation-to-verse player</Link>
 				</div>
 			</HomeWrapper>
 		),
@@ -40,6 +43,10 @@ const router = createBrowserRouter([
 	{
 		path: 'verse-binding',
 		element: <VideoTextBinding />,
+	},
+	{
+		path: 'qbind',
+		element: <VideoTextBinding viewerMode />,
 	},
 	{
 		path: 'word-game',

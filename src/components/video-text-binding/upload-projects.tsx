@@ -12,7 +12,9 @@ const readProjectsFile = async (f?: RcFile) => {
 	try {
 		const textContent = await f?.text();
 		if (textContent) {
-			const projectsRead = JSON.parse(textContent) as ProjectConfig[];
+			const projectsRead = JSON.parse(textContent) as {
+				projects: ProjectConfig[];
+			};
 			return projectsRead;
 		}
 	} catch {
@@ -35,8 +37,8 @@ const props = (loadProjects: Props['loadProjects']): UploadProps => {
 			if (info.file.status === 'done') {
 				console.log(`${info.file.name} file uploaded successfully`);
 				// eslint-disable-next-line @typescript-eslint/no-floating-promises
-				readProjectsFile(info.file?.originFileObj).then((projects) => {
-					loadProjects(projects || []);
+				readProjectsFile(info.file?.originFileObj).then((data) => {
+					loadProjects(data?.projects || []);
 				});
 			} else if (info.file.status === 'error') {
 				console.log(`${info.file.name} file upload failed.`);
