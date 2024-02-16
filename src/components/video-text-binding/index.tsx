@@ -119,13 +119,29 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 
 	const newProject = () => {
 		const p = newProjectConfig();
+		setVideoStatus(undefined);
 		setProjectConfig(p);
+		setCurrentTime(0);
+		setProjectMenuVisible(false);
+	};
+
+	const onClickProjectItem = (p: ProjectConfig) => {
+		if (p === projectConfig) return;
+		setProjectConfig(p);
+		setVideoStatus(undefined);
+		setCurrentTime(0);
+		setProjectMenuVisible(false);
+	};
+
+	const copyToClipboard = async () => {
+		const jsonStr = JSON.stringify({ projects });
+		return navigator?.clipboard?.writeText(jsonStr);
 	};
 
 	return (
 		<Page>
 			<SettingsArea>
-				<UploadProjects loadProjects={loadProjects} />
+				{!viewerMode && <UploadProjects loadProjects={loadProjects} />}
 				<Popover
 					open={projectMenuVisible}
 					onOpenChange={(state) => setProjectMenuVisible(state)}
@@ -136,10 +152,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 									key={'new-project'}
 									size="small"
 									type="primary"
-									onClick={() => {
-										newProject();
-										setProjectMenuVisible(false);
-									}}
+									onClick={() => newProject()}
 								>
 									{'＋ New Project'}
 								</Button>
@@ -149,10 +162,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 									key={p.id}
 									size="small"
 									type="text"
-									onClick={() => {
-										setProjectConfig(p);
-										setProjectMenuVisible(false);
-									}}
+									onClick={() => onClickProjectItem(p)}
 									className={p.id === projectConfig?.id ? 'active-item' : ''}
 								>
 									{p.title}
@@ -197,6 +207,8 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 					saveProject={() => projectConfig && saveProject(projectConfig)}
 					downloadAsJson={downloadAsJson}
 					hasUnsavedChanges={hasUnsavedChanges}
+					// eslint-disable-next-line @typescript-eslint/no-misused-promises
+					copyToClipboard={copyToClipboard}
 				/>
 			)}
 		</Page>

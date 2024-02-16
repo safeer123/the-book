@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { Button, Drawer as AntDrawer, Space, Input } from 'antd';
 import {
 	ChangeEvent,
@@ -6,6 +7,7 @@ import {
 	useEffect,
 	useMemo,
 	useRef,
+	useState,
 } from 'react';
 import styled from 'styled-components';
 import { ProjectConfig, VerseBindingElement } from 'types';
@@ -82,6 +84,7 @@ interface Props {
 	currentTime: number;
 	saveProject: () => void;
 	downloadAsJson: () => void;
+	copyToClipboard: () => Promise<void>;
 	hasUnsavedChanges: boolean;
 }
 
@@ -93,9 +96,11 @@ const EditBindingConfiguration: FC<Props> = ({
 	currentTime,
 	saveProject,
 	downloadAsJson,
+	copyToClipboard,
 	hasUnsavedChanges,
 }) => {
 	const currentTimeRef = useRef(0);
+	const [copyBtnLabel, setCopyBtnLabel] = useState('Copy');
 
 	const { bindingConfig = [] } = projectConfig || {};
 	const [chapter, verse] = useMemo(() => {
@@ -275,8 +280,21 @@ const EditBindingConfiguration: FC<Props> = ({
 					</BindingItem>
 				</BindingListItems>
 				<ActionArea>
+					<Button
+						type="primary"
+						onClick={() =>
+							copyToClipboard().then(() => {
+								setCopyBtnLabel('Copied ✓');
+								setTimeout(() => {
+									setCopyBtnLabel('Copy');
+								}, 3000);
+							})
+						}
+					>
+						{copyBtnLabel}
+					</Button>
 					<Button type="primary" onClick={downloadAsJson}>
-						Download as JSON
+						Download
 					</Button>
 					<Button
 						type="primary"
