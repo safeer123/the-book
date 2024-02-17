@@ -208,13 +208,16 @@ const VideoPage = ({
 	useEffect(() => {
 		const handleKeydown = (e: KeyboardEvent) => {
 			if (e.code === 'Space') {
+				e.preventDefault();
 				playPause();
 			} else if (e.code === 'ArrowRight') {
+				e.preventDefault();
 				const tNext = timeToVerse(+1);
 				if (tNext > 0) {
 					seekTo(tNext);
 				}
 			} else if (e.code === 'ArrowLeft') {
+				e.preventDefault();
 				const tNext = timeToVerse(-1);
 				if (tNext > 0) {
 					seekTo(tNext);
