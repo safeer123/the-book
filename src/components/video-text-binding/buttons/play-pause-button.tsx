@@ -1,20 +1,5 @@
-import { Button } from 'antd';
-import styled from 'styled-components';
 import PlayerStates from 'youtube-player/dist/constants/PlayerStates';
-
-const IconBtn = styled(Button)`
-	height: 80px;
-	width: 80px;
-	border-radius: 40px;
-	padding: 0;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	.play-pause-btn-icon {
-		width: 70px;
-		height: 70px;
-	}
-`;
+import { IconBtnLarge } from './icon-btn';
 
 const PlayIcon = (
 	<svg
@@ -24,7 +9,7 @@ const PlayIcon = (
 		fill="none"
 		xmlns="http://www.w3.org/2000/svg"
 		stroke="#3454f4"
-		className="play-pause-btn-icon"
+		className="btn-icon"
 	>
 		<g id="SVGRepo_bgCarrier" strokeWidth="0">
 			<rect
@@ -78,7 +63,7 @@ const PauseIcon = (
 		fill="none"
 		xmlns="http://www.w3.org/2000/svg"
 		stroke="#3454f4"
-		className="play-pause-btn-icon"
+		className="btn-icon"
 	>
 		<g id="SVGRepo_bgCarrier" strokeWidth="0">
 			<rect
@@ -131,9 +116,9 @@ export const PlayPause = ({
 	onClick: () => void;
 }) => {
 	return (
-		<IconBtn type="text" onClick={onClick}>
+		<IconBtnLarge type="text" onClick={onClick}>
 			{state === PlayerStates.PLAYING && PauseIcon}
 			{state !== PlayerStates.PLAYING && PlayIcon}
-		</IconBtn>
+		</IconBtnLarge>
 	);
 };

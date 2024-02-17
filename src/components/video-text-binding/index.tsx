@@ -10,6 +10,8 @@ import { useProjectStore } from './use-project-store';
 import { YouTubePlayer } from 'react-youtube';
 import PlayerStates from 'youtube-player/dist/constants/PlayerStates';
 import { UploadProjects } from './upload-projects';
+import { ProjectList as ProjectListBtn } from './buttons/projects-list-btn';
+import { Settings as SettingsBtn } from './buttons/settings-btn';
 
 const Page = styled.div`
 	height: 100vh;
@@ -27,7 +29,7 @@ const SettingsArea = styled.div`
 	cursor: pointer;
 	padding: 16px;
 	display: flex;
-	gap: 8px;
+	gap: 16px;
 
 	.ant-btn {
 		font-size: 24px;
@@ -145,6 +147,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 				<Popover
 					open={projectMenuVisible}
 					onOpenChange={(state) => setProjectMenuVisible(state)}
+					trigger={['click']}
 					content={
 						<ProjectsMenu>
 							{!viewerMode && (
@@ -171,17 +174,12 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 						</ProjectsMenu>
 					}
 				>
-					<Button type="text">{'🎞️'}</Button>
+					<ProjectListBtn />
 				</Popover>
 
 				{!viewerMode && (
 					<Tooltip title="Edit" placement="bottom">
-						<Button
-							type="text"
-							onClick={() => toggleSettingsDrawerVisibility(true)}
-						>
-							{'⚙'}
-						</Button>
+						<SettingsBtn onClick={() => toggleSettingsDrawerVisibility(true)} />
 					</Tooltip>
 				)}
 			</SettingsArea>

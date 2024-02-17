@@ -1,8 +1,9 @@
 /* eslint-disable no-console */
 import type { UploadProps } from 'antd';
-import { Button, Upload } from 'antd';
+import { Upload } from 'antd';
 import { RcFile } from 'antd/es/upload';
 import { ProjectConfig } from 'types';
+import { Upload as UploadBtn } from './buttons/upload-btn';
 
 interface Props {
 	loadProjects: (projects: ProjectConfig[]) => void;
@@ -49,6 +50,6 @@ const props = (loadProjects: Props['loadProjects']): UploadProps => {
 
 export const UploadProjects = ({ loadProjects }: Props) => (
 	<Upload {...props(loadProjects)}>
-		<Button type="text">{'📁'}</Button>
+		<UploadBtn />
 	</Upload>
 );

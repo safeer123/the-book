@@ -12,7 +12,7 @@ import Results from 'components/sura-list/results';
 import { ProjectConfig, VideoStatusInfo } from 'types';
 import { Button, Popover, Slider } from 'antd';
 import PlayerStates from 'youtube-player/dist/constants/PlayerStates';
-import { PlayPause } from './play-pause-button';
+import { PlayPause } from './buttons/play-pause-button';
 import { TimelineMarkItemIcon } from './timeline-mark-item';
 import { useVerses } from 'data/use-verses';
 
@@ -20,7 +20,7 @@ const VideoWrapper = styled.div`
 	flex: 2;
 	display: flex;
 	justify-content: center;
-	background-color: #3b3b3b;
+	background-color: #180f2f;
 	position: relative;
 `;
 
