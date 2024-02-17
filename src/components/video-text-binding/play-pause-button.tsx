@@ -3,13 +3,16 @@ import styled from 'styled-components';
 import PlayerStates from 'youtube-player/dist/constants/PlayerStates';
 
 const IconBtn = styled(Button)`
-	height: 60px;
-	width: 60px;
-	border-radius: 30px;
+	height: 80px;
+	width: 80px;
+	border-radius: 40px;
 	padding: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	.play-pause-btn-icon {
-		width: 50px;
-		height: 50px;
+		width: 70px;
+		height: 70px;
 	}
 `;
 
