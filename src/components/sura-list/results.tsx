@@ -153,7 +153,13 @@ const Results = ({
 					}}
 				/>
 				<Tooltip title="Tafsir" placement="bottom">
-					<Button type="text" onClick={() => setTafsirConfig({ verseKey })}>
+					<Button
+						type="text"
+						onClick={(e) => {
+							setTafsirConfig({ verseKey });
+							e.stopPropagation();
+						}}
+					>
 						{'📖'}
 					</Button>
 				</Tooltip>

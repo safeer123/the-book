@@ -26,11 +26,12 @@ export const IconBtnMedium = styled(Button)`
 	background-color: transparent;
 	border: none;
 
-	:hover {
-		opacity: 0.95;
-	}
 	.btn-icon {
 		width: 32px;
 		height: 32px;
+	}
+
+	:hover {
+		opacity: 0.95;
 	}
 `;

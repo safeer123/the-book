@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import styled from 'styled-components';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Popover, Tooltip } from 'antd';
+import { Button, Popover, Tooltip, Input } from 'antd';
 import EditBindingConfiguration from './edit-binding-configuration';
 import { ProjectConfig, VideoStatusInfo } from 'types';
 import VideoPage from './video-page';
@@ -12,6 +12,8 @@ import PlayerStates from 'youtube-player/dist/constants/PlayerStates';
 import { UploadProjects } from './upload-projects';
 import { ProjectList as ProjectListBtn } from './buttons/projects-list-btn';
 import { Settings as SettingsBtn } from './buttons/settings-btn';
+
+const { Search } = Input;
 
 const Page = styled.div`
 	height: 100vh;
@@ -42,6 +44,16 @@ const ProjectsMenu = styled.div`
 	flex-direction: column;
 	gap: 8px;
 	align-items: stretch;
+	width: 300px;
+`;
+
+const ProjectItemWrapper = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	align-items: stretch;
+	max-height: 400px;
+	overflow-y: auto;
 
 	.active-item {
 		background-color: #d8e1fc;
@@ -76,7 +88,8 @@ interface Props {
 
 const VideoTextBinding = ({ viewerMode = false }: Props) => {
 	const [projectMenuVisible, setProjectMenuVisible] = useState(false);
-	const [settingsDrawerVisibility, toggleSettingsDrawerVisibility] =
+	const [searchInput, setSearchInput] = useState('');
+	const [settingsDrawerVisibility, setSettingsDrawerVisibility] =
 		useState(false);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [projectConfig, setProjectConfig] = useState<
@@ -125,6 +138,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 		setProjectConfig(p);
 		setCurrentTime(0);
 		setProjectMenuVisible(false);
+		setSettingsDrawerVisibility(true);
 	};
 
 	const onClickProjectItem = (p: ProjectConfig) => {
@@ -139,6 +153,12 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 		const jsonStr = JSON.stringify({ projects });
 		return navigator?.clipboard?.writeText(jsonStr);
 	};
+
+	const filteredProjects = useMemo(() => {
+		return (projects || []).filter((p) =>
+			p?.title?.toLowerCase()?.includes(searchInput.toLowerCase())
+		);
+	}, [projects, searchInput]);
 
 	return (
 		<Page>
@@ -160,17 +180,26 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 									{'＋ New Project'}
 								</Button>
 							)}
-							{(projects || []).map((p) => (
-								<ProjectItem
-									key={p.id}
-									size="small"
-									type="text"
-									onClick={() => onClickProjectItem(p)}
-									className={p.id === projectConfig?.id ? 'active-item' : ''}
-								>
-									{p.title}
-								</ProjectItem>
-							))}
+
+							<Search
+								placeholder="Search.."
+								onChange={(e) => setSearchInput(e.target.value)}
+								allowClear
+							/>
+
+							<ProjectItemWrapper>
+								{filteredProjects.map((p) => (
+									<ProjectItem
+										key={p.id}
+										size="small"
+										type="text"
+										onClick={() => onClickProjectItem(p)}
+										className={p.id === projectConfig?.id ? 'active-item' : ''}
+									>
+										{p.title}
+									</ProjectItem>
+								))}
+							</ProjectItemWrapper>
 						</ProjectsMenu>
 					}
 				>
@@ -179,7 +208,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 
 				{!viewerMode && (
 					<Tooltip title="Edit" placement="bottom">
-						<SettingsBtn onClick={() => toggleSettingsDrawerVisibility(true)} />
+						<SettingsBtn onClick={() => setSettingsDrawerVisibility(true)} />
 					</Tooltip>
 				)}
 			</SettingsArea>
@@ -198,7 +227,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 			{!viewerMode && (
 				<EditBindingConfiguration
 					open={settingsDrawerVisibility}
-					onClose={() => toggleSettingsDrawerVisibility(false)}
+					onClose={() => setSettingsDrawerVisibility(false)}
 					projectConfig={projectConfig}
 					setProjectConfig={setProjectConfig}
 					currentTime={currentTime}

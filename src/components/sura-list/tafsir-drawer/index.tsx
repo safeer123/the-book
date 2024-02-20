@@ -32,6 +32,7 @@ const TafsirDrawer: FC<Props> = ({
 	}
 	return (
 		<Drawer
+			onClick={(e) => e.stopPropagation()}
 			title={title}
 			placement="right"
 			width={'70%'}
