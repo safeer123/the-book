@@ -1,5 +1,5 @@
 import { useVerses } from 'data/use-verses';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Verse, VerseBindingElement } from 'types';
 
 interface Props {
@@ -11,6 +11,13 @@ interface VerseBindingSearchElement extends VerseBindingElement {
 	index: number;
 }
 
+interface Keyframe {
+	elementIndex: number;
+	verses: Verse[];
+	startTime: number;
+	endTime: number;
+}
+
 export const useVerseBinding = ({
 	currentTime = 0,
 	bindingConfig,
@@ -18,6 +25,7 @@ export const useVerseBinding = ({
 	verses: Verse[];
 	timeToVerse: (step: number) => number;
 } => {
+	const [keyframe, setKeyframe] = useState<Keyframe | undefined>();
 	const { data: verseData, isLoading: versesLoading } = useVerses();
 
 	const searchBindingVerse = (
@@ -47,12 +55,37 @@ export const useVerseBinding = ({
 		return bindingConfig.map((b, index) => ({ ...b, index }));
 	}, [bindingConfig]);
 
-	const [verses, elementIndex] = useMemo(() => {
+	useEffect(() => {
 		if (versesLoading) {
-			return [[], -1];
+			return;
 		}
-		return searchBindingVerse(bindingConfigForSearch, currentTime);
+		if (
+			keyframe &&
+			currentTime >= keyframe?.startTime &&
+			currentTime < keyframe?.endTime
+		) {
+			return;
+		}
+		const [verses, index] = searchBindingVerse(
+			bindingConfigForSearch,
+			currentTime
+		);
+		if (bindingConfigForSearch?.[index]) {
+			setKeyframe({
+				elementIndex: index,
+				verses,
+				startTime: bindingConfigForSearch?.[index]?.t,
+				endTime: bindingConfigForSearch?.[index + 1]?.t || Infinity,
+			});
+		}
 	}, [bindingConfigForSearch, currentTime, verseData, versesLoading]);
+
+	useEffect(() => {
+		return () => setKeyframe(undefined);
+	}, [bindingConfigForSearch]);
+
+	const verses = keyframe?.verses || [];
+	const elementIndex = keyframe?.elementIndex || -1;
 
 	const timeToVerse = useCallback(
 		(step: number) => {
@@ -69,28 +102,3 @@ export const useVerseBinding = ({
 		timeToVerse,
 	};
 };
-
-/* 
-
---- how to optimise the Binary search in every t update
-
-Keep a state called currentTimeWidow [startTime, endTime]
-This state is set once we do a BS and find the verses
-Avoid BS if currentTime >= startTime && currentTime < endTime
-
-when bindingConfig changes then set currentTimeWidow [-1,-1]
-
------ Save and retrieve
-A settings icon top left can launch a drawer
-Do not close the drawer on clicking outside, we should be able to interact with video paralelly
-A list of binding elements appear --> time, verseKeys (comma sep), delete option
-time, verseKeys are editable
-"+ Next Verse (2:33)"
-"+ Blank"
-
-Save into the local storage for now
-
-{
-  [videoUrlAsKey]: { title: "XYZ", elements: [] },
-}
-*/
