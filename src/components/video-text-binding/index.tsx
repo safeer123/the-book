@@ -64,6 +64,7 @@ const ProjectItem = styled(Button)`
 	width: 100%;
 	padding: 4px;
 	text-align: left;
+	overflow: hidden;
 
 	background-color: #fff;
 	cursor: pointer;
@@ -189,15 +190,23 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 
 							<ProjectItemWrapper>
 								{filteredProjects.map((p) => (
-									<ProjectItem
+									<Tooltip
 										key={p.id}
-										size="small"
-										type="text"
-										onClick={() => onClickProjectItem(p)}
-										className={p.id === projectConfig?.id ? 'active-item' : ''}
+										mouseEnterDelay={1}
+										title={p.title}
+										placement="left"
 									>
-										{p.title}
-									</ProjectItem>
+										<ProjectItem
+											size="small"
+											type="text"
+											onClick={() => onClickProjectItem(p)}
+											className={
+												p.id === projectConfig?.id ? 'active-item' : ''
+											}
+										>
+											{p.title}
+										</ProjectItem>
+									</Tooltip>
 								))}
 							</ProjectItemWrapper>
 						</ProjectsMenu>

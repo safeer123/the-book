@@ -107,7 +107,7 @@ const ControlsWrapper = styled.div`
 	justify-content: space-between;
 	align-items: center;
 	padding: 0px 16px;
-	border-top: 1px dashed green;
+	border-top: 1px dashed #54aaeb;
 `;
 
 const TimelineControl = styled.div`
