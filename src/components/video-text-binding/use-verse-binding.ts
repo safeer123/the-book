@@ -70,6 +70,15 @@ export const useVerseBinding = ({
 			bindingConfigForSearch,
 			currentTime
 		);
+
+		if (
+			index === -1 &&
+			currentTime < (bindingConfigForSearch?.at(-1)?.t || 0) &&
+			keyframe
+		) {
+			setKeyframe(undefined);
+		}
+
 		if (bindingConfigForSearch?.[index]) {
 			setKeyframe({
 				elementIndex: index,
