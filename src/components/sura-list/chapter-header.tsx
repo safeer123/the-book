@@ -15,11 +15,31 @@ const HeaderWrapper = styled.div`
 	justify-content: flex-end;
 	align-items: center;
 	margin-right: 16px;
+
+	@media (min-width: 320px) {
+		font-size: 1em;
+		gap: 0.5em;
+		margin-right: 0.5em;
+	}
+
+	@media (min-width: 961px) {
+		font-size: 18px;
+		gap: 24px;
+		margin-right: 16px;
+	}
 `;
 
 const AvailableArea = styled.div`
 	flex: 1;
 	height: 30px;
+
+	@media (min-width: 320px) {
+		display: none;
+	}
+
+	@media (min-width: 961px) {
+		display: flex;
+	}
 `;
 
 const ArabicTitle = styled.span`
@@ -30,6 +50,16 @@ const ArabicTitle = styled.span`
 
 	&:hover {
 		color: #004cb6;
+	}
+
+	@media (min-width: 320px) {
+		font-size: 1.2em;
+		margin-bottom: 1em;
+	}
+
+	@media (min-width: 961px) {
+		font-size: 24px;
+		margin-bottom: 16px;
 	}
 `;
 
@@ -44,11 +74,27 @@ const TitleText = styled.span`
 const ChapterIndex = styled.span`
 	font-size: 18px;
 	color: #621515;
+
+	@media (min-width: 320px) {
+		font-size: 1em;
+	}
+
+	@media (min-width: 961px) {
+		font-size: 18px;
+	}
 `;
 
 const VerseDetails = styled.span`
 	color: #505050;
 	font-size: 14px;
+
+	@media (min-width: 320px) {
+		font-size: 0.5em;
+	}
+
+	@media (min-width: 961px) {
+		font-size: 14px;
+	}
 `;
 
 const RevelationPlaceInfo = styled.div`
@@ -58,6 +104,14 @@ const RevelationPlaceInfo = styled.div`
 	padding: 0px 10px;
 	border-radius: 4px;
 	border: 1px solid #aaaaaa;
+
+	@media (min-width: 320px) {
+		font-size: 0.5em;
+	}
+
+	@media (min-width: 961px) {
+		font-size: 14px;
+	}
 `;
 
 interface Props {

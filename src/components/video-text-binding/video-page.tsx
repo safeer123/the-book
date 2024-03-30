@@ -22,6 +22,14 @@ const VideoWrapper = styled.div`
 	justify-content: center;
 	background-color: #180f2f;
 	position: relative;
+
+	@media (min-width: 320px) {
+		flex: 1;
+	}
+
+	@media (min-width: 961px) {
+		flex: 2;
+	}
 `;
 
 const ProjectTitle = styled.div`
@@ -31,6 +39,18 @@ const ProjectTitle = styled.div`
 	left: 24px;
 	font-size: 24px;
 	color: #fff;
+
+	@media (min-width: 320px) {
+		top: 8px;
+		left: 8px;
+		font-size: 16px;
+	}
+
+	@media (min-width: 961px) {
+		top: 24px;
+		left: 24px;
+		font-size: 24px;
+	}
 `;
 const VerseDisplayWrapper = styled.div`
 	flex: 5;
@@ -69,16 +89,32 @@ const VerseList = styled.div`
 		align-items: center;
 	}
 
-	.arabic-verse-text {
-		font-size: 36px;
+	@media (min-width: 320px) {
+		.arabic-verse-text {
+			font-size: 1.5em;
+		}
+
+		.translation-text {
+			font-size: 0.75em;
+		}
 	}
 
-	.arabic-verse-text-small {
-		font-size: 30px;
-	}
+	@media (min-width: 961px) {
+		.arabic-verse-text {
+			font-size: 36px;
+		}
 
-	.translation-text-small {
-		font-size: 18px;
+		.arabic-verse-text-small {
+			font-size: 30px;
+		}
+
+		.translation-text {
+			font-size: 24px;
+		}
+
+		.translation-text-small {
+			font-size: 18px;
+		}
 	}
 `;
 
@@ -142,6 +178,18 @@ const PlayStatus = styled.div`
 	font-size: 16px;
 	padding: 16px;
 	margin-bottom: 18px;
+
+	@media (min-width: 320px) {
+		font-size: 0.5em;
+		padding: 0.5em;
+		margin-bottom: 0.5em;
+	}
+
+	@media (min-width: 961px) {
+		font-size: 16px;
+		padding: 16px;
+		margin-bottom: 18px;
+	}
 `;
 
 const VerseMarkItem = styled(Button)`
@@ -153,6 +201,14 @@ const VerseMarkItem = styled(Button)`
 	svg {
 		width: 15px;
 		height: 15px;
+	}
+
+	@media (min-width: 320px) {
+		display: none;
+	}
+
+	@media (min-width: 961px) {
+		display: block;
 	}
 `;
 
