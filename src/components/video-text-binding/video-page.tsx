@@ -173,6 +173,14 @@ const TimelineControl = styled.div`
 	.play-control-slider {
 		width: 100%;
 	}
+
+	@media (min-width: 320px) {
+		flex: 2;
+	}
+
+	@media (min-width: 961px) {
+		flex: 1;
+	}
 `;
 
 const PlayStatus = styled.div`
