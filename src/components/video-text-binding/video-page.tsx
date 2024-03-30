@@ -17,18 +17,21 @@ import { TimelineMarkItemIcon } from './timeline-mark-item';
 import { useVerses } from 'data/use-verses';
 
 const VideoWrapper = styled.div`
-	flex: 2;
-	display: flex;
-	justify-content: center;
-	background-color: #180f2f;
-	position: relative;
-
 	@media (min-width: 320px) {
 		flex: 1;
+		position: absolute;
+		top: 0;
+		left: 0;
+		opacity: 0.1;
 	}
 
 	@media (min-width: 961px) {
 		flex: 2;
+		display: flex;
+		justify-content: center;
+		background-color: #180f2f;
+		position: relative;
+		opacity: 1;
 	}
 `;
 
