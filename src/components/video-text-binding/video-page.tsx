@@ -175,11 +175,12 @@ const TimelineControl = styled.div`
 	}
 
 	@media (min-width: 320px) {
-		flex: 2;
+		position: absolute;
+		bottom: 0;
 	}
 
 	@media (min-width: 961px) {
-		flex: 1;
+		position: relative;
 	}
 `;
 
