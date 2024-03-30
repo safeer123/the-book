@@ -27,6 +27,10 @@ import { useTafsirInfoById } from 'data/use-tafsirs';
 
 const ARABIC_VERSE_CLASSNAME = 'arabic-verse-text';
 const TRANSLATION_CLASSNAME = 'translation-text';
+const ARABIC_VERSE_SMALL_CLASSNAME = 'arabic-verse-text-small';
+const TRANSLATION_SMALL_CLASSNAME = 'translation-text-small';
+const ARABIC_VERSE_LENGTH_LIMIT = 550;
+const TRANSLATION_LENGTH_LIMIT = 650;
 
 const getTransaltionHTML = (tr: string, highlightKey?: string) => {
 	let htmlOut = sanitizeHtml(tr);
@@ -146,7 +150,13 @@ const Results = ({
 		searchKey?: string
 	) => {
 		return (
-			<EngTranslation className={TRANSLATION_CLASSNAME}>
+			<EngTranslation
+				className={`${TRANSLATION_CLASSNAME}${
+					trText?.length > TRANSLATION_LENGTH_LIMIT
+						? ` ${TRANSLATION_SMALL_CLASSNAME}`
+						: ''
+				}`}
+			>
 				<span
 					dangerouslySetInnerHTML={{
 						__html: getTransaltionHTML(trText, searchKey),
@@ -279,7 +289,14 @@ const Results = ({
 								<div key={verse.verse_key} id={`ve-${verse.verse_key}`}>
 									<ArabicVerseWrapper>
 										<cite dir="rtl">
-											<ArabicVerseText className={ARABIC_VERSE_CLASSNAME}>
+											<ArabicVerseText
+												className={`${ARABIC_VERSE_CLASSNAME}${
+													verse?.text_uthmani?.length >
+													ARABIC_VERSE_LENGTH_LIMIT
+														? ` ${ARABIC_VERSE_SMALL_CLASSNAME}`
+														: ''
+												}`}
+											>
 												{verse?.text_uthmani}
 												<VerseNumber
 													number={verse.verse_key.split(':')[1]}

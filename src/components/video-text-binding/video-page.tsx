@@ -53,7 +53,7 @@ const VerseList = styled.div`
 		height: 100%;
 	}
 
-	&& .ant-collapse-item {
+	&&&& .ant-collapse-item {
 		border-bottom: none;
 		-webkit-box-shadow: none;
 		-moz-box-shadow: none;
@@ -71,6 +71,14 @@ const VerseList = styled.div`
 
 	.arabic-verse-text {
 		font-size: 36px;
+	}
+
+	.arabic-verse-text-small {
+		font-size: 30px;
+	}
+
+	.translation-text-small {
+		font-size: 18px;
 	}
 `;
 
@@ -98,6 +106,14 @@ const VerseTooltipWrapper = styled.div`
 
 	.translation-text {
 		font-size: 16px;
+	}
+
+	.arabic-verse-text-small {
+		font-size: 18px;
+	}
+
+	.translation-text-small {
+		font-size: 12px;
 	}
 `;
 
