@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ProjectConfig } from 'types';
 
 const PROJECTS_KEY = 'verse-binding-projects';
@@ -83,10 +83,12 @@ export const useProjectStore = ({
 		}
 	}, [viewerMode]);
 
+	const projects = useMemo(() => Object.values(projectItems), [projectItems]);
+
 	return {
 		saveProject,
 		loadProjects,
-		projects: Object.values(projectItems),
+		projects,
 		downloadAsJson,
 	};
 };
