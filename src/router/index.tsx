@@ -49,6 +49,10 @@ const router = createBrowserRouter([
 		element: <VideoTextBinding viewerMode />,
 	},
 	{
+		path: 'qbind/:pid',
+		element: <VideoTextBinding viewerMode />,
+	},
+	{
 		path: 'word-game',
 		element: <WordGame />,
 	},

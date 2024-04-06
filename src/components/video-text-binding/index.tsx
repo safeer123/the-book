@@ -12,6 +12,7 @@ import PlayerStates from 'youtube-player/dist/constants/PlayerStates';
 import { UploadProjects } from './upload-projects';
 import { ProjectList as ProjectListBtn } from './buttons/projects-list-btn';
 import { Settings as SettingsBtn } from './buttons/settings-btn';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const { Search } = Input;
 
@@ -110,6 +111,9 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 
 	const playerRef = useRef<YouTubePlayer | null>(null);
 
+	const navigate = useNavigate();
+	const { pid } = useParams();
+
 	const { saveProject, loadProjects, projects, downloadAsJson } =
 		useProjectStore({
 			setProjectConfig,
@@ -122,6 +126,18 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 		);
 		return projectConfig !== currentProjectInStore;
 	}, [projectConfig, projects]);
+
+	useEffect(() => {
+		if (pid && projects.length > 0) {
+			const projectInStore = projects.find((p) => p?.videoUrl === pid);
+			if (projectInStore) {
+				setProjectConfig(projectInStore);
+				setVideoStatus(undefined);
+				setCurrentTime(0);
+				setProjectMenuVisible(false);
+			}
+		}
+	}, [pid]);
 
 	useEffect(() => {
 		if (!projectConfig && projects.length > 0) {
@@ -154,10 +170,15 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 
 	const onClickProjectItem = (p: ProjectConfig) => {
 		if (p === projectConfig) return;
-		setProjectConfig(p);
-		setVideoStatus(undefined);
-		setCurrentTime(0);
-		setProjectMenuVisible(false);
+
+		if (viewerMode) {
+			navigate(`/qbind/${encodeURIComponent(p.videoUrl)}`);
+		} else {
+			setProjectConfig(p);
+			setVideoStatus(undefined);
+			setCurrentTime(0);
+			setProjectMenuVisible(false);
+		}
 	};
 
 	const copyToClipboard = async () => {
