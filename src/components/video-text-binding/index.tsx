@@ -137,7 +137,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 				setProjectMenuVisible(false);
 			}
 		}
-	}, [pid]);
+	}, [pid, projects]);
 
 	useEffect(() => {
 		if (!projectConfig && projects.length > 0) {
