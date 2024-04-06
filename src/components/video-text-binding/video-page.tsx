@@ -22,7 +22,7 @@ const VideoWrapper = styled.div`
 		position: absolute;
 		top: 0;
 		left: 0;
-		opacity: 0.1;
+		opacity: 0.04;
 	}
 
 	@media (min-width: 961px) {
@@ -94,6 +94,12 @@ const VerseList = styled.div`
 		align-items: center;
 	}
 
+	.translation-text {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
 	@media (min-width: 320px) {
 		.arabic-verse-text {
 			font-size: 1.5em;
@@ -101,6 +107,10 @@ const VerseList = styled.div`
 
 		.translation-text {
 			font-size: 0.75em;
+		}
+
+		.verse-tafsir-btn {
+			display: block;
 		}
 	}
 
@@ -168,7 +178,7 @@ const ControlsWrapper = styled.div`
 
 	@media (min-width: 320px) {
 		position: absolute;
-		top: 80px;
+		top: 60px;
 		height: 100px;
 		width: calc(100% - 16px);
 		border-top: none;

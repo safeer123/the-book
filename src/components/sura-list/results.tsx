@@ -24,6 +24,7 @@ import { debounce } from 'utils/search-utils';
 import TafsirDrawer from './tafsir-drawer';
 import useURLNavigation from 'data/use-url-navigation';
 import { useTafsirInfoById } from 'data/use-tafsirs';
+import { isMobile } from 'react-device-detect';
 
 const ARABIC_VERSE_CLASSNAME = 'arabic-verse-text';
 const TRANSLATION_CLASSNAME = 'translation-text';
@@ -94,13 +95,23 @@ const ArabicVerseText = styled.span`
 
 	svg {
 		width: 36px;
-		margin-bottom: -10px;
-		margin-right: 16px;
 		cursor: pointer;
 		filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
 
 		&:hover {
 			opacity: 0.8;
+		}
+
+		@media (min-width: 320px) {
+			width: 30px;
+			margin-bottom: -16px;
+			margin-right: 8px;
+		}
+
+		@media (min-width: 961px) {
+			width: 36px;
+			margin-bottom: -10px;
+			margin-right: 16px;
 		}
 	}
 `;
@@ -149,6 +160,18 @@ const Results = ({
 		verseKey: string,
 		searchKey?: string
 	) => {
+		const tafsirButton = (
+			<Button
+				className="verse-tafsir-btn"
+				type="text"
+				onClick={(e) => {
+					setTafsirConfig({ verseKey });
+					e.stopPropagation();
+				}}
+			>
+				{'📖'}
+			</Button>
+		);
 		return (
 			<EngTranslation
 				className={`${TRANSLATION_CLASSNAME}${
@@ -162,17 +185,13 @@ const Results = ({
 						__html: getTransaltionHTML(trText, searchKey),
 					}}
 				/>
-				<Tooltip title="Tafsir" placement="bottom">
-					<Button
-						type="text"
-						onClick={(e) => {
-							setTafsirConfig({ verseKey });
-							e.stopPropagation();
-						}}
-					>
-						{'📖'}
-					</Button>
-				</Tooltip>
+				{isMobile ? (
+					tafsirButton
+				) : (
+					<Tooltip title="Tafsir" placement="bottom">
+						{tafsirButton}
+					</Tooltip>
+				)}
 			</EngTranslation>
 		);
 	};

@@ -6,6 +6,7 @@ import { capitalizeFirstLetter, verseInfoText } from 'utils/result-utils';
 import SmartBarChart from './smart-bar-chart';
 import useVerseBarRecords from 'data/use-verse-bar-record';
 import { useInView } from 'react-intersection-observer';
+import { isMobile } from 'react-device-detect';
 
 const HeaderWrapper = styled.div`
 	font-size: 18px;
@@ -140,6 +141,15 @@ const ChapterHeader = ({ chapter, verseInfo, setChapterInfoConfig }: Props) => {
 
 	const navigateToChapter = () => toChapterPage(chapter?.id || 1);
 
+	const chapterInfoBtn = (
+		<Button
+			type="text"
+			onClick={() => setChapterInfoConfig({ chapterId: chapter?.id })}
+		>
+			{'📖'}
+		</Button>
+	);
+
 	return (
 		<HeaderWrapper id={`ch-${chapter?.id || 0}`} ref={ref}>
 			{inView && (
@@ -161,14 +171,13 @@ const ChapterHeader = ({ chapter, verseInfo, setChapterInfoConfig }: Props) => {
 				</Tooltip>
 			)}
 
-			<Tooltip title="Chapter details" placement="bottom">
-				<Button
-					type="text"
-					onClick={() => setChapterInfoConfig({ chapterId: chapter?.id })}
-				>
-					{'📖'}
-				</Button>
-			</Tooltip>
+			{isMobile ? (
+				chapterInfoBtn
+			) : (
+				<Tooltip title="Chapter details" placement="bottom">
+					{chapterInfoBtn}
+				</Tooltip>
+			)}
 
 			<VerseDetails>
 				{verseInfoDisplay || `${chapter?.verses_count || ''} Verses`}

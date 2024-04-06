@@ -19,31 +19,46 @@ const SpinnerWrapper = styled.div`
 const ShortTextWrapper = styled.div`
 	font-family: 'Amiri Quran';
 	color: rgb(7 1 62);
-	font-size: 20px;
 	line-height: 1.2;
-	padding: 16px;
-	margin: 16px;
-	border: 3px dashed #777;
 	border-radius: 4px;
+
+	@media (min-width: 320px) {
+		font-size: 14px;
+		padding: 4px;
+		margin: 4px;
+		border: 1px dashed #777;
+	}
+
+	@media (min-width: 961px) {
+		font-size: 20px;
+		padding: 16px;
+		margin: 16px;
+		border: 3px dashed #777;
+	}
 `;
 
 const SourceInfoWrapper = styled.div`
 	color: black;
-	font-size: 14px;
 	padding: 16px;
 	margin: 16px;
+
+	@media (min-width: 320px) {
+		font-size: 10px;
+	}
+
+	@media (min-width: 961px) {
+		font-size: 14px;
+	}
 `;
 
 const DetailedContentWrapper = styled.div`
 	font-family: 'Amiri Quran';
 	color: rgb(7 1 62);
-	font-size: 20px;
 	line-height: 1.2;
 	padding-top: 16px;
 
 	h1,
 	h2 {
-		font-size: 24px;
 		margin-bottom: 16px;
 		margin-block-start: 0;
 		margin-block-end: 0;
@@ -53,6 +68,24 @@ const DetailedContentWrapper = styled.div`
 
 	a {
 		color: inherit;
+	}
+
+	@media (min-width: 320px) {
+		font-size: 16px;
+
+		h1,
+		h2 {
+			font-size: 18px;
+		}
+	}
+
+	@media (min-width: 961px) {
+		font-size: 20px;
+
+		h1,
+		h2 {
+			font-size: 24px;
+		}
 	}
 `;
 

@@ -4,6 +4,7 @@ import { FC, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { TafsirConfig, TafsirItem } from 'types';
 import sanitizeHtml from 'sanitize-html';
+import { isMobile } from 'react-device-detect';
 
 const SpinnerWrapper = styled.div`
 	position: absolute;
@@ -19,18 +20,34 @@ const SpinnerWrapper = styled.div`
 const TafsirContentWrapper = styled.div`
 	font-family: 'Amiri Quran';
 	color: rgb(7 1 62);
-	font-size: 20px;
 	line-height: 1.2;
 	padding-top: 16px;
 
 	h1,
 	h2 {
-		font-size: 24px;
 		margin-bottom: 16px;
 		margin-block-start: 0;
 		margin-block-end: 0;
 		margin-inline-start: 0;
 		margin-inline-end: 0;
+	}
+
+	@media (min-width: 320px) {
+		font-size: 16px;
+
+		h1,
+		h2 {
+			font-size: 18px;
+		}
+	}
+
+	@media (min-width: 961px) {
+		font-size: 20px;
+
+		h1,
+		h2 {
+			font-size: 24px;
+		}
 	}
 `;
 
@@ -83,7 +100,7 @@ const TafsirByVerse: FC<Props> = ({ tafsirConfig }) => {
 	return (
 		<div>
 			<AutoComplete
-				style={{ width: 400 }}
+				style={{ width: isMobile ? 230 : 400 }}
 				value={getTafsirTitle(tafsirSelected)}
 				options={options}
 				placeholder="Select Tafsir"
