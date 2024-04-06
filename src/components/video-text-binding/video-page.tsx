@@ -18,7 +18,7 @@ import { useVerses } from 'data/use-verses';
 
 const VideoWrapper = styled.div`
 	@media (min-width: 320px) {
-		flex: 1;
+		height: 40px;
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -44,12 +44,14 @@ const ProjectTitle = styled.div`
 	color: #fff;
 
 	@media (min-width: 320px) {
-		top: 8px;
+		display: none;
+		top: 60px;
 		left: 8px;
 		font-size: 16px;
 	}
 
 	@media (min-width: 961px) {
+		display: block;
 		top: 24px;
 		left: 24px;
 		font-size: 24px;
@@ -163,6 +165,20 @@ const ControlsWrapper = styled.div`
 	align-items: center;
 	padding: 0px 16px;
 	border-top: 1px dashed #54aaeb;
+
+	@media (min-width: 320px) {
+		position: absolute;
+		top: 80px;
+		height: 100px;
+		width: calc(100% - 16px);
+		border-top: none;
+	}
+
+	@media (min-width: 961px) {
+		position: relative;
+		top: 0px;
+		border-top: 1px dashed #54aaeb;
+	}
 `;
 
 const TimelineControl = styled.div`
@@ -172,15 +188,6 @@ const TimelineControl = styled.div`
 
 	.play-control-slider {
 		width: 100%;
-	}
-
-	@media (min-width: 320px) {
-		position: absolute;
-		bottom: 0;
-	}
-
-	@media (min-width: 961px) {
-		position: relative;
 	}
 `;
 

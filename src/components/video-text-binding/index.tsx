@@ -37,6 +37,16 @@ const SettingsArea = styled.div`
 		font-size: 24px;
 		height: 50px;
 	}
+
+	@media (min-width: 320px) {
+		top: 30px;
+		right: 0px;
+	}
+
+	@media (min-width: 961px) {
+		top: 16px;
+		right: 16px;
+	}
 `;
 
 const ProjectsMenu = styled.div`
@@ -54,6 +64,7 @@ const ProjectItemWrapper = styled.div`
 	align-items: stretch;
 	max-height: 400px;
 	overflow-y: auto;
+	overflow-x: hidden;
 
 	.active-item {
 		background-color: #d8e1fc;
@@ -64,7 +75,6 @@ const ProjectItem = styled(Button)`
 	width: 100%;
 	padding: 4px;
 	text-align: left;
-	overflow: hidden;
 
 	background-color: #fff;
 	cursor: pointer;
