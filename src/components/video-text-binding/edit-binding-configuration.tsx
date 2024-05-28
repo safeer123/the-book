@@ -73,6 +73,7 @@ const ActionArea = styled.div`
 	display: flex;
 	gap: 16px;
 	padding: 16px;
+	padding-bottom: 0;
 	justify-content: flex-end;
 `;
 
@@ -83,6 +84,7 @@ interface Props {
 	setProjectConfig: (conf: ProjectConfig) => void;
 	currentTime: number;
 	saveProject: () => void;
+	deleteProject: () => void;
 	downloadAsJson: () => void;
 	copyToClipboard: () => Promise<void>;
 	hasUnsavedChanges: boolean;
@@ -95,6 +97,7 @@ const EditBindingConfiguration: FC<Props> = ({
 	setProjectConfig,
 	currentTime,
 	saveProject,
+	deleteProject,
 	downloadAsJson,
 	copyToClipboard,
 	hasUnsavedChanges,
@@ -272,13 +275,34 @@ const EditBindingConfiguration: FC<Props> = ({
 						<Button
 							type="primary"
 							onClick={addNextBinding}
+							size="small"
 						>{`＋ Next Verse (${`${chapter}:${Number(verse) + 1}`})`}</Button>
 						<Button
 							type="primary"
 							onClick={addBlankBinding}
+							size="small"
 						>{`＋ Blank`}</Button>
 					</BindingItem>
 				</BindingListItems>
+				<ActionArea>
+					<Button
+						type="primary"
+						danger
+						onClick={deleteProject}
+						disabled={hasUnsavedChanges}
+						size="small"
+					>
+						Delete
+					</Button>
+					<Button
+						type="primary"
+						onClick={saveProject}
+						disabled={!hasUnsavedChanges}
+						size="small"
+					>
+						Save
+					</Button>
+				</ActionArea>
 				<ActionArea>
 					<Button
 						type="primary"
@@ -290,18 +314,12 @@ const EditBindingConfiguration: FC<Props> = ({
 								}, 3000);
 							})
 						}
+						size="small"
 					>
 						{copyBtnLabel}
 					</Button>
-					<Button type="primary" onClick={downloadAsJson}>
+					<Button type="primary" onClick={downloadAsJson} size="small">
 						Download
-					</Button>
-					<Button
-						type="primary"
-						onClick={saveProject}
-						disabled={!hasUnsavedChanges}
-					>
-						Save
 					</Button>
 				</ActionArea>
 			</Wrapper>

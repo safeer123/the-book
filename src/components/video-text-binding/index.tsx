@@ -114,7 +114,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 	const navigate = useNavigate();
 	const { pid } = useParams();
 
-	const { saveProject, loadProjects, projects, downloadAsJson } =
+	const { saveProject, deleteProject, loadProjects, projects, downloadAsJson } =
 		useProjectStore({
 			setProjectConfig,
 			viewerMode,
@@ -126,24 +126,6 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 		);
 		return projectConfig !== currentProjectInStore;
 	}, [projectConfig, projects]);
-
-	useEffect(() => {
-		if (pid && projects.length > 0) {
-			const projectInStore = projects.find((p) => p?.videoUrl === pid);
-			if (projectInStore) {
-				setProjectConfig(projectInStore);
-				setVideoStatus(undefined);
-				setCurrentTime(0);
-				setProjectMenuVisible(false);
-			}
-		}
-	}, [pid, projects]);
-
-	useEffect(() => {
-		if (!projectConfig && projects.length > 0) {
-			setProjectConfig(projects[0]);
-		}
-	}, [projects]);
 
 	const playPause = useCallback(() => {
 		const currentState =
@@ -186,6 +168,24 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 		return navigator?.clipboard?.writeText(jsonStr);
 	};
 
+	useEffect(() => {
+		if (pid && projects.length > 0) {
+			const projectInStore = projects.find((p) => p?.videoUrl === pid);
+			if (projectInStore) {
+				setProjectConfig(projectInStore);
+				setVideoStatus(undefined);
+				setCurrentTime(0);
+				setProjectMenuVisible(false);
+			}
+		}
+	}, [pid, projects]);
+
+	useEffect(() => {
+		if (!pid && projects.length > 0) {
+			onClickProjectItem(projects[0]);
+		}
+	}, [projects]);
+
 	const filteredProjects = useMemo(() => {
 		return (projects || []).filter((p) =>
 			p?.title?.toLowerCase()?.includes(searchInput.toLowerCase())
@@ -224,7 +224,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 									<Tooltip
 										key={p.id}
 										mouseEnterDelay={1}
-										title={p.title}
+										title={`${p?.verseId || '-'}. ${p.title}`}
 										placement="left"
 									>
 										<ProjectItem
@@ -272,6 +272,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 					setProjectConfig={setProjectConfig}
 					currentTime={currentTime}
 					saveProject={() => projectConfig && saveProject(projectConfig)}
+					deleteProject={() => projectConfig && deleteProject(projectConfig)}
 					downloadAsJson={downloadAsJson}
 					hasUnsavedChanges={hasUnsavedChanges}
 					// eslint-disable-next-line @typescript-eslint/no-misused-promises

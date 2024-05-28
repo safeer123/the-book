@@ -25,6 +25,7 @@ export const useProjectStore = ({
 	viewerMode: boolean;
 }): {
 	saveProject: (project: ProjectConfig) => void;
+	deleteProject: (project: ProjectConfig) => void;
 	loadProjects: (projects: ProjectConfig[]) => void;
 	projects: ProjectConfig[];
 	downloadAsJson: () => void;
@@ -40,9 +41,35 @@ export const useProjectStore = ({
 			...projectItems,
 			[project.videoUrl]: savedProject,
 		};
+
+		Object.values(updatedProjects).forEach((p) => {
+			let verseId = undefined;
+			p?.bindingConfig?.find((b) => {
+				const verseNum = b.k.split(':')?.[0];
+				if (Number.isInteger(+verseNum) && +verseNum > 1) {
+					verseId = +verseNum;
+					return true;
+				}
+				return false;
+			});
+			if (verseId) {
+				p.verseId = verseId;
+			}
+		});
+
 		localStorage.setItem(PROJECTS_KEY, JSON.stringify(updatedProjects));
 		setProjectItems(updatedProjects);
 		setProjectConfig(savedProject);
+	};
+
+	const deleteProject = (project: ProjectConfig) => {
+		const updatedProjects = {
+			...projectItems,
+		};
+		delete updatedProjects[project.videoUrl];
+		localStorage.setItem(PROJECTS_KEY, JSON.stringify(updatedProjects));
+		setProjectItems(updatedProjects);
+		setProjectConfig({ ...project });
 	};
 
 	const loadProjects = (projectList: ProjectConfig[]) => {
@@ -83,10 +110,19 @@ export const useProjectStore = ({
 		}
 	}, [viewerMode]);
 
-	const projects = useMemo(() => Object.values(projectItems), [projectItems]);
+	const projects = useMemo(() => {
+		const projectList = Object.values(projectItems);
+
+		projectList.sort(
+			(a: ProjectConfig, b: ProjectConfig) =>
+				(a.verseId || 0) - (b.verseId || 0)
+		);
+		return projectList;
+	}, [projectItems]);
 
 	return {
 		saveProject,
+		deleteProject,
 		loadProjects,
 		projects,
 		downloadAsJson,
