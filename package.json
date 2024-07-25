@@ -9,6 +9,7 @@
 	],
 	"main": "src/index.tsx",
 	"dependencies": {
+		"@google/generative-ai": "^0.13.0",
 		"@types/react-helmet": "^6.1.7",
 		"antd": "5.6.1",
 		"axios": "1.4.0",

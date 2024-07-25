@@ -4,6 +4,7 @@ import SuraList from 'components/sura-list';
 import WordGame from 'components/word-game';
 import { styled } from 'styled-components';
 import VideoTextBinding from 'components/video-text-binding';
+import AIPromptApp from 'components/ai-prompt-test';
 
 const HomeWrapper = styled.div`
 	display: flex;
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
 	{
 		path: 'word-game',
 		element: <WordGame />,
+	},
+	{
+		path: 'ai-prompt-app',
+		element: <AIPromptApp />,
 	},
 ]);
 
