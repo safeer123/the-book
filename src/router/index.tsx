@@ -19,16 +19,29 @@ const router = createBrowserRouter([
 		element: (
 			<HomeWrapper>
 				<div>
-					<Link to="/api-test">Test APIs</Link>
-				</div>
-				<div>
 					<Link to="/suras">Search in The Book</Link>
 				</div>
 				<div>
-					<Link to="/verse-binding">Recitation-to-verse binding editor</Link>
+					<Link to="/verse-binding">Recitation-to-verse Editor</Link>
 				</div>
 				<div>
-					<Link to="/qbind">Recitation-to-verse player</Link>
+					<Link to="/qbind">Recitation-to-verse Player</Link>
+				</div>
+			</HomeWrapper>
+		),
+	},
+	{
+		path: 'dev',
+		element: (
+			<HomeWrapper>
+				<div>
+					<Link to="/">🏠 Home</Link>
+				</div>
+				<div>
+					<Link to="/api-test">Test Quran APIs</Link>
+				</div>
+				<div>
+					<Link to="/ai-prompt-app">AI Prompt App</Link>
 				</div>
 			</HomeWrapper>
 		),
