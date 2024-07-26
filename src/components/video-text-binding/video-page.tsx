@@ -15,6 +15,7 @@ import PlayerStates from 'youtube-player/dist/constants/PlayerStates';
 import { PlayPause } from './buttons/play-pause-button';
 import { TimelineMarkItemIcon } from './timeline-mark-item';
 import { useVerses } from 'data/use-verses';
+import { formatDuration } from './utils';
 
 const VideoWrapper = styled.div`
 	@media (min-width: 320px) {
@@ -250,6 +251,7 @@ interface Props {
 	playerRef: React.MutableRefObject<YouTubePlayer | null>;
 	playPause: () => void;
 	seekTo: (t: number) => void;
+	viewerMode?: boolean;
 }
 
 const VideoPage = ({
@@ -261,6 +263,7 @@ const VideoPage = ({
 	playerRef,
 	playPause,
 	seekTo,
+	viewerMode,
 }: Props) => {
 	const [videoVisibility, setVideoVisibility] = useState(true);
 	const { verses, timeToVerse } = useVerseBinding({
@@ -413,7 +416,16 @@ const VideoPage = ({
 				</TimelineControl>
 
 				<PlayStatus>
-					{(currentTime || 0).toFixed(1)} / {videoStatus?.duration}
+					{viewerMode ? (
+						<>
+							{formatDuration(currentTime || 0)} /{' '}
+							{formatDuration(videoStatus?.duration || 0)}
+						</>
+					) : (
+						<>
+							{(currentTime || 0).toFixed(1)} / {videoStatus?.duration}
+						</>
+					)}
 				</PlayStatus>
 			</ControlsWrapper>
 		</>

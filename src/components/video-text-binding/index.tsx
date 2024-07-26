@@ -262,6 +262,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 				playerRef={playerRef}
 				playPause={playPause}
 				seekTo={seekTo}
+				viewerMode={viewerMode}
 			/>
 
 			{!viewerMode && (
