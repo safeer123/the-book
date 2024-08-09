@@ -20,13 +20,46 @@ const switchLightStatusDeclaration = {
 				description:
 					'To what state the light should be set. ON or OFF. true means ON, false means OFF',
 			},
+			resp: {
+				type: 'STRING',
+				description:
+					'response from the system after trying out the request to switch the light state',
+			},
 		},
 		required: ['lightIndex', 'status'],
 	},
 };
 
+const lightNameDeclaration = {
+	name: 'getLightDetails',
+	parameters: {
+		type: 'OBJECT',
+		description:
+			'Given the name of a light, it returns its lightIndex as number. 3 possible values to return are 1,2 and 3. If it returns -1 it means light does not exist',
+		properties: {
+			lightName: {
+				type: 'STRING',
+				description:
+					'Name of the light. Or Label of the light. Only options are noor | shams | misbah',
+			},
+			lightIndex: {
+				type: 'INTEGER',
+				description: 'light index',
+			},
+		},
+		required: ['lightName'],
+	},
+};
+
+const LightNames: { [key: string]: number } = {
+	noor: 1,
+	shams: 2,
+	misbah: 3,
+};
+
 export const functionDeclarations = [
 	switchLightStatusDeclaration,
+	lightNameDeclaration,
 ] as FunctionDeclaration[];
 
 export const useFunctions = () => {
@@ -38,10 +71,17 @@ export const useFunctions = () => {
 
 	const switchLightState = (index: 1 | 2 | 3, status: boolean) => {
 		if (index >= 1 && index <= 3) {
-			setState((prev) => ({
-				...prev,
-				[`light${index}`]: status,
-			}));
+			if (state[`light${index}`] === status) {
+				return {
+					resp: 'The light is already in the same state. No need to switch',
+				};
+			} else {
+				setState((prev) => ({
+					...prev,
+					[`light${index}`]: status,
+				}));
+				return { resp: 'Done' };
+			}
 		}
 	};
 
@@ -55,7 +95,16 @@ export const useFunctions = () => {
 			lightIndex: 1 | 2 | 3;
 			status: boolean;
 		}) => {
+			console.log('func:switchLightState --> ', lightIndex, status);
 			return switchLightState(lightIndex, status);
+		},
+		getLightDetails: async ({ lightName }: { lightName: string }) => {
+			const name = lightName.toLowerCase();
+			console.log('func:getLightDetails --> ', lightName);
+			if (LightNames?.[name]) {
+				return { lightIndex: LightNames?.[name] };
+			}
+			return { lightIndex: -1 };
 		},
 	};
 
