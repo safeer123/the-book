@@ -76,3 +76,18 @@ body {
 	background-repeat: no-repeat;
 	background-size: 35px;
 }
+
+@keyframes zoomFadeIn {
+	from {
+		transform: scale(0.99);
+		opacity: 0;
+	}
+	to {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+.zoom-fade-in {
+	animation: zoomFadeIn 0.3s ease-in-out;
+}

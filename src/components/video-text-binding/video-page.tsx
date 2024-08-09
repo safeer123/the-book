@@ -400,7 +400,12 @@ const VideoPage = ({
 			</VideoWrapper>
 			<VerseDisplayWrapper onClick={playPause}>
 				<VerseList>
-					{!versesLoading && <Results selectedVerses={verses} />}
+					{!versesLoading && (
+						<Results
+							selectedVerses={verses}
+							config={{ textAnimationClass: 'zoom-fade-in' }}
+						/>
+					)}
 				</VerseList>
 			</VerseDisplayWrapper>
 			<ControlsWrapper>

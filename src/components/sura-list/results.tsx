@@ -134,12 +134,16 @@ interface Props {
 	selectedChapters?: ChapterItem[];
 	selectedVerses?: Verse[];
 	searchKeys?: string[];
+	config?: {
+		textAnimationClass?: string;
+	};
 }
 
 const Results = ({
 	selectedChapters,
 	selectedVerses,
 	searchKeys = [],
+	config,
 }: Props) => {
 	const [tafsirConfig, setTafsirConfig] = useState<TafsirConfig | undefined>(
 		undefined
@@ -174,7 +178,9 @@ const Results = ({
 		);
 		return (
 			<EngTranslation
-				className={`${TRANSLATION_CLASSNAME}${
+				className={`${
+					config?.textAnimationClass || ''
+				} ${TRANSLATION_CLASSNAME}${
 					trText?.length > TRANSLATION_LENGTH_LIMIT
 						? ` ${TRANSLATION_SMALL_CLASSNAME}`
 						: ''
