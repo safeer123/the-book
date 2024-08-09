@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/require-await */
 
