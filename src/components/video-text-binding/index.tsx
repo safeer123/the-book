@@ -12,7 +12,7 @@ import PlayerStates from 'youtube-player/dist/constants/PlayerStates';
 import { UploadProjects } from './upload-projects';
 import { ProjectList as ProjectListBtn } from './buttons/projects-list-btn';
 import { Settings as SettingsBtn } from './buttons/settings-btn';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 const { Search } = Input;
 
@@ -108,6 +108,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 		ProjectConfig | undefined
 	>();
 	const [videoStatus, setVideoStatus] = useState<VideoStatusInfo | undefined>();
+	const [searchParams] = useSearchParams();
 
 	const playerRef = useRef<YouTubePlayer | null>(null);
 
@@ -153,8 +154,13 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 	const onClickProjectItem = (p: ProjectConfig) => {
 		if (p === projectConfig) return;
 
+		const searchString = searchParams.toString();
 		if (viewerMode) {
-			navigate(`/qbind/${encodeURIComponent(p.videoUrl)}`);
+			navigate(
+				`/qbind/${encodeURIComponent(p.videoUrl)}${
+					searchString ? `?${searchString}` : ''
+				}`
+			);
 		} else {
 			setProjectConfig(p);
 			setVideoStatus(undefined);

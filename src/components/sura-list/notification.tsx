@@ -32,12 +32,13 @@ const NotificationProvider: FC<PropsWithChildren> = ({ children }) => {
 	const [, setSearchParams] = useSearchParams();
 
 	const searchText = (text: string, apiNotif: NotificationInstance) => {
-		setSearchParams({
+		setSearchParams((prev) => ({
 			k: text,
 			w: '0',
 			c: '1',
 			only: VerseToken,
-		});
+			tr: prev.get('tr') as string,
+		}));
 		apiNotif.destroy();
 	};
 

@@ -1,15 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import styled from 'styled-components';
-import sanitizeHtml from 'sanitize-html';
 import { useVerses } from 'data/use-verses';
 import { useChapters } from 'data/use-chapters';
-import {
-	Button,
-	CollapseProps,
-	Collapse as CollapseAntd,
-	Spin,
-	Tooltip,
-} from 'antd';
+import { CollapseProps, Spin } from 'antd';
 import {
 	ChapterInfoConfig,
 	ChapterItem,
@@ -17,118 +9,25 @@ import {
 	Verse,
 	VerseToken,
 } from 'types';
-import ChapterHeader from './chapter-header';
+import ChapterHeader from '../chapter-header';
 import { BISMI } from 'data/constants';
-import VerseNumber from './verse-number';
+import VerseNumber from '../verse-number';
 import { debounce } from 'utils/search-utils';
-import TafsirDrawer from './tafsir-drawer';
+import TafsirDrawer from '../tafsir-drawer';
 import useURLNavigation from 'data/use-url-navigation';
 import { useTafsirInfoById } from 'data/use-tafsirs';
-import { isMobile } from 'react-device-detect';
+import {
+	Collapse,
+	SpinWrapper,
+	ArabicVerseWrapper,
+	ArabicVerseText,
+	BismiWrapper,
+} from './styles';
+import { VerseTranslation } from './translation';
 
 const ARABIC_VERSE_CLASSNAME = 'arabic-verse-text';
-const TRANSLATION_CLASSNAME = 'translation-text';
 const ARABIC_VERSE_SMALL_CLASSNAME = 'arabic-verse-text-small';
-const TRANSLATION_SMALL_CLASSNAME = 'translation-text-small';
 const ARABIC_VERSE_LENGTH_LIMIT = 550;
-const TRANSLATION_LENGTH_LIMIT = 650;
-
-const getTransaltionHTML = (tr: string, highlightKey?: string) => {
-	let htmlOut = sanitizeHtml(tr);
-	if (highlightKey && highlightKey.trim()) {
-		const index = htmlOut.toLowerCase().indexOf(highlightKey.toLowerCase());
-		if (index !== -1) {
-			htmlOut =
-				htmlOut.substring(0, index) +
-				"<span class='text-highlight'>" +
-				htmlOut.substring(index, index + highlightKey.length) +
-				'</span>' +
-				htmlOut.substring(index + highlightKey.length);
-		}
-	}
-	return htmlOut;
-};
-
-const Collapse = styled(CollapseAntd)`
-	border: none;
-	background-color: transparent;
-
-	&& .ant-collapse-content {
-		background-color: transparent;
-		border-top: none;
-		border-top: 0.5px dashed #545454;
-	}
-
-	&& .ant-collapse-header {
-		padding: 0px 0px;
-		align-items: center;
-	}
-
-	&& .ant-collapse-item {
-		border-bottom: none;
-		-webkit-box-shadow: -15px 17px 9px -18px rgba(0, 0, 0, 0.75);
-		-moz-box-shadow: -15px 17px 9px -18px rgba(0, 0, 0, 0.75);
-		box-shadow: -15px 17px 9px -18px rgba(0, 0, 0, 0.75);
-	}
-`;
-
-const SpinWrapper = styled.div`
-	width: 100%;
-	text-align: center;
-	height: 100%;
-	position: relative;
-	.ant-spin {
-		margin: 20%;
-	}
-`;
-
-const ArabicVerseWrapper = styled.div`
-	margin: 16px;
-`;
-
-const ArabicVerseText = styled.span`
-	font-family: 'Amiri Quran';
-	color: rgb(14, 2, 121);
-	font-size: 42px;
-	font-weight: 400;
-	font-style: normal;
-
-	svg {
-		width: 36px;
-		cursor: pointer;
-		filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
-
-		&:hover {
-			opacity: 0.8;
-		}
-
-		@media (min-width: 320px) {
-			width: 30px;
-			margin-bottom: -16px;
-			margin-right: 8px;
-		}
-
-		@media (min-width: 961px) {
-			width: 36px;
-			margin-bottom: -10px;
-			margin-right: 16px;
-		}
-	}
-`;
-
-const BismiWrapper = styled.div`
-	margin: 24px 16px;
-	font-family: 'Amiri Quran';
-	color: rgb(57, 44, 177);
-	font-size: 36px;
-	font-weight: 400;
-`;
-
-const EngTranslation = styled.div`
-	color: rgb(7, 1, 65);
-	font-size: 24px;
-	letter-spacing: 0.01in;
-`;
 
 interface Props {
 	selectedChapters?: ChapterItem[];
@@ -158,49 +57,6 @@ const Results = ({
 	const { toVersePage } = useURLNavigation();
 
 	const { isLoading: tafsirMetaInfoLoading } = useTafsirInfoById();
-
-	const engTranslation = (
-		trText: string,
-		verseKey: string,
-		searchKey?: string
-	) => {
-		const tafsirButton = (
-			<Button
-				className="verse-tafsir-btn"
-				type="text"
-				onClick={(e) => {
-					setTafsirConfig({ verseKey });
-					e.stopPropagation();
-				}}
-			>
-				{'📖'}
-			</Button>
-		);
-		return (
-			<EngTranslation
-				className={`${
-					config?.textAnimationClass || ''
-				} ${TRANSLATION_CLASSNAME}${
-					trText?.length > TRANSLATION_LENGTH_LIMIT
-						? ` ${TRANSLATION_SMALL_CLASSNAME}`
-						: ''
-				}`}
-			>
-				<span
-					dangerouslySetInnerHTML={{
-						__html: getTransaltionHTML(trText, searchKey),
-					}}
-				/>
-				{isMobile ? (
-					tafsirButton
-				) : (
-					<Tooltip title="Tafsir" placement="bottom">
-						{tafsirButton}
-					</Tooltip>
-				)}
-			</EngTranslation>
-		);
-	};
 
 	const onTextSelectionUpdate = useCallback(
 		debounce(() => {
@@ -285,10 +141,12 @@ const Results = ({
 									</cite>
 								</ArabicVerseWrapper>
 
-								{engTranslation(
-									verseData?.ayaByKey?.[verseKey]?.translation || '',
-									verseKey
-								)}
+								<VerseTranslation
+									trText={verseData?.ayaByKey?.[verseKey]?.translation || ''}
+									verseKey={verseKey}
+									textAnimationClass={config?.textAnimationClass}
+									setTafsirConfig={setTafsirConfig}
+								/>
 							</div>
 						))}
 					</div>
@@ -330,11 +188,14 @@ const Results = ({
 											</ArabicVerseText>
 										</cite>
 									</ArabicVerseWrapper>
-									{engTranslation(
-										verse?.translation || '',
-										verse.verse_key,
-										searchKeys?.[0] || ''
-									)}
+
+									<VerseTranslation
+										trText={verse?.translation || ''}
+										verseKey={verse.verse_key}
+										searchKey={searchKeys?.[0] || ''}
+										textAnimationClass={config?.textAnimationClass}
+										setTafsirConfig={setTafsirConfig}
+									/>
 								</div>
 							))}
 						</>

@@ -1,6 +1,7 @@
 import { useQuery, UseQueryResult } from 'react-query';
 import axios from 'axios';
 import { TransaltionItem, Verse } from '../types';
+import { useSearchParams } from 'react-router-dom';
 
 type VerseData = {
 	verses: Verse[];
@@ -15,7 +16,8 @@ type VerseByKey = {
 };
 
 const URL_ALL_VERSES = 'https://api.quran.com/api/v4/quran/verses/uthmani';
-const URL_TRANSLATION = 'https://api.quran.com/api/v4/quran/translations/131';
+const URL_TRANSLATION = (id: string) =>
+	`https://api.quran.com/api/v4/quran/translations/${id}`;
 
 const mergeTranslation = (verses: Verse[], transations: TransaltionItem[]) => {
 	for (let i = 0; i < verses?.length; i += 1) {
@@ -27,12 +29,16 @@ export const useVerses = (): UseQueryResult<{
 	verses: Verse[];
 	ayaByKey: VerseByKey;
 }> => {
+	const [searchParams] = useSearchParams();
+
+	const translationId = searchParams.get('tr') || '131';
+
 	return useQuery(
-		['quran-verses'],
+		['quran-verses', translationId],
 		async () => {
 			const { data }: { data: VerseData } = await axios.get(URL_ALL_VERSES);
 			const { data: translationsData }: { data: TranslationData } =
-				await axios.get(URL_TRANSLATION);
+				await axios.get(URL_TRANSLATION(translationId));
 			mergeTranslation(data.verses, translationsData?.translations);
 			const ayaByKey: { [key: string]: Verse } = {};
 			data.verses?.forEach((verse: Verse) => {

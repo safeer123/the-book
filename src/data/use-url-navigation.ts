@@ -5,22 +5,24 @@ const useURLNavigation = () => {
 	const [, setSearchParams] = useSearchParams();
 
 	const toChapterPage = (id: number) => {
-		setSearchParams({
+		setSearchParams((prev) => ({
 			k: `${id}`,
 			w: '0',
 			c: '0',
 			only: ChapterToken,
-		});
+			tr: prev.get('tr') as string,
+		}));
 	};
 
 	// one or multiple verses Eg:- 2:45, 2:40-45
 	const toVersePage = (key: string) => {
-		setSearchParams({
+		setSearchParams((prev) => ({
 			k: key,
 			w: '0',
 			c: '0',
 			only: VerseToken,
-		});
+			tr: prev.get('tr') as string,
+		}));
 	};
 
 	return {

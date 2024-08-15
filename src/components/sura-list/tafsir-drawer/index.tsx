@@ -12,6 +12,10 @@ const Drawer = styled(AntDrawer)`
 		background-color: rgba(255, 255, 255, 0.651);
 		background-image: url(https://www.transparenttextures.com/patterns/textured-paper.png);
 	}
+
+	&& .ant-drawer-body {
+		overflow-y: scroll;
+	}
 `;
 
 interface Props {

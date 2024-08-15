@@ -110,12 +110,13 @@ const Search: React.FC = () => {
 	};
 
 	const submitSearchQuery = (k: string, conf: SearchConfig, only = '') => {
-		setSearchParams({
+		setSearchParams((prev) => ({
 			...(k ? { k } : {}),
 			w: conf.fullWord ? '1' : '0',
 			c: conf.matchCase ? '1' : '0',
 			...(only ? { only } : {}),
-		});
+			tr: prev.get('tr') as string,
+		}));
 	};
 
 	const options = useMemo(() => {
