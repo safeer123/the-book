@@ -56,7 +56,7 @@ export const VerseTranslation = ({
 		<Button
 			className="verse-tafsir-btn"
 			type="text"
-			onClick={(e) => {
+			onClick={() => {
 				setTafsirConfig({ verseKey });
 			}}
 		>
