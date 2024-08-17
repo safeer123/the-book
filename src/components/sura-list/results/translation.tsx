@@ -3,6 +3,7 @@ import sanitizeHtml from 'sanitize-html';
 import { Button, Tooltip } from 'antd';
 import { TafsirConfig } from 'types';
 import { isMobile } from 'react-device-detect';
+import { VerseTranslationSelector } from './translation-selector';
 
 const TRANSLATION_CLASSNAME = 'translation-text';
 const TRANSLATION_SMALL_CLASSNAME = 'translation-text-small';
@@ -24,10 +25,14 @@ const getTransaltionHTML = (tr: string, highlightKey?: string) => {
 	return htmlOut;
 };
 
-const EngTranslation = styled.div`
+const TranslationContent = styled.div`
 	color: rgb(7, 1, 65);
 	font-size: 24px;
 	letter-spacing: 0.01in;
+`;
+
+const ItemsWrapper = styled.div`
+	display: flex;
 `;
 
 interface Props {
@@ -53,14 +58,13 @@ export const VerseTranslation = ({
 			type="text"
 			onClick={(e) => {
 				setTafsirConfig({ verseKey });
-				e.stopPropagation();
 			}}
 		>
 			{'📖'}
 		</Button>
 	);
 	return (
-		<EngTranslation
+		<TranslationContent
 			className={`${textAnimationClass || ''} ${TRANSLATION_CLASSNAME}${
 				trText?.length > TRANSLATION_LENGTH_LIMIT
 					? ` ${TRANSLATION_SMALL_CLASSNAME}`
@@ -68,6 +72,7 @@ export const VerseTranslation = ({
 			}`}
 		>
 			<span
+				className="translation-text-content"
 				dangerouslySetInnerHTML={{
 					__html: getTransaltionHTML(trText, searchKey),
 				}}
@@ -75,10 +80,13 @@ export const VerseTranslation = ({
 			{isMobile ? (
 				tafsirButton
 			) : (
-				<Tooltip title="Tafsir" placement="bottom">
-					{tafsirButton}
-				</Tooltip>
+				<ItemsWrapper>
+					<Tooltip title="Tafsir" placement="bottom">
+						{tafsirButton}
+					</Tooltip>
+					<VerseTranslationSelector key={'translation-selector'} />
+				</ItemsWrapper>
 			)}
-		</EngTranslation>
+		</TranslationContent>
 	);
 };

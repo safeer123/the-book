@@ -128,15 +128,22 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 		return projectConfig !== currentProjectInStore;
 	}, [projectConfig, projects]);
 
-	const playPause = useCallback(() => {
-		const currentState =
-			playerRef.current?.getPlayerState() as unknown as PlayerStates;
-		if (currentState !== PlayerStates.PLAYING) {
-			playerRef.current?.playVideo();
-		} else if (currentState === PlayerStates.PLAYING) {
-			playerRef.current?.pauseVideo();
-		}
-	}, [playerRef]);
+	const playPause = useCallback(
+		(pause?: boolean) => {
+			if (pause) {
+				playerRef.current?.pauseVideo();
+				return;
+			}
+			const currentState =
+				playerRef.current?.getPlayerState() as unknown as PlayerStates;
+			if (currentState !== PlayerStates.PLAYING) {
+				playerRef.current?.playVideo();
+			} else if (currentState === PlayerStates.PLAYING) {
+				playerRef.current?.pauseVideo();
+			}
+		},
+		[playerRef]
+	);
 
 	const seekTo = (t: number) => {
 		playerRef.current?.seekTo(t, true);

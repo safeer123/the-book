@@ -1,5 +1,6 @@
 import { useVerses } from 'data/use-verses';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Verse, VerseBindingElement } from 'types';
 
 interface Props {
@@ -27,6 +28,8 @@ export const useVerseBinding = ({
 } => {
 	const [keyframe, setKeyframe] = useState<Keyframe | undefined>();
 	const { data: verseData, isLoading: versesLoading } = useVerses();
+	const [searchParams] = useSearchParams();
+	const trIdStr = searchParams.get('tr');
 
 	const searchBindingVerse = (
 		elements: VerseBindingSearchElement[],
@@ -88,6 +91,10 @@ export const useVerseBinding = ({
 			});
 		}
 	}, [bindingConfigForSearch, currentTime, verseData, versesLoading]);
+
+	useEffect(() => {
+		setKeyframe(undefined);
+	}, [trIdStr]);
 
 	useEffect(() => {
 		return () => setKeyframe(undefined);

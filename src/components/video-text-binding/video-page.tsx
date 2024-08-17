@@ -249,7 +249,7 @@ interface Props {
 	setVideoStatus: (s: Partial<VideoStatusInfo>) => void;
 	videoStatus?: VideoStatusInfo;
 	playerRef: React.MutableRefObject<YouTubePlayer | null>;
-	playPause: () => void;
+	playPause: (pause?: boolean) => void;
 	seekTo: (t: number) => void;
 	viewerMode?: boolean;
 }
@@ -398,7 +398,24 @@ const VideoPage = ({
 					/>
 				)}
 			</VideoWrapper>
-			<VerseDisplayWrapper onClick={playPause}>
+			<VerseDisplayWrapper
+				onClick={(e: React.MouseEvent) => {
+					const target = e.target as HTMLElement;
+					const classNamesToLookFor = [
+						'arabic-verse-text',
+						'translation-text',
+						'translation-text-content',
+						'ant-collapse',
+						'ant-collapse-content',
+						'ant-collapse-content-box',
+					];
+					if (classNamesToLookFor.some((c) => target.classList.contains(c))) {
+						playPause();
+					} else {
+						playPause(true);
+					}
+				}}
+			>
 				<VerseList>
 					{!versesLoading && (
 						<Results

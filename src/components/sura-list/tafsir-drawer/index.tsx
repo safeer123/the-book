@@ -7,14 +7,19 @@ import ChapterInfoContent from './chapter-info';
 import { isMobile } from 'react-device-detect';
 
 const Drawer = styled(AntDrawer)`
-	&& .ant-drawer-wrapper-body {
+	&& .ant-drawer-content-wrapper {
 		position: relative;
+	}
+
+	&& .ant-drawer-header {
 		background-color: rgba(255, 255, 255, 0.651);
 		background-image: url(https://www.transparenttextures.com/patterns/textured-paper.png);
 	}
 
 	&& .ant-drawer-body {
 		overflow-y: scroll;
+		background-color: rgba(255, 255, 255, 0.651);
+		background-image: url(https://www.transparenttextures.com/patterns/textured-paper.png);
 	}
 `;
 

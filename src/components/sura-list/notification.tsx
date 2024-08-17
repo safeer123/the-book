@@ -29,7 +29,7 @@ const NotificationProvider: FC<PropsWithChildren> = ({ children }) => {
 		maxCount: 1,
 	});
 
-	const [, setSearchParams] = useSearchParams();
+	const [searchParams, setSearchParams] = useSearchParams();
 
 	const searchText = (text: string, apiNotif: NotificationInstance) => {
 		setSearchParams((prev) => ({
@@ -70,7 +70,7 @@ const NotificationProvider: FC<PropsWithChildren> = ({ children }) => {
 		document.addEventListener('text-selection', handleSelection);
 		return () =>
 			document.removeEventListener('text-selection', handleSelection);
-	}, []);
+	}, [searchParams.get('tr')]);
 
 	const contextValue = useMemo(() => ({ name: 'Search Word' }), []);
 
