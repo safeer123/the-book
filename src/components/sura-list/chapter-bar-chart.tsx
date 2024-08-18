@@ -5,10 +5,11 @@ import { ChapterItem, Verse } from 'types';
 
 const AvailableArea = styled.div`
 	flex: 1;
-	height: 30px;
+	height: 15px;
 	display: flex;
 	align-items: center;
-	padding: 16px 32px;
+	margin-bottom: 8px;
+	transform: scaleY(-1);
 `;
 
 interface Props {

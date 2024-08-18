@@ -11,14 +11,14 @@ import ChapterBarChart from './chapter-bar-chart';
 import EmptyScreen from './empty';
 
 const Wrapper = styled.div`
-	padding: 16px;
-	height: calc(100% - 32px);
+	padding: 0px 16px;
+	height: 100%;
 	display: flex;
 	flex-direction: column;
 `;
 
 const PageHeader = styled.div`
-	margin: 16px;
+	margin: 0px 16px 16px 16px;
 `;
 
 const Content = styled.div`
@@ -26,12 +26,6 @@ const Content = styled.div`
 	margin: 16px;
 	text-align: right;
 	overflow-y: auto;
-`;
-const Footer = styled.div`
-	border: 0.5px solid #fff;
-	-webkit-box-shadow: -1px 3px 11px 1px rgba(0, 0, 0, 0.75);
-	-moz-box-shadow: -1px 3px 11px 1px rgba(0, 0, 0, 0.75);
-	box-shadow: -1px 3px 11px 1px rgba(0, 0, 0, 0.75);
 `;
 
 const SuraList = () => {
@@ -58,6 +52,10 @@ const SuraList = () => {
 		<NotificationProvider>
 			<Wrapper>
 				<PageHeader>
+					<ChapterBarChart
+						selectedChapters={searchKey ? result?.chapters : undefined}
+						selectedVerses={result?.verses}
+					/>
 					<Search />
 				</PageHeader>
 				<Content className="scrollable">
@@ -71,12 +69,6 @@ const SuraList = () => {
 						/>
 					)}
 				</Content>
-				<Footer>
-					<ChapterBarChart
-						selectedChapters={searchKey ? result?.chapters : undefined}
-						selectedVerses={result?.verses}
-					/>
-				</Footer>
 			</Wrapper>
 		</NotificationProvider>
 	);
