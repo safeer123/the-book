@@ -10,7 +10,7 @@ const useURLNavigation = () => {
 			w: '0',
 			c: '0',
 			only: ChapterToken,
-			tr: prev.get('tr') as string,
+			tr: (prev.get('tr') as string) || '131',
 		}));
 	};
 
@@ -21,7 +21,7 @@ const useURLNavigation = () => {
 			w: '0',
 			c: '0',
 			only: VerseToken,
-			tr: prev.get('tr') as string,
+			tr: (prev.get('tr') as string) || '131',
 		}));
 	};
 

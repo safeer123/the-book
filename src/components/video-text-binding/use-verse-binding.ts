@@ -2,6 +2,7 @@ import { useVerses } from 'data/use-verses';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Verse, VerseBindingElement } from 'types';
+import { usePersistedVideoState } from './use-persisted-video-state';
 
 interface Props {
 	currentTime?: number;
@@ -28,6 +29,7 @@ export const useVerseBinding = ({
 } => {
 	const [keyframe, setKeyframe] = useState<Keyframe | undefined>();
 	const { data: verseData, isLoading: versesLoading } = useVerses();
+	const { saveTime } = usePersistedVideoState();
 	const [searchParams] = useSearchParams();
 	const trIdStr = searchParams.get('tr');
 
@@ -99,6 +101,10 @@ export const useVerseBinding = ({
 	useEffect(() => {
 		return () => setKeyframe(undefined);
 	}, [bindingConfigForSearch]);
+
+	useEffect(() => {
+		saveTime(currentTime);
+	}, [keyframe]);
 
 	const verses = keyframe?.verses || [];
 	const elementIndex = keyframe?.elementIndex || -1;

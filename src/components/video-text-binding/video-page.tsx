@@ -16,6 +16,7 @@ import { PlayPause } from './buttons/play-pause-button';
 import { TimelineMarkItemIcon } from './timeline-mark-item';
 import { useVerses } from 'data/use-verses';
 import { formatDuration } from './utils';
+import { usePersistedVideoState } from './use-persisted-video-state';
 
 const VideoWrapper = styled.div`
 	@media (min-width: 320px) {
@@ -273,6 +274,8 @@ const VideoPage = ({
 
 	const { data: verseData, isLoading: versesLoading } = useVerses();
 
+	const { getTime } = usePersistedVideoState();
+
 	const checkElapsedTime: YouTubeProps['onStateChange'] = (
 		e: YouTubeEvent<number>
 	) => {
@@ -339,6 +342,8 @@ const VideoPage = ({
 			playerVars: {
 				// https://developers.google.com/youtube/player_parameters
 				autoplay: 0,
+				controls: 0,
+				start: getTime(),
 			},
 			height: 200,
 		};
@@ -426,7 +431,10 @@ const VideoPage = ({
 				</VerseList>
 			</VerseDisplayWrapper>
 			<ControlsWrapper>
-				<PlayPause onClick={playPause} state={videoStatus?.playStatus} />
+				<PlayPause
+					onClick={() => playPause()}
+					state={videoStatus?.playStatus}
+				/>
 				<TimelineControl>
 					<Slider
 						className="play-control-slider"
