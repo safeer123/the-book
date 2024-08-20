@@ -31,9 +31,11 @@ const VideoWrapper = styled.div`
 		flex: 2;
 		display: flex;
 		justify-content: center;
+		align-items: flex-end;
 		background-color: #180f2f;
 		position: relative;
 		opacity: 1;
+		overflow: hidden;
 	}
 `;
 
