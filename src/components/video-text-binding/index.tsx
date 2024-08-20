@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import styled from 'styled-components';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Popover, Tooltip, Input } from 'antd';
+import { Popover, Tooltip } from 'antd';
 import EditBindingConfiguration from './edit-binding-configuration';
 import { ProjectConfig, VideoStatusInfo } from 'types';
 import VideoPage from './video-page';
@@ -13,8 +13,7 @@ import { UploadProjects } from './upload-projects';
 import { ProjectList as ProjectListBtn } from './buttons/projects-list-btn';
 import { Settings as SettingsBtn } from './buttons/settings-btn';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-
-const { Search } = Input;
+import ProjectsMenu from './projects-menu';
 
 const Page = styled.div`
 	height: 100vh;
@@ -50,41 +49,6 @@ const SettingsArea = styled.div`
 	}
 `;
 
-const ProjectsMenu = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	align-items: stretch;
-	width: 300px;
-`;
-
-const ProjectItemWrapper = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	align-items: stretch;
-	max-height: 400px;
-	overflow-y: auto;
-	overflow-x: hidden;
-
-	.active-item {
-		background-color: #d8e1fc;
-	}
-`;
-
-const ProjectItem = styled(Button)`
-	width: 100%;
-	padding: 4px;
-	text-align: left;
-
-	background-color: #fff;
-	cursor: pointer;
-
-	&:hover {
-		background-color: #f0f0f0;
-	}
-`;
-
 const newProjectConfig = (): ProjectConfig => {
 	return {
 		id: `new-project-${new Date().toTimeString()}`,
@@ -100,7 +64,6 @@ interface Props {
 
 const VideoTextBinding = ({ viewerMode = false }: Props) => {
 	const [projectMenuVisible, setProjectMenuVisible] = useState(false);
-	const [searchInput, setSearchInput] = useState('');
 	const [settingsDrawerVisibility, setSettingsDrawerVisibility] =
 		useState(false);
 	const [currentTime, setCurrentTime] = useState(0);
@@ -199,12 +162,6 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 		}
 	}, [projects]);
 
-	const filteredProjects = useMemo(() => {
-		return (projects || []).filter((p) =>
-			p?.title?.toLowerCase()?.includes(searchInput.toLowerCase())
-		);
-	}, [projects, searchInput]);
-
 	return (
 		<Page>
 			<SettingsArea>
@@ -214,46 +171,13 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 					onOpenChange={(state) => setProjectMenuVisible(state)}
 					trigger={['click']}
 					content={
-						<ProjectsMenu>
-							{!viewerMode && (
-								<Button
-									key={'new-project'}
-									size="small"
-									type="primary"
-									onClick={() => newProject()}
-								>
-									{'＋ New Project'}
-								</Button>
-							)}
-
-							<Search
-								placeholder="Search.."
-								onChange={(e) => setSearchInput(e.target.value)}
-								allowClear
-							/>
-
-							<ProjectItemWrapper>
-								{filteredProjects.map((p) => (
-									<Tooltip
-										key={p.id}
-										mouseEnterDelay={1}
-										title={`${p?.verseId || '-'}. ${p.title}`}
-										placement="left"
-									>
-										<ProjectItem
-											size="small"
-											type="text"
-											onClick={() => onClickProjectItem(p)}
-											className={
-												p.id === projectConfig?.id ? 'active-item' : ''
-											}
-										>
-											{p.title}
-										</ProjectItem>
-									</Tooltip>
-								))}
-							</ProjectItemWrapper>
-						</ProjectsMenu>
+						<ProjectsMenu
+							projects={projects}
+							projectConfig={projectConfig}
+							viewerMode={viewerMode}
+							newProject={newProject}
+							onClickProjectItem={onClickProjectItem}
+						/>
 					}
 				>
 					<ProjectListBtn />
