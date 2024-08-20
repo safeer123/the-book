@@ -38,8 +38,8 @@ const ProjectItem = styled(Button)`
 	background-color: #ffffff;
 	cursor: pointer;
 
-	&:hover {
-		background-color: #f0f0f0;
+	&&&:hover {
+		background-color: #d8e1fcbf;
 	}
 `;
 
