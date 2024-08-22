@@ -5,6 +5,7 @@ import {
 	Button,
 	Checkbox,
 	Spin,
+	Popover,
 } from 'antd';
 import { styled } from 'styled-components';
 import { useChapters } from 'data/use-chapters';
@@ -60,6 +61,17 @@ const ItemWrapper = styled.div`
 	justify-content: space-between;
 `;
 
+const PopoverContentWrapper = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	font-size: 16px;
+`;
+
+const ButtonStyled = styled(Button)`
+	width: fit-content;
+`;
+
 interface OptionType {
 	value: string;
 	label: JSX.Element;
@@ -93,6 +105,7 @@ const renderItem = (value: string, title: string, arabicTitle: string) => ({
 
 const Search: React.FC = () => {
 	const [searchKey, setSearchKey] = useState('');
+	const [selectionText, setSelectionText] = useState('');
 	const [dropdownVisible, setDropdownVisible] = useState(false);
 	const [config, setConfig] = useState({
 		matchCase: false,
@@ -221,6 +234,15 @@ const Search: React.FC = () => {
 		}
 	};
 
+	const searchText = (text: string) => {
+		setSelectionText('');
+		setSearchParams((prev) => {
+			prev.set('k', text);
+			prev.set('only', VerseToken);
+			return prev;
+		});
+	};
+
 	useEffect(() => {
 		if (searchParams.get('k') !== searchKey) {
 			setSearchKey(searchParams.get('k') || '');
@@ -234,24 +256,60 @@ const Search: React.FC = () => {
 		}
 	}, [searchParams]);
 
+	useEffect(() => {
+		const handleSelection = (e: Event) => {
+			setSelectionText((e as CustomEvent)?.detail as string);
+			setTimeout(() => {
+				setSelectionText('');
+			}, 5000);
+		};
+		document.addEventListener('text-selection', handleSelection);
+		return () =>
+			document.removeEventListener('text-selection', handleSelection);
+	}, [searchParams.get('tr')]);
+
 	return (
 		<SearchPanelWrapper>
-			<AutoComplete
-				popupClassName="main-search-dropdown"
-				popupMatchSelectWidth={500}
-				style={{ width: '40%' }}
-				options={options}
-				onSelect={onSelect}
-				onSearch={(e) => setSearchKey(e)}
-				onBlur={onBlur}
-				onKeyDown={onKeyDown}
-				value={searchKey}
-				open={dropdownVisible}
-				onDropdownVisibleChange={(state) => setDropdownVisible(state)}
-				notFoundContent={loading ? <Spin /> : null}
+			<Popover
+				placement="bottom"
+				open={!!selectionText}
+				content={
+					<PopoverContentWrapper>
+						<span>
+							Search <strong>{selectionText}</strong>?{' '}
+							<ButtonStyled
+								type="primary"
+								size="small"
+								onClick={() => searchText(selectionText)}
+							>
+								Search
+							</ButtonStyled>
+						</span>
+					</PopoverContentWrapper>
+				}
 			>
-				<Input.Search size="large" placeholder="Search in Quran.." allowClear />
-			</AutoComplete>
+				<AutoComplete
+					popupClassName="main-search-dropdown"
+					popupMatchSelectWidth={500}
+					style={{ width: '40%' }}
+					options={options}
+					onSelect={onSelect}
+					onSearch={(e) => setSearchKey(e)}
+					onBlur={onBlur}
+					onKeyDown={onKeyDown}
+					value={searchKey}
+					open={dropdownVisible}
+					onDropdownVisibleChange={(state) => setDropdownVisible(state)}
+					notFoundContent={loading ? <Spin /> : null}
+				>
+					<Input.Search
+						size="large"
+						placeholder="Search in Quran.."
+						allowClear
+					/>
+				</AutoComplete>
+			</Popover>
+
 			<Checkbox checked={config?.fullWord} onChange={onChangeFullWordCheck}>
 				{'Match Whole Word'}
 			</Checkbox>

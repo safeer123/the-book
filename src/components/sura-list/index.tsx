@@ -2,7 +2,6 @@ import styled from 'styled-components';
 import Search from './search';
 import Results from './results';
 import { useMemo } from 'react';
-import NotificationProvider from './notification';
 import { useSearchParams } from 'react-router-dom';
 import useSearch from 'data/use-search';
 import { searchConfigFromURLParams } from 'utils/search-utils';
@@ -49,28 +48,26 @@ const SuraList = () => {
 		result?.chapters?.length + result?.verses?.length === 0;
 
 	return (
-		<NotificationProvider>
-			<Wrapper>
-				<PageHeader>
-					<ChapterBarChart
-						selectedChapters={searchKey ? result?.chapters : undefined}
+		<Wrapper>
+			<PageHeader>
+				<ChapterBarChart
+					selectedChapters={searchKey ? result?.chapters : undefined}
+					selectedVerses={result?.verses}
+				/>
+				<Search />
+			</PageHeader>
+			<Content className="scrollable">
+				{showEmptyScreen ? (
+					<EmptyScreen />
+				) : (
+					<Results
+						selectedChapters={result?.chapters}
 						selectedVerses={result?.verses}
+						searchKeys={searchKeys}
 					/>
-					<Search />
-				</PageHeader>
-				<Content className="scrollable">
-					{showEmptyScreen ? (
-						<EmptyScreen />
-					) : (
-						<Results
-							selectedChapters={result?.chapters}
-							selectedVerses={result?.verses}
-							searchKeys={searchKeys}
-						/>
-					)}
-				</Content>
-			</Wrapper>
-		</NotificationProvider>
+				)}
+			</Content>
+		</Wrapper>
 	);
 };
 
