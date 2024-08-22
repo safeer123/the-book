@@ -110,13 +110,21 @@ const Search: React.FC = () => {
 	};
 
 	const submitSearchQuery = (k: string, conf: SearchConfig, only = '') => {
-		setSearchParams((prev) => ({
-			...(k ? { k } : {}),
-			w: conf.fullWord ? '1' : '0',
-			c: conf.matchCase ? '1' : '0',
-			...(only ? { only } : {}),
-			tr: prev.get('tr') as string,
-		}));
+		setSearchParams((prev) => {
+			if (k) {
+				prev.set('k', k);
+			} else {
+				prev.delete('k');
+			}
+			prev.set('w', conf.fullWord ? '1' : '0');
+			prev.set('c', conf.matchCase ? '1' : '0');
+			if (only) {
+				prev.set('only', only);
+			} else {
+				prev.delete('only');
+			}
+			return prev;
+		});
 	};
 
 	const options = useMemo(() => {
@@ -194,16 +202,16 @@ const Search: React.FC = () => {
 	};
 
 	const onChangeFullWordCheck = (e: CheckboxChangeEvent) => {
-		setConfig({
-			...config,
-			fullWord: e.target.checked,
+		setSearchParams((prev) => {
+			prev.set('w', e.target.checked ? '1' : '0');
+			return prev;
 		});
 	};
 
 	const onChangeMatchCase = (e: CheckboxChangeEvent) => {
-		setConfig({
-			...config,
-			matchCase: e.target.checked,
+		setSearchParams((prev) => {
+			prev.set('c', e.target.checked ? '1' : '0');
+			return prev;
 		});
 	};
 

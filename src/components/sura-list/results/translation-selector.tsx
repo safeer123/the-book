@@ -56,9 +56,10 @@ const LanguageTabs = ({ data }: LanguagesProps) => {
 	);
 
 	const onClickTranslationItem = (item: TranslationItem) => {
-		const newSearchParams = new URLSearchParams(searchParams);
-		newSearchParams.set('tr', `${item.id}`);
-		setSearchParams(newSearchParams);
+		setSearchParams((prev) => {
+			prev.set('tr', `${item.id}`);
+			return prev;
+		});
 	};
 
 	useEffect(() => {
