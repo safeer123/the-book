@@ -151,7 +151,10 @@ const LanguageTabs = ({ data }: LanguagesProps) => {
 				/>
 				{topHitTranslations.map((item) => (
 					<Tooltip title={`${item.name} (${item.language_name})`} key={item.id}>
-						<StyledTrButton onClick={() => onClickTranslationItem(item)}>
+						<StyledTrButton
+							onClick={() => onClickTranslationItem(item)}
+							disabled={item.id === selectedTrId}
+						>
 							{item.language_name?.[0]?.toUpperCase()}
 						</StyledTrButton>
 					</Tooltip>
