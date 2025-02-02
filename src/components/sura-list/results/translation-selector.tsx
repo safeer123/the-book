@@ -8,6 +8,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { isMobile } from 'react-device-detect';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { capitalizeObjectKeys } from './utils';
+import { getTopHitTranslations, updateHitCount } from './top-hit-translations';
 
 const { TabPane } = Tabs;
 const { Search } = Input;
@@ -23,6 +25,18 @@ const StyledCard = styled(Card)<{ $selected: boolean }>`
 	background-color: ${({ $selected }) =>
 		$selected ? 'rgba(52, 84, 244, 0.149)' : '#FFF'};
 	cursor: pointer;
+`;
+
+const FooterItems = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 8px;
+`;
+
+const StyledTrButton = styled(Button)`
+	font-size: 18px;
+	color: rgba(10, 10, 10, 0.604);
+	border: 0.8px dashed rgba(10, 10, 10, 0.449);
 `;
 
 const TabPaneContent = styled.div`
@@ -55,7 +69,12 @@ const LanguageTabs = ({ data }: LanguagesProps) => {
 		[searchParams]
 	);
 
+	const topHitTranslations = useMemo(() => {
+		return getTopHitTranslations();
+	}, [searchParams.get('tr')]);
+
 	const onClickTranslationItem = (item: TranslationItem) => {
+		updateHitCount(item);
 		setSearchParams((prev) => {
 			prev.set('tr', `${item.id}`);
 			return prev;
@@ -124,7 +143,20 @@ const LanguageTabs = ({ data }: LanguagesProps) => {
 					<TabPaneContent />
 				</TabPane>
 			</Tabs>
-			<Search placeholder="Search" onChange={onSearch} style={{ width: 300 }} />
+			<FooterItems>
+				<Search
+					placeholder="Search"
+					onChange={onSearch}
+					style={{ width: 300 }}
+				/>
+				{topHitTranslations.map((item) => (
+					<Tooltip title={`${item.name} (${item.language_name})`} key={item.id}>
+						<StyledTrButton onClick={() => onClickTranslationItem(item)}>
+							{item.language_name?.[0]?.toUpperCase()}
+						</StyledTrButton>
+					</Tooltip>
+				))}
+			</FooterItems>
 		</>
 	);
 };
@@ -132,10 +164,13 @@ const LanguageTabs = ({ data }: LanguagesProps) => {
 const TranslationsContent = () => {
 	const { data, isLoading } = useTranslations();
 
-	if (isLoading) {
+	if (isLoading || data?.translationsByLang === undefined) {
 		<Spin />;
 	}
-	return <LanguageTabs data={data?.translationsByLang} />;
+
+	return (
+		<LanguageTabs data={capitalizeObjectKeys(data?.translationsByLang || {})} />
+	);
 };
 
 export const VerseTranslationSelector = () => {
