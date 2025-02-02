@@ -158,7 +158,8 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 
 	useEffect(() => {
 		if (!pid && projects.length > 0) {
-			onClickProjectItem(projects[0]);
+			const randomIndex = ~~(Math.random() * projects.length);
+			onClickProjectItem(projects[randomIndex]);
 		}
 	}, [projects]);
 
