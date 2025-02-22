@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { Button, Drawer as AntDrawer, Space, Input } from 'antd';
+import { Button, Space, Input } from 'antd';
 import {
 	CheckOutlined,
+	DeleteOutlined,
 	ExclamationOutlined,
 	LoadingOutlined,
 } from '@ant-design/icons';
@@ -15,73 +16,18 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import styled from 'styled-components';
 import { ProjectConfig, VerseBindingElement } from 'types';
-
-const Drawer = styled(AntDrawer)`
-	&& .ant-drawer-wrapper-body {
-		position: relative;
-		background-color: rgba(255, 255, 255, 0.651);
-		background-image: url(https://www.transparenttextures.com/patterns/textured-paper.png);
-	}
-`;
-
-const Wrapper = styled.div`
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	height: calc(100% - 16px);
-`;
-
-const ProjectDetailsArea = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
-	padding: 16px;
-`;
-
-const InputItem = styled.div`
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-
-	input {
-		width: 200px;
-	}
-`;
-
-const InputLabel = styled.span`
-	color: #5c5c5c;
-	font-size: 12px;
-	margin-right: 8px;
-`;
-
-const BindingListItems = styled.div`
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
-	padding: 16px;
-	overflow-y: auto;
-	border: 1px solid #727272;
-	border-radius: 5px;
-
-	.right-align {
-		justify-content: flex-end;
-	}
-`;
-const BindingItem = styled.div`
-	display: flex;
-	gap: 16px;
-`;
-
-const ActionArea = styled.div`
-	display: flex;
-	gap: 16px;
-	padding: 16px;
-	padding-bottom: 0;
-	justify-content: flex-end;
-`;
+import ChapterSelector from './chapter-selector';
+import {
+	Drawer,
+	ProjectDetailsArea,
+	Wrapper,
+	InputItem,
+	InputLabel,
+	BindingItem,
+	BindingListItems,
+	ActionArea,
+} from './styles';
 
 interface Props {
 	open?: boolean;
@@ -190,12 +136,12 @@ const EditBindingConfiguration: FC<Props> = ({
 		} as ProjectConfig);
 	};
 
-	const onChangeVerseKey = (id: number, e: ChangeEvent<HTMLInputElement>) => {
+	const onChangeVerseKey = (id: number, k = '') => {
 		setProjectConfig({
 			...projectConfig,
 			bindingConfig: bindingConfig.map((c) => {
 				if (c.id === id) {
-					return { ...c, k: String(e.target.value) };
+					return { ...c, k };
 				}
 				return c;
 			}),
@@ -255,95 +201,107 @@ const EditBindingConfiguration: FC<Props> = ({
 						/>
 					</InputItem>
 				</ProjectDetailsArea>
-				<BindingListItems>
-					{bindingConfig.map((element, index) => (
-						<BindingItem key={`${element.id}`}>
-							<Input
-								size="small"
-								type="number"
-								value={element.t}
-								step={0.1}
-								onChange={(e) => onChangeTime(element.id, e)}
-							/>
-							<Input
-								size="small"
-								type="text"
-								value={element.k}
-								onChange={(e) => onChangeVerseKey(element.id, e)}
-							/>
+				{!!projectConfig?.videoUrl && (
+					<>
+						<BindingListItems>
+							{bindingConfig.map((element, index) => (
+								<BindingItem key={`${element.id}`}>
+									<Input
+										size="small"
+										type="number"
+										value={element.t}
+										step={0.1}
+										onChange={(e) => onChangeTime(element.id, e)}
+									/>
+									<Input
+										size="small"
+										type="text"
+										value={element.k}
+										onChange={(e) =>
+											onChangeVerseKey(element.id, e.target.value)
+										}
+									/>
+									<ChapterSelector
+										elementId={element.id}
+										onChangeVerseKey={onChangeVerseKey}
+									/>
+									<Button
+										className="binding-item-action"
+										icon={<DeleteOutlined />}
+										size="small"
+										type="link"
+										onClick={() => removeBinding(index)}
+									/>
+								</BindingItem>
+							))}
+							<BindingItem key={'add-controls'} className="right-align">
+								<Button
+									type="primary"
+									onClick={addNextBinding}
+									size="small"
+								>{`＋ Next Verse (${`${chapter}:${
+									Number(verse) + 1
+								}`})`}</Button>
+								<Button
+									type="primary"
+									onClick={addBlankBinding}
+									size="small"
+								>{`＋ Blank`}</Button>
+							</BindingItem>
+						</BindingListItems>
+						<ActionArea>
 							<Button
+								type="primary"
+								danger
+								onClick={deleteProject}
+								disabled={hasUnsavedChanges}
 								size="small"
-								type="link"
-								onClick={() => removeBinding(index)}
 							>
-								Remove
+								Delete
 							</Button>
-						</BindingItem>
-					))}
-					<BindingItem key={'add-controls'} className="right-align">
-						<Button
-							type="primary"
-							onClick={addNextBinding}
-							size="small"
-						>{`＋ Next Verse (${`${chapter}:${Number(verse) + 1}`})`}</Button>
-						<Button
-							type="primary"
-							onClick={addBlankBinding}
-							size="small"
-						>{`＋ Blank`}</Button>
-					</BindingItem>
-				</BindingListItems>
-				<ActionArea>
-					<Button
-						type="primary"
-						danger
-						onClick={deleteProject}
-						disabled={hasUnsavedChanges}
-						size="small"
-					>
-						Delete
-					</Button>
-					<Button
-						type="primary"
-						icon={saveLoadingIcon}
-						onClick={async () => {
-							setSaveLoadingIcon(<LoadingOutlined type="primary" />);
-							try {
-								await saveProject();
-								setSaveLoadingIcon(<CheckOutlined type="success" />);
-							} catch (e) {
-								setSaveLoadingIcon(<ExclamationOutlined type="danger" />);
-								// Error in saving
-							}
-							setTimeout(() => {
-								setSaveLoadingIcon(undefined);
-							}, 3000);
-						}}
-						disabled={!hasUnsavedChanges}
-						size="small"
-					>
-						Save
-					</Button>
-				</ActionArea>
-				<ActionArea>
-					<Button
-						type="primary"
-						onClick={() =>
-							copyToClipboard().then(() => {
-								setCopyBtnLabel('Copied ✓');
-								setTimeout(() => {
-									setCopyBtnLabel('Copy');
-								}, 3000);
-							})
-						}
-						size="small"
-					>
-						{copyBtnLabel}
-					</Button>
-					<Button type="primary" onClick={downloadAsJson} size="small">
-						Download
-					</Button>
-				</ActionArea>
+							<Button
+								type="primary"
+								icon={saveLoadingIcon}
+								onClick={async () => {
+									setSaveLoadingIcon(<LoadingOutlined type="primary" />);
+									try {
+										await saveProject();
+										setSaveLoadingIcon(<CheckOutlined type="success" />);
+									} catch (e) {
+										setSaveLoadingIcon(<ExclamationOutlined type="danger" />);
+										// Error in saving
+									}
+									setTimeout(() => {
+										setSaveLoadingIcon(undefined);
+									}, 3000);
+								}}
+								disabled={!hasUnsavedChanges}
+								size="small"
+							>
+								Save
+							</Button>
+						</ActionArea>
+						<ActionArea>
+							<Button
+								type="primary"
+								onClick={() =>
+									copyToClipboard().then(() => {
+										setCopyBtnLabel('Copied ✓');
+										setTimeout(() => {
+											setCopyBtnLabel('Copy');
+										}, 3000);
+									})
+								}
+								size="small"
+							>
+								{copyBtnLabel}
+							</Button>
+							<Button type="primary" onClick={downloadAsJson} size="small">
+								Download
+							</Button>
+						</ActionArea>
+					</>
+				)}
 			</Wrapper>
 		</Drawer>
 	);

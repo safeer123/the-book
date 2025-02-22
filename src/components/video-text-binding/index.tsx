@@ -3,7 +3,7 @@
 import styled from 'styled-components';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Popover, Tooltip } from 'antd';
-import EditBindingConfiguration from './edit-binding-configuration';
+import EditBindingConfiguration from './edit-binding';
 import { ProjectConfig, VideoStatusInfo } from 'types';
 import VideoPage from './video-page';
 import { useProjectStore } from './use-project-store';
