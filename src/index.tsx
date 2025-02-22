@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom/client';
 import RouterApp from './router';
 import { Helmet } from 'react-helmet';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import 'utils/init-firebase';
 
 import './styles.css';
 

@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import axios from 'axios';
 import { useEffect, useMemo, useState } from 'react';
 import { ProjectConfig } from 'types';
+import { getData, updateData } from 'utils/firestore-utils';
 
 const PROJECTS_KEY = 'verse-binding-projects';
 
@@ -24,7 +26,7 @@ export const useProjectStore = ({
 	setProjectConfig: (p: ProjectConfig) => void;
 	viewerMode: boolean;
 }): {
-	saveProject: (project: ProjectConfig) => void;
+	saveProject: (project: ProjectConfig) => Promise<void>;
 	deleteProject: (project: ProjectConfig) => void;
 	loadProjects: (projects: ProjectConfig[]) => void;
 	projects: ProjectConfig[];
@@ -32,7 +34,7 @@ export const useProjectStore = ({
 } => {
 	const [projectItems, setProjectItems] = useState<Projects>({});
 
-	const saveProject = (project: ProjectConfig) => {
+	const saveProject = async (project: ProjectConfig) => {
 		const savedProject = {
 			...project,
 			id: [...project.title.split(' '), project.videoUrl].join('-'),
@@ -57,7 +59,9 @@ export const useProjectStore = ({
 			}
 		});
 
-		localStorage.setItem(PROJECTS_KEY, JSON.stringify(updatedProjects));
+		const updatedProjectsStr = JSON.stringify(updatedProjects);
+		await updateData({ projects: updatedProjects });
+		localStorage.setItem(PROJECTS_KEY, updatedProjectsStr);
 		setProjectItems(updatedProjects);
 		setProjectConfig(savedProject);
 	};
@@ -102,11 +106,16 @@ export const useProjectStore = ({
 
 	useEffect(() => {
 		if (viewerMode) {
-			axios
-				.get(JSON_STORE_URL)
-				.then((data: { data: { projects: ProjectConfig[] } }) => {
-					loadProjects(data?.data?.projects || []);
-				});
+			// axios
+			// 	.get(JSON_STORE_URL)
+			// 	.then((data: { data: { projects: ProjectConfig[] } }) => {
+			// 		loadProjects(data?.data?.projects || []);
+			// 	});
+			getData().then((data) => {
+				if (data?.projects) {
+					loadProjects(Object.values(data.projects));
+				}
+			});
 		}
 	}, [viewerMode]);
 

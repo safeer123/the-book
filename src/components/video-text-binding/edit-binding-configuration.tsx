@@ -1,8 +1,14 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { Button, Drawer as AntDrawer, Space, Input } from 'antd';
 import {
+	CheckOutlined,
+	ExclamationOutlined,
+	LoadingOutlined,
+} from '@ant-design/icons';
+import {
 	ChangeEvent,
 	FC,
+	ReactNode,
 	useCallback,
 	useEffect,
 	useMemo,
@@ -83,7 +89,7 @@ interface Props {
 	projectConfig?: ProjectConfig;
 	setProjectConfig: (conf: ProjectConfig) => void;
 	currentTime: number;
-	saveProject: () => void;
+	saveProject: () => Promise<void>;
 	deleteProject: () => void;
 	downloadAsJson: () => void;
 	copyToClipboard: () => Promise<void>;
@@ -104,6 +110,9 @@ const EditBindingConfiguration: FC<Props> = ({
 }) => {
 	const currentTimeRef = useRef(0);
 	const [copyBtnLabel, setCopyBtnLabel] = useState('Copy');
+	const [saveLoadingIcon, setSaveLoadingIcon] = useState<
+		ReactNode | undefined
+	>();
 
 	const { bindingConfig = [] } = projectConfig || {};
 	const [chapter, verse] = useMemo(() => {
@@ -296,7 +305,20 @@ const EditBindingConfiguration: FC<Props> = ({
 					</Button>
 					<Button
 						type="primary"
-						onClick={saveProject}
+						icon={saveLoadingIcon}
+						onClick={async () => {
+							setSaveLoadingIcon(<LoadingOutlined type="primary" />);
+							try {
+								await saveProject();
+								setSaveLoadingIcon(<CheckOutlined type="success" />);
+							} catch (e) {
+								setSaveLoadingIcon(<ExclamationOutlined type="danger" />);
+								// Error in saving
+							}
+							setTimeout(() => {
+								setSaveLoadingIcon(undefined);
+							}, 3000);
+						}}
 						disabled={!hasUnsavedChanges}
 						size="small"
 					>

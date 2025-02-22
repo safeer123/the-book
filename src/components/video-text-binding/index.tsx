@@ -210,7 +210,11 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 					projectConfig={projectConfig}
 					setProjectConfig={setProjectConfig}
 					currentTime={currentTime}
-					saveProject={() => projectConfig && saveProject(projectConfig)}
+					saveProject={async () => {
+						if (projectConfig) {
+							return saveProject(projectConfig);
+						}
+					}}
 					deleteProject={() => projectConfig && deleteProject(projectConfig)}
 					downloadAsJson={downloadAsJson}
 					hasUnsavedChanges={hasUnsavedChanges}
