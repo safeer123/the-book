@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import 'utils/init-firebase';
 
 import './styles.css';
+import { UserAuthProvider } from 'auth/auth-context';
 
 const rootElement = document.getElementById('root')!;
 const root = ReactDOM.createRoot(rootElement);
@@ -38,7 +39,9 @@ root.render(
 			<link rel="manifest" href="/site.webmanifest" />
 		</Helmet>
 		<QueryClientProvider client={queryClient}>
-			<RouterApp />
+			<UserAuthProvider>
+				<RouterApp />
+			</UserAuthProvider>
 		</QueryClientProvider>
 	</React.StrictMode>
 );

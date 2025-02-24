@@ -3,6 +3,8 @@
 import { initializeApp, FirebaseApp, FirebaseOptions } from 'firebase/app';
 import { getAnalytics, Analytics } from 'firebase/analytics';
 import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { getRemoteConfig } from 'firebase/remote-config';
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -28,3 +30,8 @@ export const PATH_TO_DOCUMENT =
 export const fbApp: FirebaseApp = initializeApp(firebaseConfig);
 export const fbAnalytics: Analytics = getAnalytics(fbApp);
 export const fbDB = getFirestore(fbApp);
+export const auth = getAuth(fbApp);
+export const remoteConfig = getRemoteConfig(fbApp);
+
+// Set minimum fetch interval (optional, for development)
+remoteConfig.settings.minimumFetchIntervalMillis = 5000; // 1 hour

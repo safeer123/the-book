@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import styled from 'styled-components';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Popover, Tooltip } from 'antd';
+import { Avatar, Button, Popover, Tooltip } from 'antd';
 import EditBindingConfiguration from './edit-binding';
 import { ProjectConfig, VideoStatusInfo } from 'types';
 import VideoPage from './video-page';
@@ -14,6 +14,7 @@ import { ProjectList as ProjectListBtn } from './buttons/projects-list-btn';
 import { Settings as SettingsBtn } from './buttons/settings-btn';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ProjectsMenu from './projects-menu';
+import { useUserAuth } from 'auth/auth-context';
 
 const Page = styled.div`
 	height: 100vh;
@@ -58,6 +59,29 @@ const newProjectConfig = (): ProjectConfig => {
 	};
 };
 
+const ProfileMenuWrapper = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+`;
+
+const StyledAvatar = styled(Avatar)`
+	box-shadow: 0 0 10px 0 rgb(247, 245, 245);
+`;
+
+const UserDisplayName = styled.div`
+	color: #000;
+	font-size: 14px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+`;
+
+const UserEmail = styled.div`
+	color: #707070;
+	font-size: 12px;
+`;
+
 interface Props {
 	viewerMode?: boolean;
 }
@@ -77,6 +101,8 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 
 	const navigate = useNavigate();
 	const { pid } = useParams();
+
+	const { user } = useUserAuth();
 
 	const { saveProject, deleteProject, loadProjects, projects, downloadAsJson } =
 		useProjectStore({
@@ -189,6 +215,30 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 						<SettingsBtn onClick={() => setSettingsDrawerVisibility(true)} />
 					</Tooltip>
 				)}
+
+				{user && (
+					<Popover
+						trigger={'hover'}
+						content={
+							<ProfileMenuWrapper>
+								<UserDisplayName>
+									<Avatar>{user?.displayName?.[0]?.toUpperCase()}</Avatar>
+									{user?.displayName}
+								</UserDisplayName>
+								<UserEmail>{user?.email}</UserEmail>
+								<Button
+									type="primary"
+									size="small"
+									onClick={() => navigate('/logout')}
+								>
+									Logout
+								</Button>
+							</ProfileMenuWrapper>
+						}
+					>
+						<StyledAvatar>{user?.displayName?.[0]?.toUpperCase()}</StyledAvatar>
+					</Popover>
+				)}
 			</SettingsArea>
 
 			<VideoPage
@@ -202,7 +252,6 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 				seekTo={seekTo}
 				viewerMode={viewerMode}
 			/>
-
 			{!viewerMode && (
 				<EditBindingConfiguration
 					open={settingsDrawerVisibility}

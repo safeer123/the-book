@@ -5,6 +5,10 @@ import WordGame from 'components/word-game';
 import { styled } from 'styled-components';
 import VideoTextBinding from 'components/video-text-binding';
 import AIPromptApp from 'components/ai-prompt-test';
+import SignInPage from 'components/auth/login';
+import SignUpPage from 'components/auth/signup';
+import ProtectedRoutes from './protected-routes';
+import SignOutPage from 'components/auth/logout';
 
 const HomeWrapper = styled.div`
 	display: flex;
@@ -15,36 +19,62 @@ const HomeWrapper = styled.div`
 `;
 const router = createBrowserRouter([
 	{
-		path: '/',
-		element: (
-			<HomeWrapper>
-				<div>
-					<Link to="/suras">Search in The Book</Link>
-				</div>
-				<div>
-					<Link to="/verse-binding">Recitation-to-verse Editor</Link>
-				</div>
-				<div>
-					<Link to="/qbind">Recitation-to-verse Player</Link>
-				</div>
-			</HomeWrapper>
-		),
+		element: <ProtectedRoutes />,
+		children: [
+			{
+				path: '/',
+				element: (
+					<HomeWrapper>
+						<div>
+							<Link to="/suras">Search in The Book</Link>
+						</div>
+						<div>
+							<Link to="/verse-binding">Recitation-to-verse Editor</Link>
+						</div>
+						<div>
+							<Link to="/qbind">Recitation-to-verse Player</Link>
+						</div>
+					</HomeWrapper>
+				),
+			},
+			{
+				path: 'dev',
+				element: (
+					<HomeWrapper>
+						<div>
+							<Link to="/">🏠 Home</Link>
+						</div>
+						<div>
+							<Link to="/api-test">Test Quran APIs</Link>
+						</div>
+						<div>
+							<Link to="/ai-prompt-app">AI Prompt App</Link>
+						</div>
+					</HomeWrapper>
+				),
+			},
+			{
+				path: 'verse-binding',
+				element: <VideoTextBinding />,
+			},
+			{
+				path: 'ai-prompt-app',
+				element: <AIPromptApp />,
+			},
+		],
+	},
+
+	{
+		path: 'login',
+		element: <SignInPage />,
 	},
 	{
-		path: 'dev',
-		element: (
-			<HomeWrapper>
-				<div>
-					<Link to="/">🏠 Home</Link>
-				</div>
-				<div>
-					<Link to="/api-test">Test Quran APIs</Link>
-				</div>
-				<div>
-					<Link to="/ai-prompt-app">AI Prompt App</Link>
-				</div>
-			</HomeWrapper>
-		),
+		path: 'signup',
+		element: <SignUpPage />,
+	},
+	{
+		path: 'logout',
+		element: <SignOutPage />,
 	},
 	{
 		path: 'api-test',
@@ -53,10 +83,6 @@ const router = createBrowserRouter([
 	{
 		path: 'suras',
 		element: <SuraList />,
-	},
-	{
-		path: 'verse-binding',
-		element: <VideoTextBinding />,
 	},
 	{
 		path: 'qbind',
@@ -69,10 +95,6 @@ const router = createBrowserRouter([
 	{
 		path: 'word-game',
 		element: <WordGame />,
-	},
-	{
-		path: 'ai-prompt-app',
-		element: <AIPromptApp />,
 	},
 ]);
 

@@ -28,6 +28,7 @@ import {
 	BindingListItems,
 	ActionArea,
 } from './styles';
+import { useVerseBindSaveEnabled } from 'data/use-verse-bind-save-enabled';
 
 interface Props {
 	open?: boolean;
@@ -59,6 +60,8 @@ const EditBindingConfiguration: FC<Props> = ({
 	const [saveLoadingIcon, setSaveLoadingIcon] = useState<
 		ReactNode | undefined
 	>();
+
+	const verseBindSaveEnabled = useVerseBindSaveEnabled();
 
 	const { bindingConfig = [] } = projectConfig || {};
 	const [chapter, verse] = useMemo(() => {
@@ -249,38 +252,40 @@ const EditBindingConfiguration: FC<Props> = ({
 								>{`＋ Blank`}</Button>
 							</BindingItem>
 						</BindingListItems>
-						<ActionArea>
-							<Button
-								type="primary"
-								danger
-								onClick={deleteProject}
-								disabled={hasUnsavedChanges}
-								size="small"
-							>
-								Delete
-							</Button>
-							<Button
-								type="primary"
-								icon={saveLoadingIcon}
-								onClick={async () => {
-									setSaveLoadingIcon(<LoadingOutlined type="primary" />);
-									try {
-										await saveProject();
-										setSaveLoadingIcon(<CheckOutlined type="success" />);
-									} catch (e) {
-										setSaveLoadingIcon(<ExclamationOutlined type="danger" />);
-										// Error in saving
-									}
-									setTimeout(() => {
-										setSaveLoadingIcon(undefined);
-									}, 3000);
-								}}
-								disabled={!hasUnsavedChanges}
-								size="small"
-							>
-								Save
-							</Button>
-						</ActionArea>
+						{verseBindSaveEnabled && (
+							<ActionArea>
+								<Button
+									type="primary"
+									danger
+									onClick={deleteProject}
+									disabled={hasUnsavedChanges}
+									size="small"
+								>
+									Delete
+								</Button>
+								<Button
+									type="primary"
+									icon={saveLoadingIcon}
+									onClick={async () => {
+										setSaveLoadingIcon(<LoadingOutlined type="primary" />);
+										try {
+											await saveProject();
+											setSaveLoadingIcon(<CheckOutlined type="success" />);
+										} catch (e) {
+											setSaveLoadingIcon(<ExclamationOutlined type="danger" />);
+											// Error in saving
+										}
+										setTimeout(() => {
+											setSaveLoadingIcon(undefined);
+										}, 3000);
+									}}
+									disabled={!hasUnsavedChanges}
+									size="small"
+								>
+									Save
+								</Button>
+							</ActionArea>
+						)}
 						<ActionArea>
 							<Button
 								type="primary"
