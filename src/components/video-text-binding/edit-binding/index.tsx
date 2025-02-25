@@ -5,6 +5,7 @@ import {
 	DeleteOutlined,
 	ExclamationOutlined,
 	LoadingOutlined,
+	SaveOutlined,
 } from '@ant-design/icons';
 import {
 	ChangeEvent,
@@ -260,12 +261,13 @@ const EditBindingConfiguration: FC<Props> = ({
 									onClick={deleteProject}
 									disabled={hasUnsavedChanges}
 									size="small"
+									icon={<DeleteOutlined />}
 								>
 									Delete
 								</Button>
 								<Button
 									type="primary"
-									icon={saveLoadingIcon}
+									icon={saveLoadingIcon || <SaveOutlined />}
 									onClick={async () => {
 										setSaveLoadingIcon(<LoadingOutlined type="primary" />);
 										try {

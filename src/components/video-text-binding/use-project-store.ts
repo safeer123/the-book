@@ -62,8 +62,8 @@ export const useProjectStore = ({
 		const updatedProjectsStr = JSON.stringify(updatedProjects);
 		await updateData({ projects: updatedProjects });
 		localStorage.setItem(PROJECTS_KEY, updatedProjectsStr);
-		setProjectItems(updatedProjects);
 		setProjectConfig(savedProject);
+		setProjectItems(updatedProjects);
 	};
 
 	const deleteProject = (project: ProjectConfig) => {
