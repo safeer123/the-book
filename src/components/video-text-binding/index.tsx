@@ -33,6 +33,7 @@ const SettingsArea = styled.div`
 	padding: 16px;
 	display: flex;
 	gap: 16px;
+	align-items: center;
 
 	.ant-btn {
 		font-size: 24px;
@@ -66,7 +67,11 @@ const ProfileMenuWrapper = styled.div`
 `;
 
 const StyledAvatar = styled(Avatar)`
-	box-shadow: 0 0 10px 0 rgb(247, 245, 245);
+	box-shadow: 0 0 6px 0 rgb(247, 245, 245);
+
+	&:hover {
+		box-shadow: 0 0 10px 0 rgb(247, 245, 245);
+	}
 `;
 
 const UserDisplayName = styled.div`

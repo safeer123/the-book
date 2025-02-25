@@ -16,22 +16,20 @@ export const IconBtnLarge = styled(Button)`
 `;
 
 export const IconBtnMedium = styled(Button)`
-	height: 36px !important;
-	width: 36px;
-	border-radius: 18px;
-	padding: 0;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	background-color: transparent;
-	border: none;
+	box-shadow: 0 0 6px 0 rgb(247, 245, 245);
+	border-radius: 16px;
+	width: 32px !important;
+	height: 32px !important;
 
-	.btn-icon {
-		width: 32px;
-		height: 32px;
+	&:hover {
+		box-shadow: 0 0 10px 0 rgb(247, 245, 245);
 	}
 
-	:hover {
-		opacity: 0.95;
+	.ant-btn-icon {
+		display: flex;
+	}
+
+	svg {
+		color: #fff;
 	}
 `;
