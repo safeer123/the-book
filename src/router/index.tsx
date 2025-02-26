@@ -9,6 +9,7 @@ import SignInPage from 'components/auth/login';
 import SignUpPage from 'components/auth/signup';
 import ProtectedRoutes from './protected-routes';
 import SignOutPage from 'components/auth/logout';
+import { Playground } from 'components/playground';
 
 const HomeWrapper = styled.div`
 	display: flex;
@@ -95,6 +96,10 @@ const router = createBrowserRouter([
 	{
 		path: 'word-game',
 		element: <WordGame />,
+	},
+	{
+		path: 'playground',
+		element: <Playground />,
 	},
 ]);
 
