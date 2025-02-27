@@ -230,7 +230,13 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 						content={
 							<ProfileMenuWrapper>
 								<UserDisplayName>
-									<Avatar>{user?.displayName?.[0]?.toUpperCase()}</Avatar>
+									<Avatar
+										src={
+											user?.photoURL ? <img src={user?.photoURL} /> : undefined
+										}
+									>
+										{user?.displayName?.[0]?.toUpperCase()}
+									</Avatar>
 									{user?.displayName}
 								</UserDisplayName>
 								<UserEmail>{user?.email}</UserEmail>
@@ -244,7 +250,11 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 							</ProfileMenuWrapper>
 						}
 					>
-						<StyledAvatar>{user?.displayName?.[0]?.toUpperCase()}</StyledAvatar>
+						<StyledAvatar
+							src={user?.photoURL ? <img src={user?.photoURL} /> : undefined}
+						>
+							{user?.displayName?.[0]?.toUpperCase()}
+						</StyledAvatar>
 					</Popover>
 				)}
 			</SettingsArea>
