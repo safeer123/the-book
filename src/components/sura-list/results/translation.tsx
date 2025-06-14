@@ -4,7 +4,10 @@ import { Button, Tooltip } from 'antd';
 import { TafsirConfig } from 'types';
 import { isMobile } from 'react-device-detect';
 import { VerseTranslationSelector } from './translation-selector';
-import { TranslationVisibilityProvider } from '../../../context/TranslationVisibilityContext';
+import {
+	TranslationVisibilityProvider,
+	useTranslationVisibility,
+} from '../../../context/translation-visibility-context';
 
 const TRANSLATION_CLASSNAME = 'translation-text';
 const TRANSLATION_SMALL_CLASSNAME = 'translation-text-small';
@@ -53,6 +56,7 @@ export const VerseTranslation = ({
 	textAnimationClass,
 	setTafsirConfig,
 }: Props) => {
+	const { hideTranslations } = useTranslationVisibility();
 	const tafsirButton = (
 		<Button
 			className="verse-tafsir-btn"
@@ -73,12 +77,14 @@ export const VerseTranslation = ({
 					: ''
 			}`}
 		>
-			<span
-				className="translation-text-content"
-				dangerouslySetInnerHTML={{
-					__html: getTransaltionHTML(trText, searchKey),
-				}}
-			/>
+			{!hideTranslations && (
+				<span
+					className="translation-text-content"
+					dangerouslySetInnerHTML={{
+						__html: getTransaltionHTML(trText, searchKey),
+					}}
+				/>
+			)}
 			{isMobile ? (
 				tafsirButton
 			) : (
@@ -86,7 +92,11 @@ export const VerseTranslation = ({
 					<Tooltip title="Tafsir" placement="bottom">
 						{tafsirButton}
 					</Tooltip>
-					<VerseTranslationSelector key={'translation-selector'} />
+					<VerseTranslationSelector
+						trText={trText}
+						searchKey={searchKey}
+						key={'translation-selector'}
+					/>
 				</ItemsWrapper>
 			)}
 			</TranslationContent>

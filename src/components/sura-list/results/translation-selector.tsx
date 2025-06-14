@@ -1,5 +1,6 @@
 import { Button, Popover, Spin, Tooltip, Card, Tabs, Input, Switch } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
+import sanitizeHtml from 'sanitize-html';
 import {
 	TranslationData,
 	TranslationItem,
@@ -12,7 +13,7 @@ import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { capitalizeObjectKeys } from './utils';
 import { getTopHitTranslations, updateHitCount } from './top-hit-translations';
-import { useTranslationVisibility } from '../../../context/TranslationVisibilityContext';
+import { useTranslationVisibility } from '../../../context/translation-visibility-context';
 
 const { TabPane } = Tabs;
 const { Search } = Input;
@@ -167,7 +168,7 @@ const LanguageTabs = ({ data }: LanguagesProps) => {
 	);
 };
 
-const TranslationsContent = () => {
+const TranslationSelectionUI = () => {
 	const { data, isLoading } = useTranslations();
 	const { hideTranslations, toggleHideTranslations } =
 		useTranslationVisibility();
@@ -198,7 +199,51 @@ const TranslationsContent = () => {
 	);
 };
 
-export const VerseTranslationSelector = () => {
+const CurrentVerseTranslationText: React.FC<{
+	trText: string;
+	searchKey?: string;
+}> = ({ trText, searchKey }) => {
+	const getSanitizedHtml = (text: string, key?: string) => {
+		let htmlOut = sanitizeHtml(text);
+		if (key && key.trim()) {
+			const index = htmlOut.toLowerCase().indexOf(key.toLowerCase());
+			if (index !== -1) {
+				htmlOut =
+					htmlOut.substring(0, index) +
+					"<span class='text-highlight'>" +
+					htmlOut.substring(index, index + key.length) +
+					'</span>' +
+					htmlOut.substring(index + key.length);
+			}
+		}
+		return htmlOut;
+	};
+
+	return (
+		<div
+			style={{
+				padding: '12px',
+				maxWidth: '400px',
+				maxHeight: '300px',
+				overflowY: 'auto',
+			}}
+		>
+			<span
+				dangerouslySetInnerHTML={{
+					__html: getSanitizedHtml(trText, searchKey),
+				}}
+			/>
+		</div>
+	);
+};
+
+export const VerseTranslationSelector = ({
+	trText,
+	searchKey,
+}: {
+	trText: string;
+	searchKey?: string;
+}) => {
 	const { hideTranslations } = useTranslationVisibility();
 
 	const TButton = (
@@ -220,7 +265,7 @@ export const VerseTranslationSelector = () => {
 	);
 
 	const TPopover = (
-		<Popover trigger={'click'} content={<TranslationsContent />}>
+		<Popover trigger={'click'} content={<TranslationSelectionUI />}>
 			{isMobile ? (
 				TButton
 			) : (
@@ -232,11 +277,16 @@ export const VerseTranslationSelector = () => {
 	);
 
 	const IPopover = (
-		<Popover trigger={'click'} content={<TranslationsContent />}>
+		<Popover
+			trigger={'click'}
+			content={
+				<CurrentVerseTranslationText trText={trText} searchKey={searchKey} />
+			}
+		>
 			{isMobile ? (
 				IButton
 			) : (
-				<Tooltip title="Select translation (Info)" placement="bottom">
+				<Tooltip title="Current Translation" placement="bottom">
 					{IButton}
 				</Tooltip>
 			)}
