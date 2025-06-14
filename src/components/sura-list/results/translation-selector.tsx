@@ -4,6 +4,7 @@ import {
 	TranslationItem,
 	useTranslations,
 } from 'data/use-translations';
+import { DEFAULT_TRANSLATION_ID } from 'data/constants';
 import { useEffect, useMemo, useState } from 'react';
 import { isMobile } from 'react-device-detect';
 import { useSearchParams } from 'react-router-dom';
@@ -65,7 +66,7 @@ const LanguageTabs = ({ data }: LanguagesProps) => {
 	>({});
 
 	const selectedTrId = useMemo(
-		() => +(searchParams.get('tr') || '131'),
+		() => +(searchParams.get('tr') || DEFAULT_TRANSLATION_ID),
 		[searchParams]
 	);
 

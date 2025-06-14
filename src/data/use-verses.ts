@@ -2,6 +2,7 @@ import { useQuery, UseQueryResult } from 'react-query';
 import axios from 'axios';
 import { TransaltionItem, Verse } from '../types';
 import { useSearchParams } from 'react-router-dom';
+import { DEFAULT_TRANSLATION_ID } from './constants';
 
 type VerseData = {
 	verses: Verse[];
@@ -31,7 +32,8 @@ export const useVerses = (): UseQueryResult<{
 }> => {
 	const [searchParams] = useSearchParams();
 
-	const translationId = searchParams.get('tr') || '131';
+	const translationId =
+		searchParams.get('tr') || String(DEFAULT_TRANSLATION_ID);
 
 	return useQuery(
 		['quran-verses', translationId],
