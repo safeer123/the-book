@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import axios from 'axios';
 import { useMemo, useState } from 'react';
+import { DEFAULT_TRANSLATION_ID } from '../data/constants';
 import { Button, Collapse as CollapseAntd } from 'antd';
 import { styled } from 'styled-components';
 
@@ -94,7 +95,7 @@ const initValues = [
 	},
 	{
 		id: 3,
-		url: 'https://api.quran.com/api/v4/quran/translations/131',
+		url: `https://api.quran.com/api/v4/quran/translations/${DEFAULT_TRANSLATION_ID}`,
 	},
 	{
 		id: 4,
