@@ -4,6 +4,7 @@ import { Button, Tooltip } from 'antd';
 import { TafsirConfig } from 'types';
 import { isMobile } from 'react-device-detect';
 import { VerseTranslationSelector } from './translation-selector';
+import { TranslationVisibilityProvider } from '../../../context/TranslationVisibilityContext';
 
 const TRANSLATION_CLASSNAME = 'translation-text';
 const TRANSLATION_SMALL_CLASSNAME = 'translation-text-small';
@@ -64,9 +65,10 @@ export const VerseTranslation = ({
 		</Button>
 	);
 	return (
-		<TranslationContent
-			className={`${textAnimationClass || ''} ${TRANSLATION_CLASSNAME}${
-				trText?.length > TRANSLATION_LENGTH_LIMIT
+		<TranslationVisibilityProvider>
+			<TranslationContent
+				className={`${textAnimationClass || ''} ${TRANSLATION_CLASSNAME}${
+					trText?.length > TRANSLATION_LENGTH_LIMIT
 					? ` ${TRANSLATION_SMALL_CLASSNAME}`
 					: ''
 			}`}
@@ -87,6 +89,7 @@ export const VerseTranslation = ({
 					<VerseTranslationSelector key={'translation-selector'} />
 				</ItemsWrapper>
 			)}
-		</TranslationContent>
+			</TranslationContent>
+		</TranslationVisibilityProvider>
 	);
 };

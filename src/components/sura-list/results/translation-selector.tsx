@@ -1,4 +1,5 @@
-import { Button, Popover, Spin, Tooltip, Card, Tabs, Input } from 'antd';
+import { Button, Popover, Spin, Tooltip, Card, Tabs, Input, Switch } from 'antd';
+import { InfoCircleOutlined } from '@ant-design/icons';
 import {
 	TranslationData,
 	TranslationItem,
@@ -11,6 +12,7 @@ import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { capitalizeObjectKeys } from './utils';
 import { getTopHitTranslations, updateHitCount } from './top-hit-translations';
+import { useTranslationVisibility } from '../../../context/TranslationVisibilityContext';
 
 const { TabPane } = Tabs;
 const { Search } = Input;
@@ -167,24 +169,57 @@ const LanguageTabs = ({ data }: LanguagesProps) => {
 
 const TranslationsContent = () => {
 	const { data, isLoading } = useTranslations();
+	const { hideTranslations, toggleHideTranslations } =
+		useTranslationVisibility();
 
 	if (isLoading || data?.translationsByLang === undefined) {
-		<Spin />;
+		return <Spin />;
 	}
 
 	return (
-		<LanguageTabs data={capitalizeObjectKeys(data?.translationsByLang || {})} />
+		<>
+			<LanguageTabs
+				data={capitalizeObjectKeys(data?.translationsByLang || {})}
+			/>
+			<div
+				style={{
+					marginTop: '10px',
+					padding: '8px',
+					borderTop: '1px solid #f0f0f0',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'flex-end',
+				}}
+			>
+				<span style={{ marginRight: '8px' }}>Hide Translations:</span>
+				<Switch checked={hideTranslations} onChange={toggleHideTranslations} />
+			</div>
+		</>
 	);
 };
 
 export const VerseTranslationSelector = () => {
+	const { hideTranslations } = useTranslationVisibility();
+
 	const TButton = (
 		<Button className="verse-tr-selector-btn" type="text">
 			<BtnLabel>{'T'}</BtnLabel>
 		</Button>
 	);
 
-	return (
+	const IButton = (
+		<Button
+			className="verse-info-selector-btn"
+			type="text"
+			icon={
+				<InfoCircleOutlined
+					style={{ fontSize: '18px', color: 'rgb(14, 2, 121)' }}
+				/>
+			}
+		/>
+	);
+
+	const TPopover = (
 		<Popover trigger={'click'} content={<TranslationsContent />}>
 			{isMobile ? (
 				TButton
@@ -194,5 +229,24 @@ export const VerseTranslationSelector = () => {
 				</Tooltip>
 			)}
 		</Popover>
+	);
+
+	const IPopover = (
+		<Popover trigger={'click'} content={<TranslationsContent />}>
+			{isMobile ? (
+				IButton
+			) : (
+				<Tooltip title="Select translation (Info)" placement="bottom">
+					{IButton}
+				</Tooltip>
+			)}
+		</Popover>
+	);
+
+	return (
+		<div style={{ display: 'flex', alignItems: 'center' }}>
+			{TPopover}
+			{hideTranslations && <span style={{ marginLeft: '8px' }}>{IPopover}</span>}
+		</div>
 	);
 };
