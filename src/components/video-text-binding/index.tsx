@@ -66,13 +66,7 @@ const ProfileMenuWrapper = styled.div`
 	gap: 8px;
 `;
 
-const StyledAvatar = styled(Avatar)`
-	box-shadow: 0 0 6px 0 rgb(247, 245, 245);
-
-	&:hover {
-		box-shadow: 0 0 10px 0 rgb(247, 245, 245);
-	}
-`;
+const StyledAvatar = styled(Avatar)``;
 
 const UserDisplayName = styled.div`
 	color: #000;
