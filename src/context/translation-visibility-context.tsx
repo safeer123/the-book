@@ -1,30 +1,38 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
 interface TranslationVisibilityContextType {
-  hideTranslations: boolean;
-  toggleHideTranslations: () => void;
+	hideTranslations: boolean;
+	toggleHideTranslations: () => void;
 }
 
-const TranslationVisibilityContext = createContext<TranslationVisibilityContextType | undefined>(undefined);
+const TranslationVisibilityContext = createContext<
+	TranslationVisibilityContextType | undefined
+>(undefined);
 
-export const TranslationVisibilityProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [hideTranslations, setHideTranslations] = useState(false);
+export const TranslationVisibilityProvider: React.FC<{
+	children: ReactNode;
+}> = ({ children }) => {
+	const [hideTranslations, setHideTranslations] = useState(false);
 
-  const toggleHideTranslations = () => {
-    setHideTranslations(prev => !prev);
-  };
+	const toggleHideTranslations = () => {
+		setHideTranslations((prev) => !prev);
+	};
 
-  return (
-    <TranslationVisibilityContext.Provider value={{ hideTranslations, toggleHideTranslations }}>
-      {children}
-    </TranslationVisibilityContext.Provider>
-  );
+	return (
+		<TranslationVisibilityContext.Provider
+			value={{ hideTranslations, toggleHideTranslations }}
+		>
+			{children}
+		</TranslationVisibilityContext.Provider>
+	);
 };
 
 export const useTranslationVisibility = () => {
-  const context = useContext(TranslationVisibilityContext);
-  if (context === undefined) {
-    throw new Error('useTranslationVisibility must be used within a TranslationVisibilityProvider');
-  }
-  return context;
+	const context = useContext(TranslationVisibilityContext);
+	if (context === undefined) {
+		throw new Error(
+			'useTranslationVisibility must be used within a TranslationVisibilityProvider'
+		);
+	}
+	return context;
 };

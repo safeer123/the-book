@@ -8,6 +8,7 @@ import { searchConfigFromURLParams } from 'utils/search-utils';
 import { TokenType } from 'types';
 import ChapterBarChart from './chapter-bar-chart';
 import EmptyScreen from './empty';
+import { TranslationVisibilityProvider } from 'context/translation-visibility-context';
 
 const Wrapper = styled.div`
 	padding: 0px 16px;
@@ -48,26 +49,28 @@ const SuraList = () => {
 		result?.chapters?.length + result?.verses?.length === 0;
 
 	return (
-		<Wrapper>
-			<PageHeader>
-				<ChapterBarChart
-					selectedChapters={searchKey ? result?.chapters : undefined}
-					selectedVerses={result?.verses}
-				/>
-				<Search />
-			</PageHeader>
-			<Content className="scrollable">
-				{showEmptyScreen ? (
-					<EmptyScreen />
-				) : (
-					<Results
-						selectedChapters={result?.chapters}
+		<TranslationVisibilityProvider>
+			<Wrapper>
+				<PageHeader>
+					<ChapterBarChart
+						selectedChapters={searchKey ? result?.chapters : undefined}
 						selectedVerses={result?.verses}
-						searchKeys={searchKeys}
 					/>
-				)}
-			</Content>
-		</Wrapper>
+					<Search />
+				</PageHeader>
+				<Content className="scrollable">
+					{showEmptyScreen ? (
+						<EmptyScreen />
+					) : (
+						<Results
+							selectedChapters={result?.chapters}
+							selectedVerses={result?.verses}
+							searchKeys={searchKeys}
+						/>
+					)}
+				</Content>
+			</Wrapper>
+		</TranslationVisibilityProvider>
 	);
 };
 
