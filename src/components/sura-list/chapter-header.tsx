@@ -119,9 +119,10 @@ interface Props {
 	chapter?: ChapterItem;
 	verseInfo?: string;
 	setChapterInfoConfig: (info: ChapterInfoConfig) => void;
+	onClickSmartBarItem?: (verseKey: string) => void;
 }
 
-const ChapterHeader = ({ chapter, verseInfo, setChapterInfoConfig }: Props) => {
+const ChapterHeader = ({ chapter, verseInfo, setChapterInfoConfig, onClickSmartBarItem }: Props) => {
 	const { toChapterPage, toVersePage } = useURLNavigation();
 
 	const barRecords = useVerseBarRecords({
@@ -154,7 +155,7 @@ const ChapterHeader = ({ chapter, verseInfo, setChapterInfoConfig }: Props) => {
 		<HeaderWrapper id={`ch-${chapter?.id || 0}`} ref={ref}>
 			{inView && (
 				<AvailableArea>
-					<SmartBarChart data={barRecords} onRangeSelected={onRangeSelected} />
+					<SmartBarChart data={barRecords} onRangeSelected={onRangeSelected} onClickSmartBarItem={onClickSmartBarItem} />
 				</AvailableArea>
 			)}
 

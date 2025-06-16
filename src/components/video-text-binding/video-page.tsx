@@ -276,6 +276,18 @@ const VideoPage = ({
 
 	const { data: verseData, isLoading: versesLoading } = useVerses();
 
+	const handleSmartBarItemClick = (verseKey: string) => {
+		if (projectConfig?.bindingConfig && verseKey) {
+			const bindingElement = projectConfig.bindingConfig.find(
+				(item) => item.k === verseKey
+			);
+			if (bindingElement && typeof bindingElement.t === 'number') {
+				seekTo(bindingElement.t);
+				playPause(); // playPause() or playPause(false) should play the video
+			}
+		}
+	};
+
 	const { getTime } = usePersistedVideoState();
 
 	const checkElapsedTime: YouTubeProps['onStateChange'] = (
@@ -366,6 +378,7 @@ const VideoPage = ({
 												? [verseData?.ayaByKey[item.k]]
 												: []
 										}
+										onClickSmartBarItem={handleSmartBarItemClick}
 									/>
 								</VerseTooltipWrapper>
 							}
@@ -428,6 +441,7 @@ const VideoPage = ({
 						<Results
 							selectedVerses={verses}
 							config={{ textAnimationClass: 'zoom-fade-in' }}
+							onClickSmartBarItem={handleSmartBarItemClick}
 						/>
 					)}
 				</VerseList>
