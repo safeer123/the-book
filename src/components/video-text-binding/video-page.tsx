@@ -283,7 +283,6 @@ const VideoPage = ({
 			);
 			if (bindingElement && typeof bindingElement.t === 'number') {
 				seekTo(bindingElement.t);
-				playPause(); // playPause() or playPause(false) should play the video
 			}
 		}
 	};

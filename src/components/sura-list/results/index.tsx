@@ -167,7 +167,7 @@ const Results = ({
 							chapter={chapter}
 							verseInfo={verseInfo}
 							setChapterInfoConfig={setChapterInfoConfig}
-						onClickSmartBarItem={onClickSmartBarItem}
+							onClickSmartBarItem={onClickSmartBarItem}
 						/>
 					),
 					children: (

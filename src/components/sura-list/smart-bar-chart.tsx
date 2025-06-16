@@ -64,7 +64,11 @@ interface SelectionRange {
 	ind2?: number;
 }
 
-const SmartBarChart = ({ data, onRangeSelected, onClickSmartBarItem }: Props) => {
+const SmartBarChart = ({
+	data,
+	onRangeSelected,
+	onClickSmartBarItem,
+}: Props) => {
 	const [selectionRange, setSelectionRange] = useState<
 		SelectionRange | undefined
 	>();
