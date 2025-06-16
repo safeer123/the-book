@@ -56,6 +56,7 @@ const BarItemWrapper = styled.div`
 interface Props {
 	data: BarChartRecordItem[];
 	onRangeSelected?: (start: number, end: number) => void;
+	onClickSmartBarItem?: (verseKey: string) => void;
 }
 
 interface SelectionRange {
@@ -63,7 +64,11 @@ interface SelectionRange {
 	ind2?: number;
 }
 
-const SmartBarChart = ({ data, onRangeSelected }: Props) => {
+const SmartBarChart = ({
+	data,
+	onRangeSelected,
+	onClickSmartBarItem,
+}: Props) => {
 	const [selectionRange, setSelectionRange] = useState<
 		SelectionRange | undefined
 	>();
@@ -84,6 +89,7 @@ const SmartBarChart = ({ data, onRangeSelected }: Props) => {
 		if (Number.isFinite(selectionRange?.ind1) && Number.isFinite(ind)) {
 			if (selectionRange?.ind1 === ind) {
 				data?.[ind]?.onClick?.();
+				onClickSmartBarItem?.(data?.[ind]?.id);
 			} else {
 				onRangeSelected?.(
 					Math.min(selectionRange?.ind1 || 0, ind || 0),
@@ -126,6 +132,7 @@ const SmartBarChart = ({ data, onRangeSelected }: Props) => {
 							onClick={(e) => {
 								e.stopPropagation();
 								record.onClick?.();
+								onClickSmartBarItem?.(record.id);
 							}}
 							onMouseDown={() => onSelectionStart(index)}
 							onMouseUp={(e) => {

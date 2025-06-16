@@ -36,6 +36,7 @@ interface Props {
 	config?: {
 		textAnimationClass?: string;
 	};
+	onClickSmartBarItem?: (verseKey: string) => void;
 }
 
 const Results = ({
@@ -43,6 +44,7 @@ const Results = ({
 	selectedVerses,
 	searchKeys = [],
 	config,
+	onClickSmartBarItem,
 }: Props) => {
 	const [tafsirConfig, setTafsirConfig] = useState<TafsirConfig | undefined>(
 		undefined
@@ -122,6 +124,7 @@ const Results = ({
 					<ChapterHeader
 						chapter={chapter}
 						setChapterInfoConfig={setChapterInfoConfig}
+						onClickSmartBarItem={onClickSmartBarItem}
 					/>
 				),
 				children: (
@@ -164,6 +167,7 @@ const Results = ({
 							chapter={chapter}
 							verseInfo={verseInfo}
 							setChapterInfoConfig={setChapterInfoConfig}
+							onClickSmartBarItem={onClickSmartBarItem}
 						/>
 					),
 					children: (
