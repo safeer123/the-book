@@ -229,7 +229,10 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 										<Avatar
 											src={
 												user?.photoURL ? (
-													<img src={user?.photoURL} />
+													<img
+														src={user?.photoURL}
+														referrerPolicy="no-referrer"
+													/>
 												) : undefined
 											}
 										>
@@ -249,7 +252,11 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 							}
 						>
 							<StyledAvatar
-								src={user?.photoURL ? <img src={user?.photoURL} /> : undefined}
+								src={
+									user?.photoURL ? (
+										<img src={user?.photoURL} referrerPolicy="no-referrer" />
+									) : undefined
+								}
 							>
 								{user?.displayName?.[0]?.toUpperCase()}
 							</StyledAvatar>

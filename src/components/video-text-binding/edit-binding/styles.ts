@@ -74,6 +74,16 @@ export const BindingItem = styled.div`
 	display: flex;
 	gap: 16px;
 	align-items: center;
+	padding: 4px 6px;
+	border-radius: 4px;
+
+	&:not(.right-align):nth-child(odd) {
+		background-color: #ffffff;
+	}
+
+	&:not(.right-align):nth-child(even) {
+		background-color: #f5f5f5;
+	}
 
 	.binding-item-action {
 		opacity: 0;
