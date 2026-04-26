@@ -1,0 +1,1 @@
+Look at the most recent change made in this conversation (or the last git diff if context is unclear). In 2–4 sentences, explain: (1) what the root cause of the problem was, and (2) how the fix addresses it. Be concise and technical — no fluff.
