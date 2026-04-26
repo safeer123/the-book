@@ -14,6 +14,22 @@ export const Wrapper = styled.div`
 	display: flex;
 	flex-direction: column;
 	height: calc(100% - 16px);
+
+	.ant-input {
+		border-color: transparent;
+		background: transparent;
+		box-shadow: none !important;
+		transition: border-color 0.15s, background-color 0.15s;
+
+		&:hover {
+			border-color: #d9d9d9;
+		}
+
+		&:focus {
+			border-color: #4096ff;
+			background: #fff;
+		}
+	}
 `;
 
 export const ProjectDetailsArea = styled.div`
