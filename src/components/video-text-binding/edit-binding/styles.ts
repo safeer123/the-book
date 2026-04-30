@@ -41,18 +41,26 @@ export const ProjectDetailsArea = styled.div`
 
 export const InputItem = styled.div`
 	display: flex;
-	justify-content: space-between;
 	align-items: center;
-
-	input {
-		width: 200px;
-	}
+	gap: 8px;
 `;
 
 export const InputLabel = styled.span`
 	color: #5c5c5c;
 	font-size: 12px;
-	margin-right: 8px;
+	flex-shrink: 0;
+	width: 44px;
+`;
+
+export const InputGroup = styled.div`
+	display: flex;
+	align-items: center;
+	flex: 1;
+	gap: 4px;
+
+	.ant-input {
+		flex: 1;
+	}
 `;
 
 export const BindingListItems = styled.div`

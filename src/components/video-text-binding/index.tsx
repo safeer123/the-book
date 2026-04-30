@@ -287,11 +287,14 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 								return saveProject(projectConfig);
 							}
 						}}
-						deleteProject={() => projectConfig && deleteProject(projectConfig)}
+						deleteProject={async () => {
+							if (projectConfig) await deleteProject(projectConfig);
+						}}
 						downloadAsJson={downloadAsJson}
 						hasUnsavedChanges={hasUnsavedChanges}
 						// eslint-disable-next-line @typescript-eslint/no-misused-promises
 						copyToClipboard={copyToClipboard}
+						projects={projects}
 					/>
 				)}
 			</Page>

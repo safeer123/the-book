@@ -23,11 +23,11 @@ export const useProjectStore = ({
 	setProjectConfig,
 	viewerMode,
 }: {
-	setProjectConfig: (p: ProjectConfig) => void;
+	setProjectConfig: (p: ProjectConfig | undefined) => void;
 	viewerMode: boolean;
 }): {
 	saveProject: (project: ProjectConfig) => Promise<void>;
-	deleteProject: (project: ProjectConfig) => void;
+	deleteProject: (project: ProjectConfig) => Promise<void>;
 	loadProjects: (projects: ProjectConfig[]) => void;
 	projects: ProjectConfig[];
 	downloadAsJson: () => void;
@@ -66,14 +66,16 @@ export const useProjectStore = ({
 		setProjectItems(updatedProjects);
 	};
 
-	const deleteProject = (project: ProjectConfig) => {
+	const deleteProject = async (project: ProjectConfig) => {
 		const updatedProjects = {
 			...projectItems,
 		};
 		delete updatedProjects[project.videoUrl];
+		await updateData({ projects: updatedProjects });
 		localStorage.setItem(PROJECTS_KEY, JSON.stringify(updatedProjects));
 		setProjectItems(updatedProjects);
-		setProjectConfig({ ...project });
+		const remaining = Object.values(updatedProjects);
+		setProjectConfig(remaining[0]);
 	};
 
 	const loadProjects = (projectList: ProjectConfig[]) => {

@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { Button, Space, Input } from 'antd';
+import { Button, Space, Input, Modal } from 'antd';
 import {
 	CheckOutlined,
 	DeleteOutlined,
 	ExclamationOutlined,
 	LoadingOutlined,
+	PlusCircleOutlined,
 	SaveOutlined,
 } from '@ant-design/icons';
 import {
@@ -19,11 +20,13 @@ import {
 } from 'react';
 import { ProjectConfig, VerseBindingElement } from 'types';
 import ChapterSelector from './chapter-selector';
+import TitleBuilderModal from './title-builder-modal';
 import {
 	Drawer,
 	ProjectDetailsArea,
 	Wrapper,
 	InputItem,
+	InputGroup,
 	InputLabel,
 	BindingItem,
 	BindingListItems,
@@ -38,10 +41,11 @@ interface Props {
 	setProjectConfig: (conf: ProjectConfig) => void;
 	currentTime: number;
 	saveProject: () => Promise<void>;
-	deleteProject: () => void;
+	deleteProject: () => Promise<void>;
 	downloadAsJson: () => void;
 	copyToClipboard: () => Promise<void>;
 	hasUnsavedChanges: boolean;
+	projects: ProjectConfig[];
 }
 
 const EditBindingConfiguration: FC<Props> = ({
@@ -55,12 +59,16 @@ const EditBindingConfiguration: FC<Props> = ({
 	downloadAsJson,
 	copyToClipboard,
 	hasUnsavedChanges,
+	projects,
 }) => {
 	const currentTimeRef = useRef(0);
 	const [copyBtnLabel, setCopyBtnLabel] = useState('Copy');
 	const [saveLoadingIcon, setSaveLoadingIcon] = useState<
 		ReactNode | undefined
 	>();
+	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+	const [deleteLoading, setDeleteLoading] = useState(false);
+	const [titleBuilderOpen, setTitleBuilderOpen] = useState(false);
 
 	const verseBindSaveEnabled = useVerseBindSaveEnabled();
 
@@ -187,22 +195,42 @@ const EditBindingConfiguration: FC<Props> = ({
 			<Wrapper>
 				<ProjectDetailsArea>
 					<InputItem>
-						<InputLabel>Title: </InputLabel>
-						<Input
-							type="text"
-							value={projectConfig?.title}
-							onChange={onChangeTitle}
-							onKeyDown={(e) => e.stopPropagation()}
-						/>
+						<InputLabel>Title:</InputLabel>
+						<InputGroup>
+							<Input
+								type="text"
+								value={projectConfig?.title}
+								onChange={onChangeTitle}
+								onKeyDown={(e) => e.stopPropagation()}
+							/>
+							<Button
+								type="link"
+								size="small"
+								icon={<PlusCircleOutlined />}
+								onClick={() => setTitleBuilderOpen(true)}
+							/>
+						</InputGroup>
 					</InputItem>
+					<TitleBuilderModal
+						open={titleBuilderOpen}
+						onClose={() => setTitleBuilderOpen(false)}
+						onConfirm={(title) => {
+							setProjectConfig({ ...projectConfig, title } as ProjectConfig);
+							setTitleBuilderOpen(false);
+						}}
+						projects={projects}
+						currentProjectId={projectConfig?.id}
+					/>
 					<InputItem>
-						<InputLabel>Video URL: </InputLabel>
-						<Input
-							type="text"
-							value={projectConfig?.videoUrl}
-							onChange={onChangeURL}
-							onKeyDown={(e) => e.stopPropagation()}
-						/>
+						<InputLabel>Video:</InputLabel>
+						<InputGroup>
+							<Input
+								type="text"
+								value={projectConfig?.videoUrl}
+								onChange={onChangeURL}
+								onKeyDown={(e) => e.stopPropagation()}
+							/>
+						</InputGroup>
 					</InputItem>
 				</ProjectDetailsArea>
 				{!!projectConfig?.videoUrl && (
@@ -258,13 +286,46 @@ const EditBindingConfiguration: FC<Props> = ({
 								<Button
 									type="primary"
 									danger
-									onClick={deleteProject}
+									onClick={() => setDeleteModalOpen(true)}
 									disabled={hasUnsavedChanges}
 									size="small"
 									icon={<DeleteOutlined />}
 								>
 									Delete
 								</Button>
+								<Modal
+									open={deleteModalOpen}
+									title="Delete project"
+									onCancel={() => setDeleteModalOpen(false)}
+									footer={[
+										<Button
+											key="cancel"
+											onClick={() => setDeleteModalOpen(false)}
+										>
+											Cancel
+										</Button>,
+										<Button
+											key="delete"
+											type="primary"
+											danger
+											loading={deleteLoading}
+											onClick={async () => {
+												setDeleteLoading(true);
+												try {
+													await deleteProject();
+												} finally {
+													setDeleteLoading(false);
+													setDeleteModalOpen(false);
+												}
+											}}
+										>
+											Delete
+										</Button>,
+									]}
+								>
+									Deleting <strong>{projectConfig?.title}</strong> permanently.
+									Are you sure?
+								</Modal>
 								<Button
 									type="primary"
 									icon={saveLoadingIcon || <SaveOutlined />}
