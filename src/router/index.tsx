@@ -9,6 +9,7 @@ import SignUpPage from 'components/auth/signup';
 import ProtectedRoutes from './protected-routes';
 import SignOutPage from 'components/auth/logout';
 import { Playground } from 'components/playground';
+import EditProjects from 'components/edit-projects';
 import { styled } from 'styled-components';
 
 const HomeWrapper = styled.div`
@@ -29,6 +30,9 @@ const home = (
 		</div>
 		<div>
 			<Link to="/qbind">Recitation-to-verse Player</Link>
+		</div>
+		<div>
+			<Link to="/edit-projects">Project Manager</Link>
 		</div>
 	</HomeWrapper>
 );
@@ -77,6 +81,10 @@ const router = createBrowserRouter([
 			{
 				path: 'playground-fb-db',
 				element: <Playground />,
+			},
+			{
+				path: 'edit-projects',
+				element: <EditProjects />,
 			},
 		],
 	},
