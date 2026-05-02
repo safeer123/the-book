@@ -175,9 +175,10 @@ const VerseTooltipWrapper = styled.div`
 const ControlsWrapper = styled.div`
 	flex: 1;
 	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 0px 16px;
+	flex-direction: column;
+	justify-content: center;
+	padding: 0 16px;
+	gap: 2px;
 	border-top: 1px dashed #54aaeb;
 
 	@media (min-width: 320px) {
@@ -190,9 +191,14 @@ const ControlsWrapper = styled.div`
 
 	@media (min-width: 961px) {
 		position: relative;
-		top: 0px;
+		top: 0;
 		border-top: 1px dashed #54aaeb;
 	}
+`;
+
+const ControlRow = styled.div`
+	display: flex;
+	align-items: center;
 `;
 
 const TimelineControl = styled.div`
@@ -205,24 +211,44 @@ const TimelineControl = styled.div`
 	}
 `;
 
-const PlayStatus = styled.div`
+const TimeInfoRow = styled.div`
 	display: flex;
 	justify-content: flex-end;
-	font-size: 16px;
-	padding: 16px;
-	margin-bottom: 18px;
+	align-items: baseline;
+	gap: 8px;
+	padding-right: 2px;
 
 	@media (min-width: 320px) {
-		font-size: 0.5em;
-		padding: 0.5em;
-		margin-bottom: 0.5em;
+		display: none;
 	}
 
 	@media (min-width: 961px) {
-		font-size: 16px;
-		padding: 16px;
-		margin-bottom: 18px;
+		display: flex;
 	}
+`;
+
+const TimeFormatted = styled.span`
+	font-size: 13px;
+	font-weight: 500;
+	color: rgba(0, 0, 0, 0.6);
+	font-variant-numeric: tabular-nums;
+	font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier,
+		monospace;
+	letter-spacing: 0.3px;
+`;
+
+const TimeRaw = styled.span`
+	font-size: 11px;
+	color: rgba(0, 0, 0, 0.28);
+	font-variant-numeric: tabular-nums;
+	font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier,
+		monospace;
+`;
+
+const TimeDivider = styled.span`
+	color: rgba(0, 0, 0, 0.15);
+	font-size: 11px;
+	font-weight: 300;
 `;
 
 const VerseMarkItem = styled(Button)`
@@ -446,32 +472,35 @@ const VideoPage = ({
 				</VerseList>
 			</VerseDisplayWrapper>
 			<ControlsWrapper>
-				<PlayPause
-					onClick={() => playPause()}
-					state={videoStatus?.playStatus}
-				/>
-				<TimelineControl>
-					<Slider
-						className="play-control-slider"
-						max={videoStatus?.duration || 1}
-						value={currentTime}
-						onChange={(t) => seekTo(t)}
-						marks={marks}
-					/>
-				</TimelineControl>
-
-				<PlayStatus>
-					{viewerMode ? (
+				<TimeInfoRow>
+					{!viewerMode && (
 						<>
-							{formatDuration(currentTime || 0)} /{' '}
-							{formatDuration(videoStatus?.duration || 0)}
-						</>
-					) : (
-						<>
-							{(currentTime || 0).toFixed(1)} / {videoStatus?.duration}
+							<TimeRaw>
+								{(currentTime || 0).toFixed(1)} / {videoStatus?.duration ?? 0}
+							</TimeRaw>
+							<TimeDivider>|</TimeDivider>
 						</>
 					)}
-				</PlayStatus>
+					<TimeFormatted>
+						{formatDuration(currentTime || 0)} /{' '}
+						{formatDuration(videoStatus?.duration || 0)}
+					</TimeFormatted>
+				</TimeInfoRow>
+				<ControlRow>
+					<PlayPause
+						onClick={() => playPause()}
+						state={videoStatus?.playStatus}
+					/>
+					<TimelineControl>
+						<Slider
+							className="play-control-slider"
+							max={videoStatus?.duration || 1}
+							value={currentTime}
+							onChange={(t) => seekTo(t)}
+							marks={marks}
+						/>
+					</TimelineControl>
+				</ControlRow>
 			</ControlsWrapper>
 		</>
 	);
