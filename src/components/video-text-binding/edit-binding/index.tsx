@@ -2,6 +2,7 @@
 import { Button, Space, Input, Modal } from 'antd';
 import {
 	CheckOutlined,
+	CloseOutlined,
 	DeleteOutlined,
 	ExclamationOutlined,
 	LoadingOutlined,
@@ -22,7 +23,10 @@ import { ProjectConfig, VerseBindingElement } from 'types';
 import ChapterSelector from './chapter-selector';
 import TitleBuilderModal from './title-builder-modal';
 import {
-	Drawer,
+	Panel,
+	PanelInner,
+	PanelHeader,
+	PanelTitle,
 	ProjectDetailsArea,
 	Wrapper,
 	InputItem,
@@ -178,208 +182,208 @@ const EditBindingConfiguration: FC<Props> = ({
 	}, [addNextBinding]);
 
 	return (
-		<Drawer
-			maskClosable={false}
-			mask={false}
-			title={'Edit verse bindings'}
-			placement="right"
-			width={'380px'}
-			size="default"
-			onClose={onClose}
-			open={open}
-			extra={
-				<Space>
-					{verseBindSaveEnabled && (
-						<Link to="/edit-projects">
-							<Button type="link" size="small">
-								Projects
-							</Button>
-						</Link>
-					)}
-					<Button onClick={onClose}>Close</Button>
-				</Space>
-			}
-		>
-			<Wrapper>
-				<ProjectDetailsArea>
-					<InputItem>
-						<InputLabel>Title:</InputLabel>
-						<InputGroup>
-							<Input
-								type="text"
-								value={projectConfig?.title}
-								onChange={onChangeTitle}
-								onKeyDown={(e) => e.stopPropagation()}
-							/>
-							<Button
-								type="link"
-								size="small"
-								icon={<PlusCircleOutlined />}
-								onClick={() => setTitleBuilderOpen(true)}
-							/>
-						</InputGroup>
-					</InputItem>
-					<TitleBuilderModal
-						open={titleBuilderOpen}
-						onClose={() => setTitleBuilderOpen(false)}
-						onConfirm={(title) => {
-							setProjectConfig({ ...projectConfig, title } as ProjectConfig);
-							setTitleBuilderOpen(false);
-						}}
-						projects={projects}
-						currentProjectId={projectConfig?.id}
-					/>
-					<InputItem>
-						<InputLabel>Video:</InputLabel>
-						<InputGroup>
-							<Input
-								type="text"
-								value={projectConfig?.videoUrl}
-								onChange={onChangeURL}
-								onKeyDown={(e) => e.stopPropagation()}
-							/>
-						</InputGroup>
-					</InputItem>
-				</ProjectDetailsArea>
-				{!!projectConfig?.videoUrl && (
-					<>
-						<BindingListItems>
-							{bindingConfig.map((element, index) => (
-								<BindingItem key={`${element.id}`}>
-									<Input
-										size="small"
-										type="number"
-										value={element.t}
-										step={0.1}
-										onChange={(e) => onChangeTime(element.id, e)}
-									/>
-									<Input
-										size="small"
-										type="text"
-										value={element.k}
-										onChange={(e) =>
-											onChangeVerseKey(element.id, e.target.value)
-										}
-									/>
-									<ChapterSelector
-										elementId={element.id}
-										onChangeVerseKey={onChangeVerseKey}
-									/>
-									<Button
-										className="binding-item-action"
-										icon={<DeleteOutlined />}
-										size="small"
-										type="link"
-										onClick={() => removeBinding(index)}
-									/>
-								</BindingItem>
-							))}
-							<BindingItem key={'add-controls'} className="right-align">
-								<Button
-									type="primary"
-									onClick={addNextBinding}
-									size="small"
-								>{`＋ Next Verse (${`${chapter}:${
-									Number(verse) + 1
-								}`})`}</Button>
-								<Button
-									type="primary"
-									onClick={addBlankBinding}
-									size="small"
-								>{`＋ Blank`}</Button>
-							</BindingItem>
-						</BindingListItems>
+		<Panel $open={open}>
+			<PanelInner>
+				<PanelHeader>
+					<PanelTitle>Edit verse bindings</PanelTitle>
+					<Space size="small">
 						{verseBindSaveEnabled && (
+							<Link to="/edit-projects">
+								<Button type="link" size="small">
+									Projects
+								</Button>
+							</Link>
+						)}
+						<Button
+							size="small"
+							type="text"
+							icon={<CloseOutlined />}
+							onClick={onClose}
+						/>
+					</Space>
+				</PanelHeader>
+				<Wrapper>
+					<ProjectDetailsArea>
+						<InputItem>
+							<InputLabel>Title:</InputLabel>
+							<InputGroup>
+								<Input
+									type="text"
+									value={projectConfig?.title}
+									onChange={onChangeTitle}
+									onKeyDown={(e) => e.stopPropagation()}
+								/>
+								<Button
+									type="link"
+									size="small"
+									icon={<PlusCircleOutlined />}
+									onClick={() => setTitleBuilderOpen(true)}
+								/>
+							</InputGroup>
+						</InputItem>
+						<TitleBuilderModal
+							open={titleBuilderOpen}
+							onClose={() => setTitleBuilderOpen(false)}
+							onConfirm={(title) => {
+								setProjectConfig({ ...projectConfig, title } as ProjectConfig);
+								setTitleBuilderOpen(false);
+							}}
+							projects={projects}
+							currentProjectId={projectConfig?.id}
+						/>
+						<InputItem>
+							<InputLabel>Video:</InputLabel>
+							<InputGroup>
+								<Input
+									type="text"
+									value={projectConfig?.videoUrl}
+									onChange={onChangeURL}
+									onKeyDown={(e) => e.stopPropagation()}
+								/>
+							</InputGroup>
+						</InputItem>
+					</ProjectDetailsArea>
+					{!!projectConfig?.videoUrl && (
+						<>
+							<BindingListItems>
+								{bindingConfig.map((element, index) => (
+									<BindingItem key={`${element.id}`}>
+										<Input
+											size="small"
+											type="number"
+											value={element.t}
+											step={0.1}
+											onChange={(e) => onChangeTime(element.id, e)}
+										/>
+										<Input
+											size="small"
+											type="text"
+											value={element.k}
+											onChange={(e) =>
+												onChangeVerseKey(element.id, e.target.value)
+											}
+										/>
+										<ChapterSelector
+											elementId={element.id}
+											onChangeVerseKey={onChangeVerseKey}
+										/>
+										<Button
+											className="binding-item-action"
+											icon={<DeleteOutlined />}
+											size="small"
+											type="link"
+											onClick={() => removeBinding(index)}
+										/>
+									</BindingItem>
+								))}
+								<BindingItem key={'add-controls'} className="right-align">
+									<Button
+										type="primary"
+										onClick={addNextBinding}
+										size="small"
+									>{`＋ Next Verse (${`${chapter}:${
+										Number(verse) + 1
+									}`})`}</Button>
+									<Button
+										type="primary"
+										onClick={addBlankBinding}
+										size="small"
+									>{`＋ Blank`}</Button>
+								</BindingItem>
+							</BindingListItems>
+							{verseBindSaveEnabled && (
+								<ActionArea>
+									<Button
+										type="primary"
+										danger
+										onClick={() => setDeleteModalOpen(true)}
+										disabled={hasUnsavedChanges}
+										size="small"
+										icon={<DeleteOutlined />}
+									>
+										Delete
+									</Button>
+									<Modal
+										open={deleteModalOpen}
+										title="Delete project"
+										onCancel={() => setDeleteModalOpen(false)}
+										footer={[
+											<Button
+												key="cancel"
+												onClick={() => setDeleteModalOpen(false)}
+											>
+												Cancel
+											</Button>,
+											<Button
+												key="delete"
+												type="primary"
+												danger
+												loading={deleteLoading}
+												onClick={async () => {
+													setDeleteLoading(true);
+													try {
+														await deleteProject();
+													} finally {
+														setDeleteLoading(false);
+														setDeleteModalOpen(false);
+													}
+												}}
+											>
+												Delete
+											</Button>,
+										]}
+									>
+										Deleting <strong>{projectConfig?.title}</strong>{' '}
+										permanently. Are you sure?
+									</Modal>
+									<Button
+										type="primary"
+										icon={saveLoadingIcon || <SaveOutlined />}
+										onClick={async () => {
+											setSaveLoadingIcon(<LoadingOutlined type="primary" />);
+											try {
+												await saveProject();
+												setSaveLoadingIcon(<CheckOutlined type="success" />);
+											} catch (e) {
+												setSaveLoadingIcon(
+													<ExclamationOutlined type="danger" />
+												);
+											}
+											setTimeout(() => {
+												setSaveLoadingIcon(undefined);
+											}, 3000);
+										}}
+										disabled={!hasUnsavedChanges}
+										size="small"
+									>
+										Save
+									</Button>
+								</ActionArea>
+							)}
 							<ActionArea>
 								<Button
 									type="primary"
-									danger
-									onClick={() => setDeleteModalOpen(true)}
-									disabled={hasUnsavedChanges}
+									onClick={() =>
+										copyToClipboard().then(() => {
+											setCopyBtnLabel('Copied ✓');
+											setTimeout(() => {
+												setCopyBtnLabel('Copy');
+											}, 3000);
+										})
+									}
 									size="small"
-									icon={<DeleteOutlined />}
 								>
-									Delete
+									{copyBtnLabel}
 								</Button>
-								<Modal
-									open={deleteModalOpen}
-									title="Delete project"
-									onCancel={() => setDeleteModalOpen(false)}
-									footer={[
-										<Button
-											key="cancel"
-											onClick={() => setDeleteModalOpen(false)}
-										>
-											Cancel
-										</Button>,
-										<Button
-											key="delete"
-											type="primary"
-											danger
-											loading={deleteLoading}
-											onClick={async () => {
-												setDeleteLoading(true);
-												try {
-													await deleteProject();
-												} finally {
-													setDeleteLoading(false);
-													setDeleteModalOpen(false);
-												}
-											}}
-										>
-											Delete
-										</Button>,
-									]}
-								>
-									Deleting <strong>{projectConfig?.title}</strong> permanently.
-									Are you sure?
-								</Modal>
-								<Button
-									type="primary"
-									icon={saveLoadingIcon || <SaveOutlined />}
-									onClick={async () => {
-										setSaveLoadingIcon(<LoadingOutlined type="primary" />);
-										try {
-											await saveProject();
-											setSaveLoadingIcon(<CheckOutlined type="success" />);
-										} catch (e) {
-											setSaveLoadingIcon(<ExclamationOutlined type="danger" />);
-											// Error in saving
-										}
-										setTimeout(() => {
-											setSaveLoadingIcon(undefined);
-										}, 3000);
-									}}
-									disabled={!hasUnsavedChanges}
-									size="small"
-								>
-									Save
+								<Button type="primary" onClick={downloadAsJson} size="small">
+									Download
 								</Button>
 							</ActionArea>
-						)}
-						<ActionArea>
-							<Button
-								type="primary"
-								onClick={() =>
-									copyToClipboard().then(() => {
-										setCopyBtnLabel('Copied ✓');
-										setTimeout(() => {
-											setCopyBtnLabel('Copy');
-										}, 3000);
-									})
-								}
-								size="small"
-							>
-								{copyBtnLabel}
-							</Button>
-							<Button type="primary" onClick={downloadAsJson} size="small">
-								Download
-							</Button>
-						</ActionArea>
-					</>
-				)}
-			</Wrapper>
-		</Drawer>
+						</>
+					)}
+				</Wrapper>
+			</PanelInner>
+		</Panel>
 	);
 };
 

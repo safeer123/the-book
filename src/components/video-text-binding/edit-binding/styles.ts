@@ -1,19 +1,49 @@
 import styled from 'styled-components';
-import { Drawer as AntDrawer } from 'antd';
 
-export const Drawer = styled(AntDrawer)`
-	&& .ant-drawer-wrapper-body {
-		position: relative;
-		background-color: rgba(255, 255, 255, 0.651);
-		background-image: url(https://www.transparenttextures.com/patterns/textured-paper.png);
-	}
+export const Panel = styled.div<{ $open?: boolean }>`
+	width: ${({ $open }) => ($open ? '380px' : '0px')};
+	overflow: hidden;
+	transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	flex-shrink: 0;
+`;
+
+export const PanelInner = styled.div`
+	width: 380px;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	background-color: #fff;
+	border-left: 1px solid #e0e0e0;
+	box-shadow: -2px 0 8px rgba(0, 0, 0, 0.08);
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+		'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
+		'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+	font-size: 14px;
+	color: rgba(0, 0, 0, 0.88);
+`;
+
+export const PanelHeader = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 24px;
+	border-bottom: 1px solid rgba(5, 5, 5, 0.06);
+	flex-shrink: 0;
+	white-space: nowrap;
+`;
+
+export const PanelTitle = styled.span`
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 1.5;
+	color: rgba(0, 0, 0, 0.88);
 `;
 
 export const Wrapper = styled.div`
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-	height: calc(100% - 16px);
+	overflow: hidden;
 
 	.ant-input {
 		border-color: transparent;
@@ -36,7 +66,7 @@ export const ProjectDetailsArea = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
-	padding: 16px;
+	padding: 16px 24px;
 `;
 
 export const InputItem = styled.div`
@@ -46,8 +76,8 @@ export const InputItem = styled.div`
 `;
 
 export const InputLabel = styled.span`
-	color: #5c5c5c;
-	font-size: 12px;
+	color: rgba(0, 0, 0, 0.45);
+	font-size: 13px;
 	flex-shrink: 0;
 	width: 44px;
 `;
@@ -72,6 +102,7 @@ export const BindingListItems = styled.div`
 	overflow-y: auto;
 	border: 1px solid #72727299;
 	border-radius: 5px;
+	margin: 0 24px;
 
 	.right-align {
 		justify-content: flex-end;
@@ -107,7 +138,10 @@ export const BindingItem = styled.div`
 export const ActionArea = styled.div`
 	display: flex;
 	gap: 16px;
-	padding: 16px;
-	padding-bottom: 0;
+	padding: 12px 24px 0;
 	justify-content: flex-end;
+
+	&:last-child {
+		padding-bottom: 20px;
+	}
 `;

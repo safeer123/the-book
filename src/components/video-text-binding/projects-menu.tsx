@@ -12,7 +12,7 @@ const ProjectsMenuWrapper = styled.div`
 	flex-direction: column;
 	gap: 8px;
 	align-items: stretch;
-	width: 300px;
+	width: 360px;
 `;
 
 const ProjectItemWrapper = styled.div`
@@ -20,7 +20,7 @@ const ProjectItemWrapper = styled.div`
 	flex-direction: column;
 	gap: 8px;
 	align-items: flex-end;
-	max-height: 400px;
+	max-height: 60vh;
 	overflow-y: scroll;
 	overflow-x: hidden;
 

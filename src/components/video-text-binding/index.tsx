@@ -20,8 +20,16 @@ import { TranslationVisibilityProvider } from 'context/translation-visibility-co
 const Page = styled.div`
 	height: 100vh;
 	display: flex;
+	flex-direction: row;
+	overflow: hidden;
+`;
+
+const ContentArea = styled.div`
+	flex: 1;
+	display: flex;
 	flex-direction: column;
-	gap: 16px;
+	position: relative;
+	overflow: hidden;
 `;
 
 const SettingsArea = styled.div`
@@ -196,86 +204,90 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 	return (
 		<TranslationVisibilityProvider>
 			<Page>
-				<SettingsArea>
-					{!viewerMode && <UploadProjects loadProjects={loadProjects} />}
-					<Popover
-						open={projectMenuVisible}
-						onOpenChange={(state) => setProjectMenuVisible(state)}
-						trigger={['click']}
-						content={
-							<ProjectsMenu
-								projects={projects}
-								projectConfig={projectConfig}
-								viewerMode={viewerMode}
-								newProject={newProject}
-								onClickProjectItem={onClickProjectItem}
-							/>
-						}
-					>
-						<ProjectListBtn />
-					</Popover>
-
-					{!viewerMode && (
-						<Tooltip title="Edit" placement="bottom">
-							<SettingsBtn onClick={() => setSettingsDrawerVisibility(true)} />
-						</Tooltip>
-					)}
-
-					{user && (
+				<ContentArea>
+					<SettingsArea>
+						{!viewerMode && <UploadProjects loadProjects={loadProjects} />}
 						<Popover
-							trigger={'hover'}
+							open={projectMenuVisible}
+							onOpenChange={(state) => setProjectMenuVisible(state)}
+							trigger={['click']}
 							content={
-								<ProfileMenuWrapper>
-									<UserDisplayName>
-										<Avatar
-											src={
-												user?.photoURL ? (
-													<img
-														src={user?.photoURL}
-														referrerPolicy="no-referrer"
-													/>
-												) : undefined
-											}
-										>
-											{user?.displayName?.[0]?.toUpperCase()}
-										</Avatar>
-										{user?.displayName}
-									</UserDisplayName>
-									<UserEmail>{user?.email}</UserEmail>
-									<Button
-										type="primary"
-										size="small"
-										onClick={() => navigate('/logout')}
-									>
-										Logout
-									</Button>
-								</ProfileMenuWrapper>
+								<ProjectsMenu
+									projects={projects}
+									projectConfig={projectConfig}
+									viewerMode={viewerMode}
+									newProject={newProject}
+									onClickProjectItem={onClickProjectItem}
+								/>
 							}
 						>
-							<StyledAvatar
-								src={
-									user?.photoURL ? (
-										<img src={user?.photoURL} referrerPolicy="no-referrer" />
-									) : undefined
+							<ProjectListBtn />
+						</Popover>
+
+						{!viewerMode && (
+							<Tooltip title="Edit" placement="bottom">
+								<SettingsBtn
+									onClick={() => setSettingsDrawerVisibility(true)}
+								/>
+							</Tooltip>
+						)}
+
+						{user && (
+							<Popover
+								trigger={'hover'}
+								content={
+									<ProfileMenuWrapper>
+										<UserDisplayName>
+											<Avatar
+												src={
+													user?.photoURL ? (
+														<img
+															src={user?.photoURL}
+															referrerPolicy="no-referrer"
+														/>
+													) : undefined
+												}
+											>
+												{user?.displayName?.[0]?.toUpperCase()}
+											</Avatar>
+											{user?.displayName}
+										</UserDisplayName>
+										<UserEmail>{user?.email}</UserEmail>
+										<Button
+											type="primary"
+											size="small"
+											onClick={() => navigate('/logout')}
+										>
+											Logout
+										</Button>
+									</ProfileMenuWrapper>
 								}
 							>
-								{user?.displayName?.[0]?.toUpperCase()}
-							</StyledAvatar>
-						</Popover>
-					)}
-				</SettingsArea>
+								<StyledAvatar
+									src={
+										user?.photoURL ? (
+											<img src={user?.photoURL} referrerPolicy="no-referrer" />
+										) : undefined
+									}
+								>
+									{user?.displayName?.[0]?.toUpperCase()}
+								</StyledAvatar>
+							</Popover>
+						)}
+					</SettingsArea>
 
-				<VideoPage
-					projectConfig={projectConfig}
-					currentTime={currentTime}
-					setCurrentTime={setCurrentTime}
-					setVideoStatus={setVideoStatus}
-					videoStatus={videoStatus}
-					playerRef={playerRef}
-					playPause={playPause}
-					seekTo={seekTo}
-					viewerMode={viewerMode}
-				/>
+					<VideoPage
+						projectConfig={projectConfig}
+						currentTime={currentTime}
+						setCurrentTime={setCurrentTime}
+						setVideoStatus={setVideoStatus}
+						videoStatus={videoStatus}
+						playerRef={playerRef}
+						playPause={playPause}
+						seekTo={seekTo}
+						viewerMode={viewerMode}
+					/>
+				</ContentArea>
 				{!viewerMode && (
 					<EditBindingConfiguration
 						open={settingsDrawerVisibility}
