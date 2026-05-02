@@ -33,6 +33,7 @@ import {
 	ActionArea,
 } from './styles';
 import { useVerseBindSaveEnabled } from 'data/use-verse-bind-save-enabled';
+import { Link } from 'react-router-dom';
 
 interface Props {
 	open?: boolean;
@@ -188,6 +189,13 @@ const EditBindingConfiguration: FC<Props> = ({
 			open={open}
 			extra={
 				<Space>
+					{verseBindSaveEnabled && (
+						<Link to="/edit-projects">
+							<Button type="link" size="small">
+								Projects
+							</Button>
+						</Link>
+					)}
 					<Button onClick={onClose}>Close</Button>
 				</Space>
 			}

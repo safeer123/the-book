@@ -71,6 +71,10 @@ const router = createBrowserRouter([
 				element: <VideoTextBinding />,
 			},
 			{
+				path: 'verse-binding/:pid',
+				element: <VideoTextBinding />,
+			},
+			{
 				path: 'ai-prompt-app',
 				element: <AIPromptApp />,
 			},

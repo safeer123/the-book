@@ -67,10 +67,10 @@ export const BindingListItems = styled.div`
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
-	padding: 16px;
+	gap: 8px;
+	padding: 16px 0px;
 	overflow-y: auto;
-	border: 1px solid #727272;
+	border: 1px solid #72727299;
 	border-radius: 5px;
 
 	.right-align {
@@ -82,7 +82,7 @@ export const BindingItem = styled.div`
 	display: flex;
 	gap: 16px;
 	align-items: center;
-	padding: 4px 6px;
+	padding: 4px 16px;
 	border-radius: 4px;
 
 	&:not(.right-align):nth-child(odd) {

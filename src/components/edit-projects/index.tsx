@@ -9,24 +9,35 @@ import {
 	useMemo,
 	useState,
 } from 'react';
-import { Button, Input, Modal, Table, Tag, Typography } from 'antd';
+import {
+	Button,
+	Input,
+	Modal,
+	Progress,
+	Table,
+	Tag,
+	Tooltip,
+	Typography,
+} from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { TableRowSelection } from 'antd/es/table/interface';
 import {
 	CheckOutlined,
 	DeleteOutlined,
 	DownloadOutlined,
+	EditOutlined,
 	ExclamationOutlined,
 	LinkOutlined,
 	LoadingOutlined,
 	SaveOutlined,
+	SwapOutlined,
 } from '@ant-design/icons';
 import styled from 'styled-components';
 import { ChapterItem, ProjectConfig, VerseBindingElement } from 'types';
 import { getData, updateData } from 'utils/firestore-utils';
 import { useVerseBindSaveEnabled } from 'data/use-verse-bind-save-enabled';
 import { useChapters } from 'data/use-chapters';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const PROJECTS_KEY = 'verse-binding-projects';
 
@@ -79,6 +90,23 @@ const TableWrapper = styled.div`
 
 	.ant-table-wrapper {
 		height: 100%;
+	}
+
+	.ant-table-tbody > tr.row-incomplete > td {
+		background: #fffbe6;
+	}
+
+	.ant-table-tbody > tr.row-incomplete:hover > td {
+		background: #fff3cd !important;
+	}
+
+	.ant-table-tbody > tr > td.col-action {
+		opacity: 0;
+		transition: opacity 0.15s;
+	}
+
+	.ant-table-tbody > tr:hover > td.col-action {
+		opacity: 1;
 	}
 `;
 
@@ -221,6 +249,39 @@ const SuraVerseCount = styled.span`
 	flex-shrink: 0;
 `;
 
+const FindReplaceBar = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 12px;
+	background: #fff;
+	border-radius: 8px;
+	border: 1px solid #e0e0e0;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+`;
+
+const FindMatchCount = styled.span`
+	font-size: 12px;
+	color: #8c8c8c;
+	white-space: nowrap;
+	min-width: 72px;
+`;
+
+const escapeForRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const buildSnapshot = (list: ProjectConfig[]) => {
+	const map: { [key: string]: ProjectConfig } = {};
+	list.forEach((p) => {
+		map[p.videoUrl] = p;
+	});
+	return JSON.stringify(map);
+};
+
+const matchesProjectTitleFormat = (title: string): boolean => {
+	if (!title?.trim()) return false;
+	return !/[\d[\](){}]/.test(title);
+};
+
 // ── BindingsEditor ──────────────────────────────────────────────────────────
 
 interface BindingsEditorProps {
@@ -341,6 +402,11 @@ const EditProjects: FC = () => {
 	const [deleteTarget, setDeleteTarget] = useState<ProjectConfig | null>(null);
 	const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 	const [missingSurasOpen, setMissingSurasOpen] = useState(false);
+	const [incompleteFilter, setIncompleteFilter] = useState(false);
+	const [findReplaceOpen, setFindReplaceOpen] = useState(false);
+	const [findText, setFindText] = useState('');
+	const [replaceText, setReplaceText] = useState('');
+	const [matchCase, setMatchCase] = useState(false);
 
 	useEffect(() => {
 		if (verseBindSaveEnabled === false) {
@@ -357,7 +423,7 @@ const EditProjects: FC = () => {
 					(a, b) => (a.verseId || 0) - (b.verseId || 0)
 				);
 				setProjects(list);
-				setSavedSnapshot(stored);
+				setSavedSnapshot(buildSnapshot(list));
 			} catch (e) {
 				console.error(e);
 			}
@@ -372,26 +438,34 @@ const EditProjects: FC = () => {
 					(a, b) => (a.verseId || 0) - (b.verseId || 0)
 				);
 				setProjects(list);
-				const str = JSON.stringify(map);
+				const str = buildSnapshot(list);
 				setSavedSnapshot(str);
 				localStorage.setItem(PROJECTS_KEY, str);
 			}
 		});
 	}, []);
 
-	const hasUnsavedChanges = useMemo(() => {
-		const currentMap: { [key: string]: ProjectConfig } = {};
-		projects.forEach((p) => {
-			currentMap[p.videoUrl] = p;
-		});
-		return JSON.stringify(currentMap) !== savedSnapshot;
-	}, [projects, savedSnapshot]);
+	const hasUnsavedChanges = useMemo(
+		() => buildSnapshot(projects) !== savedSnapshot,
+		[projects, savedSnapshot]
+	);
 
 	const filteredProjects = useMemo(() => {
-		if (!search.trim()) return projects;
-		const q = search.toLowerCase();
-		return projects.filter((p) => p.title?.toLowerCase().includes(q));
-	}, [projects, search]);
+		let list = projects;
+		if (search.trim()) {
+			const q = search.toLowerCase();
+			list = list.filter((p) => p.title?.toLowerCase().includes(q));
+		}
+		if (incompleteFilter) {
+			list = list.filter((p) => {
+				const ch = chaptersData?.suraByKey[p.verseId ?? 0];
+				if (!ch) return false;
+				if (!matchesProjectTitleFormat(p.title)) return false;
+				return (p.bindingConfig?.length ?? 0) < ch.verses_count;
+			});
+		}
+		return list;
+	}, [projects, search, incompleteFilter, chaptersData]);
 
 	const missingChapters = useMemo((): ChapterItem[] => {
 		if (!chaptersData?.chapters) return [];
@@ -405,6 +479,33 @@ const EditProjects: FC = () => {
 		});
 		return chaptersData.chapters.filter((ch) => !covered.has(ch.id));
 	}, [projects, chaptersData]);
+
+	const matchCount = useMemo(() => {
+		if (!findText) return 0;
+		const find = matchCase ? findText : findText.toLowerCase();
+		return projects.filter((p) => {
+			const title = matchCase ? p.title : p.title?.toLowerCase();
+			return title?.includes(find);
+		}).length;
+	}, [projects, findText, matchCase]);
+
+	const replaceAll = useCallback(() => {
+		if (!findText) return;
+		const regex = new RegExp(escapeForRegex(findText), matchCase ? 'g' : 'gi');
+		setProjects((prev) =>
+			prev.map((p) =>
+				regex.test(p.title)
+					? {
+							...p,
+							title: p.title.replace(
+								new RegExp(escapeForRegex(findText), matchCase ? 'g' : 'gi'),
+								replaceText
+							),
+					  }
+					: p
+			)
+		);
+	}, [findText, replaceText, matchCase]);
 
 	const toggleExpand = useCallback((id: string) => {
 		setExpandedRowKeys((prev) =>
@@ -456,12 +557,13 @@ const EditProjects: FC = () => {
 			});
 
 			await updateData({ projects: map });
-			const str = JSON.stringify(map);
+			const savedList = Object.values(map).sort(
+				(a, b) => (a.verseId || 0) - (b.verseId || 0)
+			);
+			const str = buildSnapshot(savedList);
 			localStorage.setItem(PROJECTS_KEY, str);
 			setSavedSnapshot(str);
-			setProjects(
-				Object.values(map).sort((a, b) => (a.verseId || 0) - (b.verseId || 0))
-			);
+			setProjects(savedList);
 			setSaveIcon(<CheckOutlined />);
 		} catch (e) {
 			console.error(e);
@@ -489,10 +591,10 @@ const EditProjects: FC = () => {
 
 	const columns: ColumnsType<ProjectConfig> = [
 		{
-			title: 'Sura',
+			title: 'Surah#',
 			dataIndex: 'verseId',
 			key: 'verseId',
-			width: 56,
+			width: 80,
 			align: 'center' as const,
 			render: (verseId: number | undefined) => (
 				<span style={{ color: '#8c8c8c', fontSize: 12 }}>{verseId ?? '—'}</span>
@@ -503,14 +605,33 @@ const EditProjects: FC = () => {
 			dataIndex: 'title',
 			key: 'title',
 			width: '38%',
-			render: (title: string, record) => (
-				<CellInput
-					value={title}
-					onChange={(e) => updateProject(record.id, { title: e.target.value })}
-					onKeyDown={(e) => e.stopPropagation()}
-					size="small"
-				/>
-			),
+			render: (title: string, record) => {
+				const isMatch =
+					findReplaceOpen &&
+					!!findText &&
+					(matchCase ? title : title?.toLowerCase() ?? '').includes(
+						matchCase ? findText : findText.toLowerCase()
+					);
+				return (
+					<CellInput
+						value={title}
+						onChange={(e) =>
+							updateProject(record.id, { title: e.target.value })
+						}
+						onKeyDown={(e) => e.stopPropagation()}
+						size="small"
+						style={
+							isMatch
+								? {
+										borderColor: '#1677ff',
+										background: '#e6f4ff',
+										boxShadow: 'none',
+								  }
+								: undefined
+						}
+					/>
+				);
+			},
 		},
 		{
 			title: 'Video URL',
@@ -531,22 +652,48 @@ const EditProjects: FC = () => {
 		{
 			title: 'Bindings',
 			key: 'bindings',
-			width: 80,
+			width: 96,
 			align: 'center' as const,
-			render: (_: unknown, record: ProjectConfig) => (
-				<Tag
-					style={{ cursor: 'pointer' }}
-					onClick={() => toggleExpand(record.id)}
-					color={expandedRowKeys.includes(record.id) ? 'blue' : undefined}
-				>
-					{record.bindingConfig?.length ?? 0}
-				</Tag>
-			),
+			render: (_: unknown, record: ProjectConfig) => {
+				const bindingCount = record.bindingConfig?.length ?? 0;
+				const chapter = chaptersData?.suraByKey[record.verseId ?? 0];
+				const versesCount = chapter?.verses_count;
+				const pct = versesCount
+					? Math.min(100, Math.round((bindingCount / versesCount) * 100))
+					: null;
+				return (
+					<div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+						<Tag
+							style={{ cursor: 'pointer', margin: 0, flexShrink: 0 }}
+							onClick={() => toggleExpand(record.id)}
+							color={expandedRowKeys.includes(record.id) ? 'blue' : undefined}
+						>
+							{bindingCount}
+						</Tag>
+						{pct !== null && (
+							<Tooltip
+								title={`${bindingCount}/${versesCount ?? 0} bound (${
+									pct ?? 0
+								}%)`}
+							>
+								<Progress
+									percent={pct}
+									size="small"
+									showInfo={false}
+									style={{ width: 40, margin: 0 }}
+									strokeColor={pct >= 100 ? '#52c41a' : '#faad14'}
+								/>
+							</Tooltip>
+						)}
+					</div>
+				);
+			},
 		},
 		{
 			title: '',
 			key: 'player',
 			width: 36,
+			onCell: () => ({ className: 'col-action' }),
 			render: (_: unknown, record: ProjectConfig) =>
 				record.videoUrl ? (
 					<a
@@ -565,8 +712,23 @@ const EditProjects: FC = () => {
 		},
 		{
 			title: '',
+			key: 'edit',
+			width: 36,
+			onCell: () => ({ className: 'col-action' }),
+			render: (_: unknown, record: ProjectConfig) =>
+				record.videoUrl ? (
+					<Tooltip title="Edit in verse binding editor">
+						<Link to={`/verse-binding/${encodeURIComponent(record.videoUrl)}`}>
+							<Button size="small" type="text" icon={<EditOutlined />} />
+						</Link>
+					</Tooltip>
+				) : null,
+		},
+		{
+			title: '',
 			key: 'actions',
 			width: 48,
+			onCell: () => ({ className: 'col-action' }),
 			render: (_: unknown, record: ProjectConfig) => (
 				<Button
 					size="small"
@@ -589,6 +751,18 @@ const EditProjects: FC = () => {
 					{hasUnsavedChanges && <UnsavedBadge>● unsaved changes</UnsavedBadge>}
 					<Button
 						size="small"
+						icon={<SwapOutlined />}
+						type={findReplaceOpen ? 'primary' : 'default'}
+						onClick={() => {
+							setFindReplaceOpen((p) => !p);
+							setFindText('');
+							setReplaceText('');
+						}}
+					>
+						Find & Replace
+					</Button>
+					<Button
+						size="small"
 						icon={<DownloadOutlined />}
 						onClick={downloadAsJson}
 					>
@@ -609,6 +783,52 @@ const EditProjects: FC = () => {
 				</HeaderActions>
 			</PageHeader>
 
+			{findReplaceOpen && (
+				<FindReplaceBar>
+					<Input
+						placeholder="Find in titles..."
+						value={findText}
+						onChange={(e) => setFindText(e.target.value)}
+						size="small"
+						allowClear
+						style={{ width: 220 }}
+						autoFocus
+					/>
+					<span style={{ color: '#bfbfbf', fontSize: 14, flexShrink: 0 }}>
+						→
+					</span>
+					<Input
+						placeholder="Replace with..."
+						value={replaceText}
+						onChange={(e) => setReplaceText(e.target.value)}
+						size="small"
+						style={{ width: 220 }}
+					/>
+					<Tooltip title="Match case">
+						<Button
+							size="small"
+							type={matchCase ? 'primary' : 'default'}
+							onClick={() => setMatchCase((p) => !p)}
+						>
+							Aa
+						</Button>
+					</Tooltip>
+					<FindMatchCount>
+						{findText
+							? `${matchCount} match${matchCount !== 1 ? 'es' : ''}`
+							: ''}
+					</FindMatchCount>
+					<Button
+						size="small"
+						type="primary"
+						disabled={!findText || matchCount === 0}
+						onClick={replaceAll}
+					>
+						Replace All
+					</Button>
+				</FindReplaceBar>
+			)}
+
 			<ToolbarRow>
 				<Input.Search
 					placeholder="Search by title..."
@@ -618,6 +838,13 @@ const EditProjects: FC = () => {
 					style={{ width: 320 }}
 					size="small"
 				/>
+				<Button
+					size="small"
+					type={incompleteFilter ? 'primary' : 'default'}
+					onClick={() => setIncompleteFilter((p) => !p)}
+				>
+					Unfinished
+				</Button>
 				<ProjectCount>
 					{filteredProjects.length} / {projects.length} projects
 				</ProjectCount>
@@ -639,6 +866,14 @@ const EditProjects: FC = () => {
 					dataSource={filteredProjects}
 					columns={columns}
 					rowSelection={rowSelection}
+					rowClassName={(record) => {
+						const chapter = chaptersData?.suraByKey[record.verseId ?? 0];
+						if (!chapter) return '';
+						if (!matchesProjectTitleFormat(record.title)) return '';
+						return (record.bindingConfig?.length ?? 0) < chapter.verses_count
+							? 'row-incomplete'
+							: '';
+					}}
 					expandable={{
 						expandedRowKeys,
 						onExpandedRowsChange: (keys) =>

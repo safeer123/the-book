@@ -178,14 +178,15 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 				setVideoStatus(undefined);
 				setCurrentTime(0);
 				setProjectMenuVisible(false);
+				if (!viewerMode) setSettingsDrawerVisibility(true);
 			}
 		}
-	}, [pid, projects]);
+	}, [pid, projects, viewerMode]);
 
 	useEffect(() => {
 		if (
 			projects.length > 0 &&
-			((viewerMode && !pid) || (!viewerMode && !projectConfig))
+			((viewerMode && !pid) || (!viewerMode && !projectConfig && !pid))
 		) {
 			const randomIndex = ~~(Math.random() * projects.length);
 			onClickProjectItem(projects[randomIndex]);
