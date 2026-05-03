@@ -33,10 +33,14 @@ import {
 	InputGroup,
 	InputLabel,
 	BindingItem,
+	BindingListContainer,
+	BindingProgressBar,
 	BindingListItems,
 	ActionArea,
 } from './styles';
 import { useVerseBindSaveEnabled } from 'data/use-verse-bind-save-enabled';
+import { useChapters } from 'data/use-chapters';
+import { isFullSurah } from 'utils/project-utils';
 import { Link } from 'react-router-dom';
 
 interface Props {
@@ -76,8 +80,18 @@ const EditBindingConfiguration: FC<Props> = ({
 	const [titleBuilderOpen, setTitleBuilderOpen] = useState(false);
 
 	const verseBindSaveEnabled = useVerseBindSaveEnabled();
+	const { data: chaptersData } = useChapters();
 
 	const { bindingConfig = [] } = projectConfig || {};
+
+	const fullSurah = isFullSurah(projectConfig?.title);
+	const versesCount =
+		fullSurah && projectConfig?.verseId
+			? chaptersData?.suraByKey[projectConfig.verseId]?.verses_count
+			: undefined;
+	const bindingPct = versesCount
+		? Math.min(100, Math.round((bindingConfig.length / versesCount) * 100))
+		: 0;
 	const [chapter, verse] = useMemo(() => {
 		if (projectConfig?.bindingConfig) {
 			let i = 1;
@@ -245,52 +259,60 @@ const EditBindingConfiguration: FC<Props> = ({
 					</ProjectDetailsArea>
 					{!!projectConfig?.videoUrl && (
 						<>
-							<BindingListItems>
-								{bindingConfig.map((element, index) => (
-									<BindingItem key={`${element.id}`}>
-										<Input
-											size="small"
-											type="number"
-											value={element.t}
-											step={0.1}
-											onChange={(e) => onChangeTime(element.id, e)}
-										/>
-										<Input
-											size="small"
-											type="text"
-											value={element.k}
-											onChange={(e) =>
-												onChangeVerseKey(element.id, e.target.value)
-											}
-										/>
-										<ChapterSelector
-											elementId={element.id}
-											onChangeVerseKey={onChangeVerseKey}
-										/>
+							<BindingListContainer>
+								{versesCount !== undefined && (
+									<BindingProgressBar
+										$pct={bindingPct}
+										$complete={bindingPct >= 100}
+									/>
+								)}
+								<BindingListItems>
+									{bindingConfig.map((element, index) => (
+										<BindingItem key={`${element.id}`}>
+											<Input
+												size="small"
+												type="number"
+												value={element.t}
+												step={0.1}
+												onChange={(e) => onChangeTime(element.id, e)}
+											/>
+											<Input
+												size="small"
+												type="text"
+												value={element.k}
+												onChange={(e) =>
+													onChangeVerseKey(element.id, e.target.value)
+												}
+											/>
+											<ChapterSelector
+												elementId={element.id}
+												onChangeVerseKey={onChangeVerseKey}
+											/>
+											<Button
+												className="binding-item-action"
+												icon={<DeleteOutlined />}
+												size="small"
+												type="link"
+												onClick={() => removeBinding(index)}
+											/>
+										</BindingItem>
+									))}
+									<BindingItem key={'add-controls'} className="right-align">
 										<Button
-											className="binding-item-action"
-											icon={<DeleteOutlined />}
+											type="primary"
+											onClick={addNextBinding}
 											size="small"
-											type="link"
-											onClick={() => removeBinding(index)}
-										/>
+										>{`＋ Next Verse (${`${chapter}:${
+											Number(verse) + 1
+										}`})`}</Button>
+										<Button
+											type="primary"
+											onClick={addBlankBinding}
+											size="small"
+										>{`＋ Blank`}</Button>
 									</BindingItem>
-								))}
-								<BindingItem key={'add-controls'} className="right-align">
-									<Button
-										type="primary"
-										onClick={addNextBinding}
-										size="small"
-									>{`＋ Next Verse (${`${chapter}:${
-										Number(verse) + 1
-									}`})`}</Button>
-									<Button
-										type="primary"
-										onClick={addBlankBinding}
-										size="small"
-									>{`＋ Blank`}</Button>
-								</BindingItem>
-							</BindingListItems>
+								</BindingListItems>
+							</BindingListContainer>
 							{verseBindSaveEnabled && (
 								<ActionArea>
 									<Button

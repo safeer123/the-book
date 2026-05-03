@@ -1,8 +1,9 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import styled from 'styled-components';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Tooltip, Input } from 'antd';
+import type { InputRef } from 'antd';
 import { ProjectConfig } from 'types';
 
 const { Search } = Input;
@@ -49,6 +50,7 @@ interface Props {
 	viewerMode?: boolean;
 	onClickProjectItem: (p: ProjectConfig) => void;
 	newProject: () => void;
+	open?: boolean;
 }
 
 const ProjectsMenu = ({
@@ -57,8 +59,18 @@ const ProjectsMenu = ({
 	viewerMode,
 	onClickProjectItem,
 	newProject,
+	open,
 }: Props) => {
 	const [searchInput, setSearchInput] = useState('');
+	const searchRef = useRef<InputRef>(null);
+
+	useEffect(() => {
+		if (open) {
+			setTimeout(() => searchRef.current?.focus(), 50);
+		} else {
+			setSearchInput('');
+		}
+	}, [open]);
 
 	const filteredProjects = useMemo(() => {
 		return (projects || []).filter((p) =>
@@ -80,6 +92,8 @@ const ProjectsMenu = ({
 			)}
 
 			<Search
+				ref={searchRef}
+				value={searchInput}
 				placeholder="Search.."
 				onChange={(e) => setSearchInput(e.target.value)}
 				allowClear

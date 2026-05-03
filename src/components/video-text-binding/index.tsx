@@ -111,6 +111,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 	const { pid } = useParams();
 
 	const { user } = useUserAuth();
+	const pidAppliedRef = useRef<string | undefined>(undefined);
 
 	const { saveProject, deleteProject, loadProjects, projects, downloadAsJson } =
 		useProjectStore({
@@ -179,9 +180,10 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 	};
 
 	useEffect(() => {
-		if (pid && projects.length > 0) {
+		if (pid && projects.length > 0 && pidAppliedRef.current !== pid) {
 			const projectInStore = projects.find((p) => p?.videoUrl === pid);
 			if (projectInStore) {
+				pidAppliedRef.current = pid;
 				setProjectConfig(projectInStore);
 				setVideoStatus(undefined);
 				setCurrentTime(0);
@@ -218,6 +220,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 									viewerMode={viewerMode}
 									newProject={newProject}
 									onClickProjectItem={onClickProjectItem}
+									open={projectMenuVisible}
 								/>
 							}
 						>

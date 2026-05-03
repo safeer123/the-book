@@ -38,6 +38,7 @@ import { getData, updateData } from 'utils/firestore-utils';
 import { useVerseBindSaveEnabled } from 'data/use-verse-bind-save-enabled';
 import { useChapters } from 'data/use-chapters';
 import { Link, useNavigate } from 'react-router-dom';
+import { isFullSurah } from 'utils/project-utils';
 
 const PROJECTS_KEY = 'verse-binding-projects';
 
@@ -249,6 +250,61 @@ const SuraVerseCount = styled.span`
 	flex-shrink: 0;
 `;
 
+const ReciterRow = styled.div`
+	padding: 10px 0;
+	border-bottom: 1px solid #f0f0f0;
+
+	&:last-child {
+		border-bottom: none;
+	}
+`;
+
+const ReciterHeader = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 6px;
+`;
+
+const ReciterName = styled.span`
+	font-size: 13px;
+	font-weight: 600;
+	color: rgba(0, 0, 0, 0.85);
+	flex: 1;
+`;
+
+const ReciterCount = styled.span`
+	font-size: 11px;
+	color: #8c8c8c;
+	background: #f5f5f5;
+	padding: 1px 6px;
+	border-radius: 10px;
+`;
+
+const SuraTagsList = styled.div`
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+`;
+
+const SuraTag = styled.a`
+	font-size: 11px;
+	color: #4096ff;
+	background: #e6f4ff;
+	border: 1px solid #91caff;
+	padding: 1px 6px;
+	border-radius: 4px;
+	line-height: 18px;
+	text-decoration: none;
+	cursor: pointer;
+
+	&:hover {
+		background: #bae0ff;
+		border-color: #4096ff;
+		color: #0958d9;
+	}
+`;
+
 const FindReplaceBar = styled.div`
 	display: flex;
 	align-items: center;
@@ -275,11 +331,6 @@ const buildSnapshot = (list: ProjectConfig[]) => {
 		map[p.videoUrl] = p;
 	});
 	return JSON.stringify(map);
-};
-
-const matchesProjectTitleFormat = (title: string): boolean => {
-	if (!title?.trim()) return false;
-	return !/[\d[\](){}]/.test(title);
 };
 
 // ── BindingsEditor ──────────────────────────────────────────────────────────
@@ -402,6 +453,7 @@ const EditProjects: FC = () => {
 	const [deleteTarget, setDeleteTarget] = useState<ProjectConfig | null>(null);
 	const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 	const [missingSurasOpen, setMissingSurasOpen] = useState(false);
+	const [recitersOpen, setRecitersOpen] = useState(false);
 	const [incompleteFilter, setIncompleteFilter] = useState(false);
 	const [findReplaceOpen, setFindReplaceOpen] = useState(false);
 	const [findText, setFindText] = useState('');
@@ -460,7 +512,7 @@ const EditProjects: FC = () => {
 			list = list.filter((p) => {
 				const ch = chaptersData?.suraByKey[p.verseId ?? 0];
 				if (!ch) return false;
-				if (!matchesProjectTitleFormat(p.title)) return false;
+				if (!isFullSurah(p.title)) return false;
 				return (p.bindingConfig?.length ?? 0) < ch.verses_count;
 			});
 		}
@@ -479,6 +531,33 @@ const EditProjects: FC = () => {
 		});
 		return chaptersData.chapters.filter((ch) => !covered.has(ch.id));
 	}, [projects, chaptersData]);
+
+	const recitersData = useMemo(() => {
+		const map: Record<
+			string,
+			{ surah: string; verseId: number; videoUrl: string }[]
+		> = {};
+		projects.forEach((p) => {
+			if (!isFullSurah(p.title)) return;
+			const dashIdx = p.title.indexOf(' - ');
+			if (dashIdx === -1) return;
+			const surahPart = p.title.slice(0, dashIdx).trim();
+			const reciter = p.title.slice(dashIdx + 3).trim();
+			if (!reciter) return;
+			if (!map[reciter]) map[reciter] = [];
+			map[reciter].push({
+				surah: surahPart,
+				verseId: p.verseId ?? 0,
+				videoUrl: p.videoUrl,
+			});
+		});
+		return Object.entries(map)
+			.sort(([a], [b]) => a.localeCompare(b))
+			.map(([name, suras]) => ({
+				name,
+				suras: suras.sort((a, b) => a.verseId - b.verseId),
+			}));
+	}, [projects]);
 
 	const matchCount = useMemo(() => {
 		if (!findText) return 0;
@@ -670,7 +749,7 @@ const EditProjects: FC = () => {
 						>
 							{bindingCount}
 						</Tag>
-						{pct !== null && (
+						{pct !== null && isFullSurah(record.title) && (
 							<Tooltip
 								title={`${bindingCount}/${versesCount ?? 0} bound (${
 									pct ?? 0
@@ -869,7 +948,7 @@ const EditProjects: FC = () => {
 					rowClassName={(record) => {
 						const chapter = chaptersData?.suraByKey[record.verseId ?? 0];
 						if (!chapter) return '';
-						if (!matchesProjectTitleFormat(record.title)) return '';
+						if (!isFullSurah(record.title)) return '';
 						return (record.bindingConfig?.length ?? 0) < chapter.verses_count
 							? 'row-incomplete'
 							: '';
@@ -891,6 +970,10 @@ const EditProjects: FC = () => {
 			<PageFooter>
 				<FooterLink onClick={() => setMissingSurasOpen(true)}>
 					Missing Suras ({missingChapters.length})
+				</FooterLink>
+				<span style={{ color: '#d9d9d9', margin: '0 8px' }}>·</span>
+				<FooterLink onClick={() => setRecitersOpen(true)}>
+					Reciters ({recitersData.length})
 				</FooterLink>
 			</PageFooter>
 
@@ -952,6 +1035,43 @@ const EditProjects: FC = () => {
 			>
 				Delete <strong>{selectedKeys.length}</strong> selected projects
 				permanently?
+			</Modal>
+
+			<Modal
+				open={recitersOpen}
+				title={`Reciters — ${recitersData.length}`}
+				onCancel={() => setRecitersOpen(false)}
+				footer={null}
+				width={520}
+				styles={{
+					body: { maxHeight: '65vh', overflowY: 'auto', padding: '4px 0' },
+				}}
+			>
+				{recitersData.length === 0 && (
+					<EmptyBindings>No reciter projects found</EmptyBindings>
+				)}
+				{recitersData.map(({ name, suras }) => (
+					<ReciterRow key={name}>
+						<ReciterHeader>
+							<ReciterName>{name}</ReciterName>
+							<ReciterCount>
+								{suras.length} sura{suras.length !== 1 ? 's' : ''}
+							</ReciterCount>
+						</ReciterHeader>
+						<SuraTagsList>
+							{suras.map(({ surah, verseId, videoUrl }) => (
+								<SuraTag
+									key={verseId || surah}
+									href={`/qbind/${encodeURIComponent(videoUrl)}`}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									{surah.startsWith('Surah ') ? surah.slice(6) : surah}
+								</SuraTag>
+							))}
+						</SuraTagsList>
+					</ReciterRow>
+				))}
 			</Modal>
 		</PageWrapper>
 	);

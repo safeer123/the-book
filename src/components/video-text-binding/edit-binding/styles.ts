@@ -93,6 +93,30 @@ export const InputGroup = styled.div`
 	}
 `;
 
+export const BindingListContainer = styled.div`
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	border: 1px solid #72727299;
+	border-radius: 5px;
+	margin: 0 24px;
+`;
+
+export const BindingProgressBar = styled.div<{
+	$pct: number;
+	$complete: boolean;
+}>`
+	height: 3px;
+	flex-shrink: 0;
+	background: linear-gradient(
+		to right,
+		${({ $complete }) => ($complete ? '#52c41a' : '#4096ff')}
+			${({ $pct }) => $pct}%,
+		transparent ${({ $pct }) => $pct}%
+	);
+`;
+
 export const BindingListItems = styled.div`
 	flex: 1;
 	display: flex;
@@ -100,9 +124,6 @@ export const BindingListItems = styled.div`
 	gap: 8px;
 	padding: 16px 0px;
 	overflow-y: auto;
-	border: 1px solid #72727299;
-	border-radius: 5px;
-	margin: 0 24px;
 
 	.right-align {
 		justify-content: flex-end;
