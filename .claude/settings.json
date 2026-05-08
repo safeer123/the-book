@@ -1,0 +1,31 @@
+{
+	"hooks": {
+		"UserPromptSubmit": [
+			{
+				"matcher": "",
+				"hooks": [
+					{ "type": "command", "command": "echo 'Task started'" }
+				]
+			}
+		],
+		"Stop": [
+			{
+				"matcher": "",
+				"hooks": [
+					{ "type": "command", "command": "echo 'Task finished'" }
+				]
+			}
+		],
+		"PreToolUse": [
+			{
+				"matcher": "Read|Grep",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "input=$(cat); echo \"$input\" | jq -r '.tool_input.file_path // empty' | grep -qE '(^|/)(\\.env|\\.env\\..*)$' && echo '{\"continue\": false, \"stopReason\": \"Reading .env files is blocked for security.\"}' || true"
+					}
+				]
+			}
+		]
+	}
+}
