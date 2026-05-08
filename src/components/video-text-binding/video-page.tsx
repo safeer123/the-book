@@ -39,28 +39,6 @@ const VideoWrapper = styled.div`
 	}
 `;
 
-const ProjectTitle = styled.div`
-	z-index: 3;
-	position: absolute;
-	top: 24px;
-	left: 24px;
-	font-size: 24px;
-	color: #fff;
-
-	@media (min-width: 320px) {
-		display: none;
-		top: 60px;
-		left: 8px;
-		font-size: 16px;
-	}
-
-	@media (min-width: 961px) {
-		display: block;
-		top: 24px;
-		left: 24px;
-		font-size: 24px;
-	}
-`;
 const VerseDisplayWrapper = styled.div`
 	flex: 5;
 	display: flex;
@@ -423,7 +401,6 @@ const VideoPage = ({
 	return (
 		<>
 			<VideoWrapper>
-				<ProjectTitle>{projectConfig?.title || '--untitled--'}</ProjectTitle>
 				{videoVisibility && (
 					<YouTube
 						videoId={videoId}

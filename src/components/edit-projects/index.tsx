@@ -7,12 +7,14 @@ import {
 	useCallback,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {
 	Button,
 	Input,
 	Modal,
+	Popover,
 	Progress,
 	Table,
 	Tag,
@@ -29,6 +31,7 @@ import {
 	ExclamationOutlined,
 	LinkOutlined,
 	LoadingOutlined,
+	PlusCircleOutlined,
 	SaveOutlined,
 	SwapOutlined,
 } from '@ant-design/icons';
@@ -39,6 +42,7 @@ import { useVerseBindSaveEnabled } from 'data/use-verse-bind-save-enabled';
 import { useChapters } from 'data/use-chapters';
 import { Link, useNavigate } from 'react-router-dom';
 import { isFullSurah } from 'utils/project-utils';
+import TitleBuilderModal from 'components/video-text-binding/edit-binding/title-builder-modal';
 
 const PROJECTS_KEY = 'verse-binding-projects';
 
@@ -459,6 +463,13 @@ const EditProjects: FC = () => {
 	const [findText, setFindText] = useState('');
 	const [replaceText, setReplaceText] = useState('');
 	const [matchCase, setMatchCase] = useState(false);
+	const [focusedTitleRowId, setFocusedTitleRowId] = useState<string | null>(
+		null
+	);
+	const [titleBuilderRowId, setTitleBuilderRowId] = useState<string | null>(
+		null
+	);
+	const titleBlurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	useEffect(() => {
 		if (verseBindSaveEnabled === false) {
@@ -691,24 +702,58 @@ const EditProjects: FC = () => {
 					(matchCase ? title : title?.toLowerCase() ?? '').includes(
 						matchCase ? findText : findText.toLowerCase()
 					);
+				const isFocused = focusedTitleRowId === record.id;
 				return (
-					<CellInput
-						value={title}
-						onChange={(e) =>
-							updateProject(record.id, { title: e.target.value })
+					<Popover
+						open={isFocused}
+						placement="topRight"
+						arrow={false}
+						content={
+							<Button
+								type="text"
+								size="small"
+								icon={<PlusCircleOutlined />}
+								onMouseDown={(e) => {
+									e.preventDefault();
+									if (titleBlurTimerRef.current)
+										clearTimeout(titleBlurTimerRef.current);
+									setTitleBuilderRowId(record.id);
+									setFocusedTitleRowId(null);
+								}}
+							>
+								Build title
+							</Button>
 						}
-						onKeyDown={(e) => e.stopPropagation()}
-						size="small"
-						style={
-							isMatch
-								? {
-										borderColor: '#1677ff',
-										background: '#e6f4ff',
-										boxShadow: 'none',
-								  }
-								: undefined
-						}
-					/>
+					>
+						<CellInput
+							value={title}
+							onChange={(e) =>
+								updateProject(record.id, { title: e.target.value })
+							}
+							onKeyDown={(e) => e.stopPropagation()}
+							onFocus={() => {
+								if (titleBlurTimerRef.current)
+									clearTimeout(titleBlurTimerRef.current);
+								setFocusedTitleRowId(record.id);
+							}}
+							onBlur={() => {
+								titleBlurTimerRef.current = setTimeout(
+									() => setFocusedTitleRowId(null),
+									150
+								);
+							}}
+							size="small"
+							style={
+								isMatch
+									? {
+											borderColor: '#1677ff',
+											background: '#e6f4ff',
+											boxShadow: 'none',
+									  }
+									: undefined
+							}
+						/>
+					</Popover>
 				);
 			},
 		},
@@ -976,6 +1021,17 @@ const EditProjects: FC = () => {
 					Reciters ({recitersData.length})
 				</FooterLink>
 			</PageFooter>
+
+			<TitleBuilderModal
+				open={!!titleBuilderRowId}
+				onClose={() => setTitleBuilderRowId(null)}
+				onConfirm={(title) => {
+					if (titleBuilderRowId) updateProject(titleBuilderRowId, { title });
+					setTitleBuilderRowId(null);
+				}}
+				projects={projects}
+				currentProjectId={titleBuilderRowId ?? undefined}
+			/>
 
 			<Modal
 				open={missingSurasOpen}

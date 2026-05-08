@@ -2,8 +2,9 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import styled from 'styled-components';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Tooltip, Input } from 'antd';
+import { Button, Input } from 'antd';
 import type { InputRef } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import { ProjectConfig } from 'types';
 
 const { Search } = Input;
@@ -11,37 +12,66 @@ const { Search } = Input;
 const ProjectsMenuWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
-	align-items: stretch;
-	width: 360px;
+	width: 320px;
+	max-height: 70vh;
+	overflow: hidden;
+`;
+
+const MenuHeader = styled.div`
+	padding: 10px 10px 8px;
+	border-bottom: 1px solid #f0f0f0;
 `;
 
 const ProjectItemWrapper = styled.div`
+	flex: 1;
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
-	align-items: flex-end;
-	max-height: 60vh;
-	overflow-y: scroll;
+	overflow-y: auto;
 	overflow-x: hidden;
+	padding: 4px;
+	min-height: 0;
+`;
 
-	.active-item {
-		background-color: #d8e1fc;
+const ProjectItem = styled.button`
+	width: 100%;
+	padding: 7px 10px;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	background: transparent;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 13px;
+	color: #262626;
+	text-align: left;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	transition: background 0.12s;
+	flex-shrink: 0;
+
+	&:hover {
+		background: #f0f4ff;
+	}
+
+	&.active-item {
+		background: #e8edff;
+		color: #2f54eb;
+		font-weight: 500;
 	}
 `;
 
-const ProjectItem = styled(Button)`
-	width: 100%;
-	padding: 4px;
-	display: flex;
-	justify-content: flex-start;
+const EmptyState = styled.div`
+	padding: 24px 12px;
+	text-align: center;
+	color: #bfbfbf;
+	font-size: 13px;
+`;
 
-	background-color: #ffffff;
-	cursor: pointer;
-
-	&&&:hover {
-		background-color: #d8e1fcbf;
-	}
+const MenuFooter = styled.div`
+	border-top: 1px solid #f0f0f0;
+	padding: 8px 10px;
 `;
 
 interface Props {
@@ -80,44 +110,47 @@ const ProjectsMenu = ({
 
 	return (
 		<ProjectsMenuWrapper>
-			{!viewerMode && (
-				<Button
-					key={'new-project'}
+			<MenuHeader>
+				<Search
+					ref={searchRef}
+					value={searchInput}
+					placeholder="Search projects…"
+					onChange={(e) => setSearchInput(e.target.value)}
+					allowClear
 					size="small"
-					type="primary"
-					onClick={() => newProject()}
-				>
-					{'＋ New Project'}
-				</Button>
-			)}
-
-			<Search
-				ref={searchRef}
-				value={searchInput}
-				placeholder="Search.."
-				onChange={(e) => setSearchInput(e.target.value)}
-				allowClear
-			/>
+				/>
+			</MenuHeader>
 
 			<ProjectItemWrapper>
-				{filteredProjects.map((p) => (
-					<Tooltip
-						key={p.id}
-						mouseEnterDelay={1}
-						title={`${p?.verseId || '-'}. ${p.title}`}
-						placement="left"
-					>
+				{filteredProjects.length === 0 ? (
+					<EmptyState>No projects found</EmptyState>
+				) : (
+					filteredProjects.map((p) => (
 						<ProjectItem
-							size="small"
-							type="text"
+							key={p.id}
 							onClick={() => onClickProjectItem(p)}
 							className={p.id === projectConfig?.id ? 'active-item' : ''}
+							title={`${p?.verseId || '-'}. ${p.title}`}
 						>
-							{p.title}
+							{p.title || <span style={{ color: '#bfbfbf' }}>—untitled—</span>}
 						</ProjectItem>
-					</Tooltip>
-				))}
+					))
+				)}
 			</ProjectItemWrapper>
+
+			{!viewerMode && (
+				<MenuFooter>
+					<Button
+						size="small"
+						type="dashed"
+						icon={<PlusOutlined />}
+						style={{ width: '100%' }}
+						onClick={() => newProject()}
+					>
+						New Project
+					</Button>
+				</MenuFooter>
+			)}
 		</ProjectsMenuWrapper>
 	);
 };

@@ -3,6 +3,7 @@
 import styled from 'styled-components';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Avatar, Button, Popover, Tooltip } from 'antd';
+import { DownOutlined, EditOutlined } from '@ant-design/icons';
 import EditBindingConfiguration from './edit-binding';
 import { ProjectConfig, VideoStatusInfo } from 'types';
 import VideoPage from './video-page';
@@ -10,8 +11,8 @@ import { useProjectStore } from './use-project-store';
 import { YouTubePlayer } from 'react-youtube';
 import PlayerStates from 'youtube-player/dist/constants/PlayerStates';
 import { UploadProjects } from './upload-projects';
-import { ProjectList as ProjectListBtn } from './buttons/projects-list-btn';
 import { Settings as SettingsBtn } from './buttons/settings-btn';
+import { IconBtnMedium } from './buttons/icon-btn';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ProjectsMenu from './projects-menu';
 import { useUserAuth } from 'auth/auth-context';
@@ -57,6 +58,58 @@ const SettingsArea = styled.div`
 	@media (min-width: 961px) {
 		top: 16px;
 		right: 16px;
+	}
+`;
+
+const ProjectTitleDropdown = styled.div`
+	z-index: 3;
+	position: absolute;
+	top: 16px;
+	left: 16px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	cursor: pointer;
+	color: #fff;
+	font-size: 18px;
+	font-weight: 500;
+	padding: 6px 12px 6px 14px;
+	border-radius: 24px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	background: rgba(0, 0, 0, 0.35);
+	backdrop-filter: blur(6px);
+	transition: background 0.15s, border-color 0.15s;
+	max-width: 320px;
+	user-select: none;
+
+	.title-text {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		min-width: 0;
+	}
+
+	.chevron {
+		font-size: 11px;
+		opacity: 0.7;
+		flex-shrink: 0;
+		transition: opacity 0.15s;
+	}
+
+	&:hover {
+		background: rgba(0, 0, 0, 0.55);
+		border-color: rgba(255, 255, 255, 0.4);
+		.chevron {
+			opacity: 1;
+		}
+	}
+
+	@media (min-width: 320px) {
+		display: none;
+	}
+
+	@media (min-width: 961px) {
+		display: flex;
 	}
 `;
 
@@ -207,30 +260,54 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 		<TranslationVisibilityProvider>
 			<Page>
 				<ContentArea>
+					<Popover
+						open={projectMenuVisible}
+						onOpenChange={(state) => setProjectMenuVisible(state)}
+						trigger={['click']}
+						placement="bottomLeft"
+						arrow={false}
+						content={
+							<ProjectsMenu
+								projects={projects}
+								projectConfig={projectConfig}
+								viewerMode={viewerMode}
+								newProject={newProject}
+								onClickProjectItem={onClickProjectItem}
+								open={projectMenuVisible}
+							/>
+						}
+					>
+						<ProjectTitleDropdown>
+							<span className="title-text">
+								{projectConfig?.title || '—untitled—'}
+							</span>
+							<DownOutlined className="chevron" />
+						</ProjectTitleDropdown>
+					</Popover>
+
 					<SettingsArea>
 						{!viewerMode && <UploadProjects loadProjects={loadProjects} />}
-						<Popover
-							open={projectMenuVisible}
-							onOpenChange={(state) => setProjectMenuVisible(state)}
-							trigger={['click']}
-							content={
-								<ProjectsMenu
-									projects={projects}
-									projectConfig={projectConfig}
-									viewerMode={viewerMode}
-									newProject={newProject}
-									onClickProjectItem={onClickProjectItem}
-									open={projectMenuVisible}
-								/>
-							}
-						>
-							<ProjectListBtn />
-						</Popover>
 
 						{!viewerMode && (
 							<Tooltip title="Edit" placement="bottom">
 								<SettingsBtn
 									onClick={() => setSettingsDrawerVisibility(true)}
+								/>
+							</Tooltip>
+						)}
+
+						{viewerMode && user && projectConfig && (
+							<Tooltip title="Edit project" placement="bottom">
+								<IconBtnMedium
+									type="text"
+									icon={<EditOutlined />}
+									onClick={() =>
+										navigate(
+											`/verse-binding/${encodeURIComponent(
+												projectConfig.videoUrl
+											)}`
+										)
+									}
 								/>
 							</Tooltip>
 						)}
