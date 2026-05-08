@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import sanitizeHtml from 'sanitize-html';
 import { Button, Tooltip } from 'antd';
 import { TafsirConfig } from 'types';
-import { isMobile } from 'react-device-detect';
+import { isPhone } from 'utils/device-utils';
 import { VerseTranslationSelector } from './translation-selector';
 import { useTranslationVisibility } from '../../../context/translation-visibility-context';
 
@@ -82,7 +82,7 @@ export const VerseTranslation = ({
 					}}
 				/>
 			)}
-			{isMobile ? (
+			{isPhone ? (
 				tafsirButton
 			) : (
 				<ItemsWrapper>

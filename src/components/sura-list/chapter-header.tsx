@@ -6,7 +6,7 @@ import { capitalizeFirstLetter, verseInfoText } from 'utils/result-utils';
 import SmartBarChart from './smart-bar-chart';
 import useVerseBarRecords from 'data/use-verse-bar-record';
 import { useInView } from 'react-intersection-observer';
-import { isMobile } from 'react-device-detect';
+import { isPhone } from 'utils/device-utils';
 
 const HeaderWrapper = styled.div`
 	font-size: 18px;
@@ -181,7 +181,7 @@ const ChapterHeader = ({
 				</Tooltip>
 			)}
 
-			{isMobile ? (
+			{isPhone ? (
 				chapterInfoBtn
 			) : (
 				<Tooltip title="Chapter details" placement="bottom">

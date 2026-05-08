@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { TafsirConfig, ChapterInfoConfig } from 'types';
 import TafsirByVerse from './tafsir-by-verse';
 import ChapterInfoContent from './chapter-info';
-import { isMobile } from 'react-device-detect';
+import { isPhone } from 'utils/device-utils';
 
 const Drawer = styled(AntDrawer)`
 	&& .ant-drawer-content-wrapper {
@@ -45,7 +45,7 @@ const TafsirDrawer: FC<Props> = ({
 			onClick={(e) => e.stopPropagation()}
 			title={title}
 			placement="right"
-			width={isMobile ? '85%' : '70%'}
+			width={isPhone ? '85%' : '70%'}
 			size={'large'}
 			onClose={onClose}
 			open={Boolean(tafsirConfig) || Boolean(chapterInfoConfig)}

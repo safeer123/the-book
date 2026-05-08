@@ -4,7 +4,7 @@ import { FC, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { TafsirConfig, TafsirItem } from 'types';
 import sanitizeHtml from 'sanitize-html';
-import { isMobile } from 'react-device-detect';
+import { isPhone } from 'utils/device-utils';
 
 const SpinnerWrapper = styled.div`
 	position: absolute;
@@ -100,7 +100,7 @@ const TafsirByVerse: FC<Props> = ({ tafsirConfig }) => {
 	return (
 		<div>
 			<AutoComplete
-				style={{ width: isMobile ? 230 : 400 }}
+				style={{ width: isPhone ? 230 : 400 }}
 				value={getTafsirTitle(tafsirSelected)}
 				options={options}
 				placeholder="Select Tafsir"

@@ -17,7 +17,7 @@ import {
 } from 'data/use-translations';
 import { DEFAULT_TRANSLATION_ID } from 'data/constants';
 import { useEffect, useMemo, useState } from 'react';
-import { isMobile } from 'react-device-detect';
+import { isPhone } from 'utils/device-utils';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { capitalizeObjectKeys } from './utils';
@@ -293,7 +293,7 @@ export const VerseTranslationSelector = ({
 
 	const TPopover = (
 		<Popover trigger={'click'} content={<TranslationSelectionUI />}>
-			{isMobile ? (
+			{isPhone ? (
 				TButton
 			) : (
 				<Tooltip title="Select translation" placement="bottom">

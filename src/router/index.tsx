@@ -10,7 +10,9 @@ import ProtectedRoutes from './protected-routes';
 import SignOutPage from 'components/auth/logout';
 import { Playground } from 'components/playground';
 import EditProjects from 'components/edit-projects';
+import MobileQBind from 'components/mobile-qbind';
 import { styled } from 'styled-components';
+import { isPhone } from 'utils/device-utils';
 
 const HomeWrapper = styled.div`
 	display: flex;
@@ -20,7 +22,7 @@ const HomeWrapper = styled.div`
 	position: absolute;
 `;
 
-const home = (
+const HomePage = () => (
 	<HomeWrapper>
 		<div>
 			<Link to="/suras">Search in The Book</Link>
@@ -31,6 +33,11 @@ const home = (
 		<div>
 			<Link to="/qbind">Recitation-to-verse Player</Link>
 		</div>
+		{isPhone && (
+			<div>
+				<Link to="/mqbind">📱 Mobile Quran Player</Link>
+			</div>
+		)}
 		<div>
 			<Link to="/edit-projects">Project Manager</Link>
 		</div>
@@ -60,7 +67,7 @@ const router = createBrowserRouter([
 		children: [
 			{
 				path: '/',
-				element: home,
+				element: <HomePage />,
 			},
 			{
 				path: 'dev',
@@ -116,6 +123,14 @@ const router = createBrowserRouter([
 	{
 		path: 'qbind/:pid',
 		element: <VideoTextBinding viewerMode />,
+	},
+	{
+		path: 'mqbind',
+		element: <MobileQBind />,
+	},
+	{
+		path: 'mqbind/:pid',
+		element: <MobileQBind />,
 	},
 	{
 		path: 'word-game',

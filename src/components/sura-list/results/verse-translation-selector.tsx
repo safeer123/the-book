@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Tooltip, Popover } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
-import { isMobile } from 'react-device-detect';
+import { isPhone } from 'utils/device-utils';
 import { useTranslationVisibility } from '../../../context/translation-visibility-context';
 import CurrentVerseTranslationText from './current-verse-translation-text';
 import TranslationSelectionUI from './translation-selection-ui';
@@ -40,7 +40,7 @@ const VerseTranslationSelector = ({
 
 	const TPopover = (
 		<Popover trigger={'click'} content={<TranslationSelectionUI />}>
-			{isMobile ? (
+			{isPhone ? (
 				TButton
 			) : (
 				<Tooltip title="Select translation" placement="bottom">
@@ -57,7 +57,7 @@ const VerseTranslationSelector = ({
 				<CurrentVerseTranslationText trText={trText} searchKey={searchKey} />
 			}
 		>
-			{isMobile ? (
+			{isPhone ? (
 				IButton
 			) : (
 				<Tooltip title="Current Translation" placement="bottom">
