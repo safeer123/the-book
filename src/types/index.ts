@@ -87,6 +87,7 @@ export interface ProjectConfig {
 	videoUrl: string;
 	bindingConfig: VerseBindingElement[];
 	verseId?: number;
+	duration?: number;
 }
 
 export interface VideoStatusInfo {

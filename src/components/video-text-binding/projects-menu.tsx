@@ -2,10 +2,12 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import styled from 'styled-components';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Input } from 'antd';
+import { Button, Input, Tooltip } from 'antd';
 import type { InputRef } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { ProjectConfig } from 'types';
+import { useChapters } from 'data/use-chapters';
+import { formatDuration } from './utils';
 
 const { Search } = Input;
 
@@ -93,6 +95,7 @@ const ProjectsMenu = ({
 }: Props) => {
 	const [searchInput, setSearchInput] = useState('');
 	const searchRef = useRef<InputRef>(null);
+	const { data: chaptersData } = useChapters();
 
 	useEffect(() => {
 		if (open) {
@@ -125,16 +128,56 @@ const ProjectsMenu = ({
 				{filteredProjects.length === 0 ? (
 					<EmptyState>No projects found</EmptyState>
 				) : (
-					filteredProjects.map((p) => (
-						<ProjectItem
-							key={p.id}
-							onClick={() => onClickProjectItem(p)}
-							className={p.id === projectConfig?.id ? 'active-item' : ''}
-							title={`${p?.verseId || '-'}. ${p.title}`}
-						>
-							{p.title || <span style={{ color: '#bfbfbf' }}>—untitled—</span>}
-						</ProjectItem>
-					))
+					filteredProjects.map((p) => {
+						const chapter =
+							p.verseId && chaptersData?.suraByKey
+								? chaptersData.suraByKey[p.verseId]
+								: undefined;
+						const tooltipContent = chapter ? (
+							<div style={{ lineHeight: 1.6 }}>
+								<div style={{ fontWeight: 600, fontSize: 13 }}>
+									{chapter.name_simple}{' '}
+									<span
+										style={{
+											fontWeight: 400,
+											color: 'rgba(255,255,255,0.75)',
+											fontSize: 14,
+											fontFamily: 'serif',
+										}}
+									>
+										{chapter.name_arabic}
+									</span>
+								</div>
+								<div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)' }}>
+									#{chapter.id} · {chapter.translated_name.name} ·{' '}
+									{chapter.verses_count} verses ·{' '}
+									{chapter.revelation_place === 'makkah' ? 'Makkah' : 'Madinah'}
+									{p.duration ? ` · ⏱ ${formatDuration(p.duration)}` : ''}
+								</div>
+							</div>
+						) : p.duration ? (
+							<span style={{ fontSize: 11 }}>
+								⏱ {formatDuration(p.duration)}
+							</span>
+						) : undefined;
+						return (
+							<Tooltip
+								key={p.id}
+								title={tooltipContent}
+								placement="right"
+								mouseEnterDelay={0.4}
+							>
+								<ProjectItem
+									onClick={() => onClickProjectItem(p)}
+									className={p.id === projectConfig?.id ? 'active-item' : ''}
+								>
+									{p.title || (
+										<span style={{ color: '#bfbfbf' }}>—untitled—</span>
+									)}
+								</ProjectItem>
+							</Tooltip>
+						);
+					})
 				)}
 			</ProjectItemWrapper>
 

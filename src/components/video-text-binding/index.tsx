@@ -375,9 +375,13 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 						projectConfig={projectConfig}
 						setProjectConfig={setProjectConfig}
 						currentTime={currentTime}
+						videoDuration={videoStatus?.duration}
 						saveProject={async () => {
 							if (projectConfig) {
-								return saveProject(projectConfig);
+								return saveProject({
+									...projectConfig,
+									duration: videoStatus?.duration,
+								});
 							}
 						}}
 						deleteProject={async () => {

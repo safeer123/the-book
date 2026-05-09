@@ -49,6 +49,7 @@ interface Props {
 	projectConfig?: ProjectConfig;
 	setProjectConfig: (conf: ProjectConfig) => void;
 	currentTime: number;
+	videoDuration?: number;
 	saveProject: () => Promise<void>;
 	deleteProject: () => Promise<void>;
 	downloadAsJson: () => void;
@@ -63,6 +64,7 @@ const EditBindingConfiguration: FC<Props> = ({
 	projectConfig,
 	setProjectConfig,
 	currentTime,
+	videoDuration,
 	saveProject,
 	deleteProject,
 	downloadAsJson,
@@ -256,6 +258,31 @@ const EditBindingConfiguration: FC<Props> = ({
 								/>
 							</InputGroup>
 						</InputItem>
+						{!!videoDuration && (
+							<div
+								style={{
+									textAlign: 'right',
+									fontSize: 11,
+									color: 'rgba(0,0,0,0.5)',
+									marginTop: -10,
+									paddingRight: 2,
+									fontVariantNumeric: 'tabular-nums',
+									fontFamily: 'monospace',
+									letterSpacing: '0.2px',
+								}}
+							>
+								{(() => {
+									const h = Math.floor(videoDuration / 3600);
+									const m = Math.floor((videoDuration % 3600) / 60);
+									const s = Math.floor(videoDuration % 60);
+									const parts: string[] = [];
+									if (h > 0) parts.push(`${h}h`);
+									if (m > 0) parts.push(`${m}m`);
+									if (s > 0) parts.push(`${s}s`);
+									return `Duration ${parts.length ? parts.join(' ') : '0s'}`;
+								})()}
+							</div>
+						)}
 					</ProjectDetailsArea>
 					{!!projectConfig?.videoUrl && (
 						<>

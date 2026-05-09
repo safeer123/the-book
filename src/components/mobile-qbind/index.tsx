@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import styled, { keyframes } from 'styled-components';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Drawer, Slider, Spin } from 'antd';
+import { Button, Drawer, Select, Slider, Spin } from 'antd';
 import {
 	MenuOutlined,
 	StepBackwardOutlined,
@@ -124,22 +124,55 @@ const ProjectButton = styled.button`
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	max-width: 180px;
-	flex-shrink: 0;
+	flex: 0 0 50%;
 
 	&:active {
 		background: rgba(255, 255, 255, 0.12);
 	}
 `;
 
-const VerseKeyBadge = styled.div`
-	flex: 1;
-	text-align: center;
-	color: #7a6fa8;
-	font-size: 12px;
-	font-variant-numeric: tabular-nums;
-	font-family: monospace;
-	letter-spacing: 0.04em;
+const VerseSelect = styled(Select)`
+	&& {
+		flex: 1;
+		height: 46px;
+
+		.ant-select-selector {
+			background: transparent !important;
+			border: none !important;
+			box-shadow: none !important;
+			padding: 0 4px !important;
+			height: 100% !important;
+			display: flex !important;
+			align-items: center !important;
+		}
+
+		.ant-select-selection-item {
+			color: #7a6fa8 !important;
+			font-size: 12px !important;
+			font-family: monospace !important;
+			letter-spacing: 0.04em !important;
+			font-variant-numeric: tabular-nums !important;
+			line-height: 1 !important;
+			text-align: center;
+			padding-right: 0 !important;
+			display: flex !important;
+			align-items: center !important;
+			justify-content: center !important;
+		}
+
+		.ant-select-arrow {
+			color: #4a4368 !important;
+			font-size: 9px !important;
+			right: calc(50% - 28px);
+			top: 50% !important;
+			transform: translateY(-50%) !important;
+			margin-top: 0 !important;
+		}
+
+		&:hover .ant-select-selector {
+			background: rgba(255, 255, 255, 0.04) !important;
+		}
+	}
 `;
 
 const TopActions = styled.div`
@@ -166,6 +199,10 @@ const TopBtn = styled(Button)`
 			background: rgba(156, 142, 224, 0.12);
 			color: #b8aaee;
 		}
+
+		.anticon {
+			font-size: 18px;
+		}
 	}
 `;
 
@@ -177,6 +214,7 @@ const ContentRow = styled.div`
 	flex-direction: row;
 	overflow: hidden;
 	min-height: 0;
+	padding-right: 3.5rem;
 `;
 
 const ArabicPanel = styled.div`
@@ -192,31 +230,22 @@ const ArabicPanel = styled.div`
 
 const ArabicScroll = styled.div`
 	flex: 1;
-	overflow-y: auto;
+	overflow: hidden;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-
-	&::-webkit-scrollbar {
-		width: 3px;
-	}
-	&::-webkit-scrollbar-track {
-		background: transparent;
-	}
-	&::-webkit-scrollbar-thumb {
-		background: rgba(156, 142, 224, 0.35);
-		border-radius: 2px;
-	}
+	min-height: 0;
 `;
 
 const ArabicText = styled.div`
 	direction: rtl;
 	font-family: 'Amiri Quran', 'Scheherazade New', serif;
-	font-size: clamp(1.1em, 3.2vw, 1.6em);
+	font-size: 26px;
 	line-height: 1.9;
 	color: #e8d9c0;
 	text-align: center;
 	animation: ${fadeIn} 0.35s ease;
+	width: 100%;
 `;
 
 const TranslationPanel = styled.div`
@@ -225,28 +254,34 @@ const TranslationPanel = styled.div`
 	flex-direction: column;
 	padding: 16px 16px 12px 12px;
 	min-height: 0;
+	min-width: 0;
+	overflow: hidden;
 	cursor: pointer;
 	-webkit-tap-highlight-color: transparent;
 `;
 
 const TranslationScroll = styled.div`
 	flex: 1;
-	overflow-y: auto;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 	color: #b0a8c8;
-	font-size: clamp(0.8em, 2.4vw, 1em);
+	font-size: 17px;
 	line-height: 1.65;
 	animation: ${fadeIn} 0.35s ease;
+	word-break: break-word;
+	overflow-wrap: break-word;
+	min-height: 0;
 
-	/* Custom scrollbar */
-	&::-webkit-scrollbar {
-		width: 3px;
+	> p,
+	> div {
+		display: block;
+		width: 100%;
 	}
-	&::-webkit-scrollbar-track {
-		background: transparent;
-	}
-	&::-webkit-scrollbar-thumb {
-		background: rgba(156, 142, 224, 0.35);
-		border-radius: 2px;
+
+	sup {
+		display: none;
 	}
 `;
 
@@ -296,6 +331,10 @@ const CtrlBtn = styled(Button)`
 			border-color: rgba(255, 255, 255, 0.05) !important;
 			color: #2e2a40 !important;
 		}
+
+		.anticon {
+			font-size: 24px;
+		}
 	}
 `;
 
@@ -305,16 +344,30 @@ const PlayBtn = styled(Button)`
 		border: none;
 		border-radius: 50%;
 		color: #fff;
-		font-size: 26px;
+		font-size: 30px;
 		width: 52px;
 		height: 52px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		padding: 0;
+		line-height: 1;
 		flex-shrink: 0;
 		box-shadow: 0 4px 16px rgba(124, 111, 212, 0.45);
 		transition: transform 0.1s ease, box-shadow 0.1s ease;
+
+		> .anticon,
+		> span {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			line-height: 0;
+			font-size: inherit;
+		}
+
+		.anticon {
+			font-size: 24px;
+		}
 
 		&:hover,
 		&:focus {
@@ -436,6 +489,9 @@ const MobileQBind = () => {
 
 	const playerRef = useRef<YouTubePlayer | null>(null);
 	const pidAppliedRef = useRef<string | undefined>(undefined);
+	const arabicScrollRef = useRef<HTMLDivElement>(null);
+	const arabicTextRef = useRef<HTMLDivElement>(null);
+	const translationScrollRef = useRef<HTMLDivElement>(null);
 
 	const { pid } = useParams();
 	const navigate = useNavigate();
@@ -536,6 +592,50 @@ const MobileQBind = () => {
 		return () => clearInterval(timer);
 	}, []);
 
+	// Auto font-size: shrink until content fits the container without scroll
+	useEffect(() => {
+		const fit = (
+			scroll: HTMLDivElement | null,
+			text: HTMLDivElement | null,
+			maxPx: number,
+			minPx: number
+		) => {
+			if (!scroll || !text) return;
+			let size = maxPx;
+			text.style.fontSize = `${size}px`;
+			while (scroll.scrollHeight > scroll.clientHeight + 1 && size > minPx) {
+				size -= 0.5;
+				text.style.fontSize = `${size}px`;
+			}
+		};
+		fit(arabicScrollRef.current, arabicTextRef.current, 26, 12);
+		fit(translationScrollRef.current, translationScrollRef.current, 17, 10);
+	}, [verse?.verse_key]);
+
+	const verseOptions = useMemo(
+		() =>
+			(projectConfig?.bindingConfig || []).map((b, i) => ({
+				value: i,
+				label: b.k.split(',')[0],
+			})),
+		[projectConfig?.bindingConfig]
+	);
+
+	const currentBindingIndex = useMemo(() => {
+		if (!verse) return undefined;
+		return projectConfig?.bindingConfig.findIndex((b) =>
+			b.k.split(',').includes(verse.verse_key)
+		);
+	}, [verse, projectConfig?.bindingConfig]);
+
+	const onSelectVerse = useCallback(
+		(idx: number) => {
+			const binding = projectConfig?.bindingConfig[idx];
+			if (binding) playerRef.current?.seekTo(binding.t, true);
+		},
+		[projectConfig?.bindingConfig]
+	);
+
 	const handleStateChange: YouTubeProps['onStateChange'] = (
 		e: YouTubeEvent<number>
 	) => {
@@ -595,7 +695,19 @@ const MobileQBind = () => {
 						</span>
 					</ProjectButton>
 
-					<VerseKeyBadge>{verse?.verse_key || '—'}</VerseKeyBadge>
+					<VerseSelect
+						options={verseOptions}
+						value={
+							currentBindingIndex !== undefined && currentBindingIndex >= 0
+								? currentBindingIndex
+								: undefined
+						}
+						placeholder="—"
+						onChange={(v) => onSelectVerse(v as number)}
+						popupMatchSelectWidth={false}
+						variant="borderless"
+						size="small"
+					/>
 
 					<TopActions>
 						<TopBtn
@@ -617,9 +729,9 @@ const MobileQBind = () => {
 				{/* Main content: Arabic | Translation */}
 				<ContentRow>
 					<ArabicPanel onClick={playPause}>
-						<ArabicScroll>
+						<ArabicScroll ref={arabicScrollRef}>
 							{verse ? (
-								<ArabicText key={verse.verse_key}>
+								<ArabicText key={verse.verse_key} ref={arabicTextRef}>
 									{verse.text_uthmani}
 								</ArabicText>
 							) : (
@@ -641,6 +753,7 @@ const MobileQBind = () => {
 					<TranslationPanel onClick={playPause}>
 						{verse?.translation ? (
 							<TranslationScroll
+								ref={translationScrollRef}
 								key={verse.verse_key}
 								dangerouslySetInnerHTML={{
 									__html: sanitizeHtml(verse.translation),
