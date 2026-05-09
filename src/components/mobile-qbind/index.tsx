@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import styled, { keyframes } from 'styled-components';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Drawer, Select, Slider, Spin } from 'antd';
+import { Button, Drawer, Slider, Spin } from 'antd';
 import {
 	MenuOutlined,
 	StepBackwardOutlined,
@@ -11,6 +11,7 @@ import {
 	PauseCircleOutlined,
 	BookOutlined,
 	TranslationOutlined,
+	DownOutlined,
 } from '@ant-design/icons';
 import YouTube, {
 	YouTubeEvent,
@@ -131,47 +132,57 @@ const ProjectButton = styled.button`
 	}
 `;
 
-const VerseSelect = styled(Select)`
-	&& {
-		flex: 1;
-		height: 46px;
+const VerseButton = styled.button`
+	flex: 1;
+	background: transparent;
+	border: none;
+	color: #7a6fa8;
+	font-size: 12px;
+	font-family: monospace;
+	letter-spacing: 0.04em;
+	font-variant-numeric: tabular-nums;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+	cursor: pointer;
+	height: 46px;
+	padding: 0;
 
-		.ant-select-selector {
-			background: transparent !important;
-			border: none !important;
-			box-shadow: none !important;
-			padding: 0 4px !important;
-			height: 100% !important;
-			display: flex !important;
-			align-items: center !important;
-		}
+	.anticon {
+		font-size: 9px;
+		color: #4a4368;
+	}
 
-		.ant-select-selection-item {
-			color: #7a6fa8 !important;
-			font-size: 12px !important;
-			font-family: monospace !important;
-			letter-spacing: 0.04em !important;
-			font-variant-numeric: tabular-nums !important;
-			line-height: 1 !important;
-			text-align: center;
-			padding-right: 0 !important;
-			display: flex !important;
-			align-items: center !important;
-			justify-content: center !important;
-		}
+	&:active {
+		background: rgba(255, 255, 255, 0.04);
+	}
+`;
 
-		.ant-select-arrow {
-			color: #4a4368 !important;
-			font-size: 9px !important;
-			right: calc(50% - 28px);
-			top: 50% !important;
-			transform: translateY(-50%) !important;
-			margin-top: 0 !important;
-		}
+const VerseList = styled.div`
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto;
+`;
 
-		&:hover .ant-select-selector {
-			background: rgba(255, 255, 255, 0.04) !important;
-		}
+const VerseItem = styled.button<{ $active: boolean }>`
+	background: ${({ $active }) =>
+		$active ? 'rgba(156, 142, 224, 0.18)' : 'transparent'};
+	border: none;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+	color: ${({ $active }) => ($active ? '#c4b8f0' : '#9c94b8')};
+	font-family: monospace;
+	font-size: 15px;
+	font-variant-numeric: tabular-nums;
+	padding: 14px 20px;
+	text-align: left;
+	cursor: pointer;
+	width: 100%;
+	letter-spacing: 0.04em;
+	flex-shrink: 0;
+
+	&:active {
+		background: rgba(156, 142, 224, 0.12);
 	}
 `;
 
@@ -480,6 +491,7 @@ const MobileQBind = () => {
 	);
 	const [projectMenuOpen, setProjectMenuOpen] = useState(false);
 	const [translationMenuOpen, setTranslationMenuOpen] = useState(false);
+	const [verseDrawerOpen, setVerseDrawerOpen] = useState(false);
 	const [tafsirConfig, setTafsirConfig] = useState<TafsirConfig | undefined>();
 	const [currentTime, setCurrentTime] = useState(0);
 	const [videoStatus, setVideoStatus] = useState<VideoStatusInfo | undefined>();
@@ -632,6 +644,7 @@ const MobileQBind = () => {
 		(idx: number) => {
 			const binding = projectConfig?.bindingConfig[idx];
 			if (binding) playerRef.current?.seekTo(binding.t, true);
+			setVerseDrawerOpen(false);
 		},
 		[projectConfig?.bindingConfig]
 	);
@@ -695,19 +708,12 @@ const MobileQBind = () => {
 						</span>
 					</ProjectButton>
 
-					<VerseSelect
-						options={verseOptions}
-						value={
-							currentBindingIndex !== undefined && currentBindingIndex >= 0
-								? currentBindingIndex
-								: undefined
-						}
-						placeholder="—"
-						onChange={(v) => onSelectVerse(v as number)}
-						popupMatchSelectWidth={false}
-						variant="borderless"
-						size="small"
-					/>
+					<VerseButton onClick={() => setVerseDrawerOpen(true)}>
+						{currentBindingIndex !== undefined && currentBindingIndex >= 0
+							? verseOptions[currentBindingIndex]?.label
+							: '—'}
+						<DownOutlined />
+					</VerseButton>
 
 					<TopActions>
 						<TopBtn
@@ -803,6 +809,45 @@ const MobileQBind = () => {
 						{formatDuration(videoStatus?.duration || 0)}
 					</TimeLabel>
 				</ControlsBar>
+
+				{/* Verse selector */}
+				<Drawer
+					placement="bottom"
+					height="auto"
+					style={{ maxHeight: '75vh' }}
+					styles={{
+						header: {
+							background: '#14112b',
+							borderBottom: '1px solid rgba(255,255,255,0.08)',
+						},
+						body: { background: '#14112b', padding: 0 },
+					}}
+					title={
+						<span style={{ color: '#c8c0e0', fontSize: 14 }}>
+							Jump to Verse
+						</span>
+					}
+					open={verseDrawerOpen}
+					onClose={() => setVerseDrawerOpen(false)}
+					closable
+				>
+					<VerseList>
+						{verseOptions.map((opt) => (
+							<VerseItem
+								key={opt.value}
+								$active={opt.value === currentBindingIndex}
+								id={
+									opt.value === currentBindingIndex
+										? 'verse-item-active'
+										: undefined
+								}
+								onClick={() => onSelectVerse(opt.value)}
+							>
+								{opt.label}
+							</VerseItem>
+						))}
+					</VerseList>
+				</Drawer>
 
 				{/* Project selector */}
 				<Drawer
