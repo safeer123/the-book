@@ -762,16 +762,30 @@ const EditProjects: FC = () => {
 			dataIndex: 'videoUrl',
 			key: 'videoUrl',
 			width: '46%',
-			render: (url: string, record) => (
-				<CellInput
-					value={url}
-					onChange={(e) =>
-						updateProject(record.id, { videoUrl: e.target.value })
-					}
-					onKeyDown={(e) => e.stopPropagation()}
-					size="small"
-				/>
-			),
+			render: (url: string, record) => {
+				const duplicate = url
+					? projects.find((p) => p.videoUrl === url && p.id !== record.id)
+					: undefined;
+				return (
+					<Tooltip
+						title={
+							duplicate ? `Already used by "${duplicate.title}"` : undefined
+						}
+						color="#ff4d4f"
+						open={!!duplicate || undefined}
+					>
+						<CellInput
+							value={url}
+							onChange={(e) =>
+								updateProject(record.id, { videoUrl: e.target.value })
+							}
+							onKeyDown={(e) => e.stopPropagation()}
+							size="small"
+							status={duplicate ? 'error' : undefined}
+						/>
+					</Tooltip>
+				);
+			},
 		},
 		{
 			title: 'Bindings',

@@ -172,9 +172,9 @@ const VerseItem = styled.button<{ $active: boolean }>`
 	border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 	color: ${({ $active }) => ($active ? '#c4b8f0' : '#9c94b8')};
 	font-family: monospace;
-	font-size: 15px;
+	font-size: 12px;
 	font-variant-numeric: tabular-nums;
-	padding: 14px 20px;
+	padding: 8px 16px;
 	text-align: left;
 	cursor: pointer;
 	width: 100%;
@@ -471,6 +471,22 @@ const DrawerContent = styled.div`
 	}
 `;
 
+// ─── Compact wrapper for shared drawer components ────────────────────────────
+
+const CompactDrawerContent = styled.div`
+	/* Tafsir — double specificity beats styled-components media queries */
+	&& div {
+		font-size: 13px;
+	}
+	&& h1,
+	&& h2 {
+		font-size: 15px;
+	}
+	.ant-select {
+		font-size: 12px;
+	}
+`;
+
 // ─── Hidden YouTube player ────────────────────────────────────────────────────
 
 const HiddenPlayer = styled.div`
@@ -594,6 +610,18 @@ const MobileQBind = () => {
 			onClickProject(random);
 		}
 	}, [projects]);
+
+	// Pause when any drawer/layer is open
+	useEffect(() => {
+		const anyOpen =
+			projectMenuOpen ||
+			translationMenuOpen ||
+			verseDrawerOpen ||
+			Boolean(tafsirConfig);
+		if (anyOpen) {
+			playerRef.current?.pauseVideo();
+		}
+	}, [projectMenuOpen, translationMenuOpen, verseDrawerOpen, tafsirConfig]);
 
 	// Poll current time
 	useEffect(() => {
@@ -893,7 +921,7 @@ const MobileQBind = () => {
 							background: '#14112b',
 							borderBottom: '1px solid rgba(255,255,255,0.08)',
 						},
-						body: { padding: 0 },
+						body: { padding: 0, overflowY: 'auto' },
 					}}
 					title={
 						<span style={{ color: '#c8c0e0', fontSize: 14 }}>
@@ -904,7 +932,7 @@ const MobileQBind = () => {
 					onClose={() => setTranslationMenuOpen(false)}
 					closable
 				>
-					<TranslationSelectionUI />
+					<TranslationSelectionUI compact />
 				</Drawer>
 
 				{/* Tafsir */}
@@ -928,7 +956,9 @@ const MobileQBind = () => {
 					onClose={() => setTafsirConfig(undefined)}
 					closable
 				>
-					<TafsirByVerse tafsirConfig={tafsirConfig} />
+					<CompactDrawerContent>
+						<TafsirByVerse tafsirConfig={tafsirConfig} />
+					</CompactDrawerContent>
 				</Drawer>
 			</Page>
 		</TranslationVisibilityProvider>

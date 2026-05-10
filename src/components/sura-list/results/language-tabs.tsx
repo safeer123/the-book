@@ -42,11 +42,58 @@ const TabPaneContent = styled.div`
 	}
 `;
 
+// ─── Compact-mode styles ──────────────────────────────────────────────────────
+
+const CompactWrapper = styled.div`
+	display: flex;
+	flex-direction: column;
+`;
+
+const CompactTopBar = styled.div`
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 12px;
+	background: #fff;
+	border-bottom: 1px solid #f0f0f0;
+	flex-wrap: nowrap;
+`;
+
+const CompactTabPaneContent = styled.div`
+	overflow-y: auto;
+
+	.tr-item-title {
+		font-size: 13px;
+	}
+
+	.tr-item-subtitle {
+		font-size: 11px;
+	}
+`;
+
+const CompactTabs = styled(Tabs)`
+	.ant-tabs-tab {
+		padding: 6px 8px 6px 12px !important;
+		font-size: 12px !important;
+	}
+`;
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 type LanguagesProps = {
 	data: TranslationData['translationsByLang'];
+	compact?: boolean;
+	extraTopBarContent?: React.ReactNode;
 };
 
-const LanguageTabs = ({ data }: LanguagesProps) => {
+const LanguageTabs = ({
+	data,
+	compact,
+	extraTopBarContent,
+}: LanguagesProps) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [activeKey, setActiveKey] = useState('');
 	const [filteredData, setFilteredData] = useState<
@@ -99,17 +146,28 @@ const LanguageTabs = ({ data }: LanguagesProps) => {
 
 	if (!filteredData) return <></>;
 
-	return (
+	const tabPanes = (
 		<>
-			<Tabs
-				onTabClick={(key) => setActiveKey(key)}
-				tabPosition="left"
-				style={{ height: 300 }}
-				tabBarStyle={{ width: 200 }}
-				activeKey={activeKey}
-			>
-				{Object.keys(filteredData).map((language) => (
-					<TabPane tab={language} key={language}>
+			{Object.keys(filteredData).map((language) => (
+				<TabPane tab={language} key={language}>
+					{compact ? (
+						<CompactTabPaneContent>
+							{filteredData[language].map((item, index) => (
+								<StyledCard
+									$selected={item.id === selectedTrId}
+									size="small"
+									key={index}
+									hoverable
+									onClick={() => onClickTranslationItem(item)}
+								>
+									<div className="tr-item-title">{item.name}</div>
+									<div className="tr-item-subtitle">
+										Author: {item.author_name}
+									</div>
+								</StyledCard>
+							))}
+						</CompactTabPaneContent>
+					) : (
 						<TabPaneContent>
 							{filteredData[language].map((item, index) => (
 								<StyledCard
@@ -126,11 +184,69 @@ const LanguageTabs = ({ data }: LanguagesProps) => {
 								</StyledCard>
 							))}
 						</TabPaneContent>
-					</TabPane>
-				))}
+					)}
+				</TabPane>
+			))}
+			{compact ? (
+				<TabPane tab={''} key={''}>
+					<CompactTabPaneContent />
+				</TabPane>
+			) : (
 				<TabPane tab={''} key={''}>
 					<TabPaneContent />
 				</TabPane>
+			)}
+		</>
+	);
+
+	if (compact) {
+		return (
+			<CompactWrapper>
+				<CompactTopBar>
+					<Search
+						placeholder="Language..."
+						onChange={onSearch}
+						size="small"
+						style={{ flex: 1, maxWidth: 180 }}
+					/>
+					{topHitTranslations.map((item) => (
+						<Tooltip
+							title={`${item.name} (${item.language_name})`}
+							key={item.id}
+						>
+							<StyledTrButton
+								size="small"
+								onClick={() => onClickTranslationItem(item)}
+								disabled={item.id === selectedTrId}
+							>
+								{item.language_name?.[0]?.toUpperCase()}
+							</StyledTrButton>
+						</Tooltip>
+					))}
+					{extraTopBarContent}
+				</CompactTopBar>
+				<CompactTabs
+					onTabClick={(key) => setActiveKey(key)}
+					tabPosition="left"
+					tabBarStyle={{ width: 140 }}
+					activeKey={activeKey}
+				>
+					{tabPanes}
+				</CompactTabs>
+			</CompactWrapper>
+		);
+	}
+
+	return (
+		<>
+			<Tabs
+				onTabClick={(key) => setActiveKey(key)}
+				tabPosition="left"
+				style={{ height: 300 }}
+				tabBarStyle={{ width: 200 }}
+				activeKey={activeKey}
+			>
+				{tabPanes}
 			</Tabs>
 			<FooterItems>
 				<Search

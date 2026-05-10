@@ -80,20 +80,13 @@ const EditBindingConfiguration: FC<Props> = ({
 	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 	const [deleteLoading, setDeleteLoading] = useState(false);
 	const [titleBuilderOpen, setTitleBuilderOpen] = useState(false);
+	const [urlError, setUrlError] = useState<string | undefined>();
 
 	const verseBindSaveEnabled = useVerseBindSaveEnabled();
 	const { data: chaptersData } = useChapters();
 
 	const { bindingConfig = [] } = projectConfig || {};
 
-	const fullSurah = isFullSurah(projectConfig?.title);
-	const versesCount =
-		fullSurah && projectConfig?.verseId
-			? chaptersData?.suraByKey[projectConfig.verseId]?.verses_count
-			: undefined;
-	const bindingPct = versesCount
-		? Math.min(100, Math.round((bindingConfig.length / versesCount) * 100))
-		: 0;
 	const [chapter, verse] = useMemo(() => {
 		if (projectConfig?.bindingConfig) {
 			let i = 1;
@@ -109,6 +102,16 @@ const EditBindingConfiguration: FC<Props> = ({
 		}
 		return ['1', '1'];
 	}, [projectConfig?.bindingConfig]);
+
+	const fullSurah = isFullSurah(projectConfig?.title);
+	const derivedChapterNum = chapter ? Number(chapter) : undefined;
+	const versesCount =
+		fullSurah && derivedChapterNum
+			? chaptersData?.suraByKey[derivedChapterNum]?.verses_count
+			: undefined;
+	const bindingPct = versesCount
+		? Math.min(100, Math.round((bindingConfig.length / versesCount) * 100))
+		: 0;
 
 	const setBindingConfig = (bindingConf: VerseBindingElement[]) => {
 		setProjectConfig({
@@ -151,9 +154,14 @@ const EditBindingConfiguration: FC<Props> = ({
 	};
 
 	const onChangeURL = (e: ChangeEvent<HTMLInputElement>) => {
+		const newUrl = e.target.value;
+		const duplicate = projects.find(
+			(p) => p.videoUrl === newUrl && p.id !== projectConfig?.id
+		);
+		setUrlError(duplicate ? `Already used by "${duplicate.title}"` : undefined);
 		setProjectConfig({
 			...projectConfig,
-			videoUrl: e.target.value,
+			videoUrl: newUrl,
 		} as ProjectConfig);
 	};
 
@@ -255,9 +263,23 @@ const EditBindingConfiguration: FC<Props> = ({
 									value={projectConfig?.videoUrl}
 									onChange={onChangeURL}
 									onKeyDown={(e) => e.stopPropagation()}
+									status={urlError ? 'error' : undefined}
 								/>
 							</InputGroup>
 						</InputItem>
+						{urlError && (
+							<div
+								style={{
+									color: '#ff4d4f',
+									fontSize: 12,
+									marginTop: -8,
+									paddingLeft: 52,
+									lineHeight: 1.4,
+								}}
+							>
+								{urlError}
+							</div>
+						)}
 						{!!videoDuration && (
 							<div
 								style={{
