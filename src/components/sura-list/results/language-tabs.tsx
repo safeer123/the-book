@@ -64,13 +64,31 @@ const CompactTopBar = styled.div`
 
 const CompactTabPaneContent = styled.div`
 	overflow-y: auto;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	padding: 6px;
+`;
+
+const CompactCard = styled(Card)<{ $selected: boolean }>`
+	background-color: ${({ $selected }) =>
+		$selected ? 'rgba(52, 84, 244, 0.149)' : '#FFF'};
+	cursor: pointer;
+
+	.ant-card-body {
+		padding: 4px 8px !important;
+	}
 
 	.tr-item-title {
-		font-size: 13px;
+		font-size: 11px;
+		font-weight: 500;
+		line-height: 1.3;
 	}
 
 	.tr-item-subtitle {
-		font-size: 11px;
+		font-size: 10px;
+		color: rgba(0, 0, 0, 0.45);
+		line-height: 1.3;
 	}
 `;
 
@@ -153,7 +171,7 @@ const LanguageTabs = ({
 					{compact ? (
 						<CompactTabPaneContent>
 							{filteredData[language].map((item, index) => (
-								<StyledCard
+								<CompactCard
 									$selected={item.id === selectedTrId}
 									size="small"
 									key={index}
@@ -161,10 +179,8 @@ const LanguageTabs = ({
 									onClick={() => onClickTranslationItem(item)}
 								>
 									<div className="tr-item-title">{item.name}</div>
-									<div className="tr-item-subtitle">
-										Author: {item.author_name}
-									</div>
-								</StyledCard>
+									<div className="tr-item-subtitle">{item.author_name}</div>
+								</CompactCard>
 							))}
 						</CompactTabPaneContent>
 					) : (
@@ -189,7 +205,7 @@ const LanguageTabs = ({
 			))}
 			{compact ? (
 				<TabPane tab={''} key={''}>
-					<CompactTabPaneContent />
+					<CompactTabPaneContent style={{ padding: 0 }} />
 				</TabPane>
 			) : (
 				<TabPane tab={''} key={''}>
