@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { Button, Space, Input, Modal } from 'antd';
+import { Button, Space, Input, Modal, Tooltip } from 'antd';
 import {
+	CaretRightOutlined,
 	CheckOutlined,
 	CloseOutlined,
+	CopyOutlined,
 	DeleteOutlined,
+	DownloadOutlined,
 	ExclamationOutlined,
 	LoadingOutlined,
 	PlusCircleOutlined,
@@ -34,6 +37,7 @@ import {
 	InputLabel,
 	BindingItem,
 	BindingListContainer,
+	BindingListHeader,
 	BindingProgressBar,
 	BindingListItems,
 	ActionArea,
@@ -56,6 +60,7 @@ interface Props {
 	copyToClipboard: () => Promise<void>;
 	hasUnsavedChanges: boolean;
 	projects: ProjectConfig[];
+	seekTo: (t: number) => void;
 }
 
 const EditBindingConfiguration: FC<Props> = ({
@@ -71,9 +76,11 @@ const EditBindingConfiguration: FC<Props> = ({
 	copyToClipboard,
 	hasUnsavedChanges,
 	projects,
+	seekTo,
 }) => {
 	const currentTimeRef = useRef(0);
-	const [copyBtnLabel, setCopyBtnLabel] = useState('Copy');
+	const listRef = useRef<HTMLDivElement>(null);
+	const [copySuccess, setCopySuccess] = useState(false);
 	const [saveLoadingIcon, setSaveLoadingIcon] = useState<
 		ReactNode | undefined
 	>();
@@ -143,7 +150,7 @@ const EditBindingConfiguration: FC<Props> = ({
 	};
 
 	const removeBinding = (index: number) => {
-		setBindingConfig(bindingConfig.filter((item, i) => i !== index));
+		setBindingConfig(bindingConfig.filter((_, i) => i !== index));
 	};
 
 	const onChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
@@ -189,9 +196,23 @@ const EditBindingConfiguration: FC<Props> = ({
 		} as ProjectConfig);
 	};
 
+	const activeBindingIndex = useMemo(() => {
+		let active = -1;
+		for (let i = 0; i < bindingConfig.length; i++) {
+			if (bindingConfig[i].t <= currentTime) active = i;
+			else break;
+		}
+		return active;
+	}, [bindingConfig, currentTime]);
+
 	useEffect(() => {
 		currentTimeRef.current = currentTime;
 	}, [currentTime, currentTimeRef]);
+
+	useEffect(() => {
+		const activeEl = listRef.current?.querySelector('[data-active="true"]');
+		activeEl?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+	}, [activeBindingIndex]);
 
 	useEffect(() => {
 		const handleKeydown = (e: KeyboardEvent) => {
@@ -209,7 +230,7 @@ const EditBindingConfiguration: FC<Props> = ({
 		<Panel $open={open}>
 			<PanelInner>
 				<PanelHeader>
-					<PanelTitle>Edit verse bindings</PanelTitle>
+					<PanelTitle>Edit timeline</PanelTitle>
 					<Space size="small">
 						{verseBindSaveEnabled && (
 							<Link to="/edit-projects">
@@ -309,15 +330,38 @@ const EditBindingConfiguration: FC<Props> = ({
 					{!!projectConfig?.videoUrl && (
 						<>
 							<BindingListContainer>
+								<BindingListHeader>
+									<span className="label">Entries</span>
+									<span className="count">{bindingConfig.length}</span>
+								</BindingListHeader>
 								{versesCount !== undefined && (
 									<BindingProgressBar
 										$pct={bindingPct}
 										$complete={bindingPct >= 100}
 									/>
 								)}
-								<BindingListItems>
+								<BindingListItems ref={listRef}>
 									{bindingConfig.map((element, index) => (
-										<BindingItem key={`${element.id}`}>
+										<BindingItem
+											key={`${element.id}`}
+											$active={index === activeBindingIndex}
+											data-active={index === activeBindingIndex}
+										>
+											<Tooltip title="Jump to" mouseEnterDelay={0.6}>
+												<Button
+													icon={<CaretRightOutlined />}
+													size="small"
+													type="text"
+													style={{
+														flexShrink: 0,
+														color:
+															index === activeBindingIndex
+																? '#1677ff'
+																: undefined,
+													}}
+													onClick={() => seekTo(element.t)}
+												/>
+											</Tooltip>
 											<Input
 												size="small"
 												type="number"
@@ -362,8 +406,8 @@ const EditBindingConfiguration: FC<Props> = ({
 									</BindingItem>
 								</BindingListItems>
 							</BindingListContainer>
-							{verseBindSaveEnabled && (
-								<ActionArea>
+							<ActionArea>
+								{verseBindSaveEnabled && (
 									<Button
 										type="primary"
 										danger
@@ -374,39 +418,61 @@ const EditBindingConfiguration: FC<Props> = ({
 									>
 										Delete
 									</Button>
-									<Modal
-										open={deleteModalOpen}
-										title="Delete project"
-										onCancel={() => setDeleteModalOpen(false)}
-										footer={[
-											<Button
-												key="cancel"
-												onClick={() => setDeleteModalOpen(false)}
-											>
-												Cancel
-											</Button>,
-											<Button
-												key="delete"
-												type="primary"
-												danger
-												loading={deleteLoading}
-												onClick={async () => {
-													setDeleteLoading(true);
-													try {
-														await deleteProject();
-													} finally {
-														setDeleteLoading(false);
-														setDeleteModalOpen(false);
-													}
-												}}
-											>
-												Delete
-											</Button>,
-										]}
-									>
-										Deleting <strong>{projectConfig?.title}</strong>{' '}
-										permanently. Are you sure?
-									</Modal>
+								)}
+								<Modal
+									open={deleteModalOpen}
+									title="Delete project"
+									onCancel={() => setDeleteModalOpen(false)}
+									footer={[
+										<Button
+											key="cancel"
+											onClick={() => setDeleteModalOpen(false)}
+										>
+											Cancel
+										</Button>,
+										<Button
+											key="delete"
+											type="primary"
+											danger
+											loading={deleteLoading}
+											onClick={async () => {
+												setDeleteLoading(true);
+												try {
+													await deleteProject();
+												} finally {
+													setDeleteLoading(false);
+													setDeleteModalOpen(false);
+												}
+											}}
+										>
+											Delete
+										</Button>,
+									]}
+								>
+									Deleting <strong>{projectConfig?.title}</strong> permanently.
+									Are you sure?
+								</Modal>
+								<div style={{ flex: 1 }} />
+								<Tooltip title="Copy to clipboard">
+									<Button
+										icon={copySuccess ? <CheckOutlined /> : <CopyOutlined />}
+										size="small"
+										onClick={() =>
+											copyToClipboard().then(() => {
+												setCopySuccess(true);
+												setTimeout(() => setCopySuccess(false), 3000);
+											})
+										}
+									/>
+								</Tooltip>
+								<Tooltip title="Download JSON">
+									<Button
+										icon={<DownloadOutlined />}
+										size="small"
+										onClick={downloadAsJson}
+									/>
+								</Tooltip>
+								{verseBindSaveEnabled && (
 									<Button
 										type="primary"
 										icon={saveLoadingIcon || <SaveOutlined />}
@@ -429,26 +495,7 @@ const EditBindingConfiguration: FC<Props> = ({
 									>
 										Save
 									</Button>
-								</ActionArea>
-							)}
-							<ActionArea>
-								<Button
-									type="primary"
-									onClick={() =>
-										copyToClipboard().then(() => {
-											setCopyBtnLabel('Copied ✓');
-											setTimeout(() => {
-												setCopyBtnLabel('Copy');
-											}, 3000);
-										})
-									}
-									size="small"
-								>
-									{copyBtnLabel}
-								</Button>
-								<Button type="primary" onClick={downloadAsJson} size="small">
-									Download
-								</Button>
+								)}
 							</ActionArea>
 						</>
 					)}

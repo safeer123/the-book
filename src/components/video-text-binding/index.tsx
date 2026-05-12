@@ -392,6 +392,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 						// eslint-disable-next-line @typescript-eslint/no-misused-promises
 						copyToClipboard={copyToClipboard}
 						projects={projects}
+						seekTo={seekTo}
 					/>
 				)}
 			</Page>

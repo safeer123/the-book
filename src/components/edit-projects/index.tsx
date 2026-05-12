@@ -43,6 +43,7 @@ import { useChapters } from 'data/use-chapters';
 import { Link, useNavigate } from 'react-router-dom';
 import { isFullSurah } from 'utils/project-utils';
 import TitleBuilderModal from 'components/video-text-binding/edit-binding/title-builder-modal';
+import AllSurahsModal from 'components/video-text-binding/all-surahs-modal';
 
 const PROJECTS_KEY = 'verse-binding-projects';
 
@@ -458,6 +459,7 @@ const EditProjects: FC = () => {
 	const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 	const [missingSurasOpen, setMissingSurasOpen] = useState(false);
 	const [recitersOpen, setRecitersOpen] = useState(false);
+	const [allSurahsOpen, setAllSurahsOpen] = useState(false);
 	const [incompleteFilter, setIncompleteFilter] = useState(false);
 	const [findReplaceOpen, setFindReplaceOpen] = useState(false);
 	const [findText, setFindText] = useState('');
@@ -1027,6 +1029,10 @@ const EditProjects: FC = () => {
 			</TableWrapper>
 
 			<PageFooter>
+				<FooterLink onClick={() => setAllSurahsOpen(true)}>
+					All Surahs
+				</FooterLink>
+				<span style={{ color: '#d9d9d9', margin: '0 8px' }}>·</span>
 				<FooterLink onClick={() => setMissingSurasOpen(true)}>
 					Missing Suras ({missingChapters.length})
 				</FooterLink>
@@ -1035,6 +1041,12 @@ const EditProjects: FC = () => {
 					Reciters ({recitersData.length})
 				</FooterLink>
 			</PageFooter>
+
+			<AllSurahsModal
+				open={allSurahsOpen}
+				onClose={() => setAllSurahsOpen(false)}
+				projects={projects}
+			/>
 
 			<TitleBuilderModal
 				open={!!titleBuilderRowId}

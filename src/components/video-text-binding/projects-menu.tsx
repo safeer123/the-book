@@ -4,10 +4,11 @@ import styled from 'styled-components';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Input, Tooltip } from 'antd';
 import type { InputRef } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { OrderedListOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProjectConfig } from 'types';
 import { useChapters } from 'data/use-chapters';
 import { formatDuration } from './utils';
+import AllSurahsModal from './all-surahs-modal';
 
 const { Search } = Input;
 
@@ -74,6 +75,8 @@ const EmptyState = styled.div`
 const MenuFooter = styled.div`
 	border-top: 1px solid #f0f0f0;
 	padding: 8px 10px;
+	display: flex;
+	gap: 6px;
 `;
 
 interface Props {
@@ -94,6 +97,7 @@ const ProjectsMenu = ({
 	open,
 }: Props) => {
 	const [searchInput, setSearchInput] = useState('');
+	const [allSurahsOpen, setAllSurahsOpen] = useState(false);
 	const searchRef = useRef<InputRef>(null);
 	const { data: chaptersData } = useChapters();
 
@@ -114,14 +118,27 @@ const ProjectsMenu = ({
 	return (
 		<ProjectsMenuWrapper>
 			<MenuHeader>
-				<Search
-					ref={searchRef}
-					value={searchInput}
-					placeholder="Search projects…"
-					onChange={(e) => setSearchInput(e.target.value)}
-					allowClear
-					size="small"
-				/>
+				<div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+					<Search
+						ref={searchRef}
+						value={searchInput}
+						placeholder="Search projects…"
+						onChange={(e) => setSearchInput(e.target.value)}
+						allowClear
+						size="small"
+						style={{ flex: 1 }}
+					/>
+					{!viewerMode && (
+						<Tooltip title="New project" placement="bottom">
+							<Button
+								type="primary"
+								size="small"
+								icon={<PlusOutlined />}
+								onClick={() => newProject()}
+							/>
+						</Tooltip>
+					)}
+				</div>
 			</MenuHeader>
 
 			<ProjectItemWrapper>
@@ -181,19 +198,21 @@ const ProjectsMenu = ({
 				)}
 			</ProjectItemWrapper>
 
-			{!viewerMode && (
-				<MenuFooter>
-					<Button
-						size="small"
-						type="dashed"
-						icon={<PlusOutlined />}
-						style={{ width: '100%' }}
-						onClick={() => newProject()}
-					>
-						New Project
-					</Button>
-				</MenuFooter>
-			)}
+			<MenuFooter>
+				<Button
+					size="small"
+					icon={<OrderedListOutlined />}
+					style={{ flex: 1 }}
+					onClick={() => setAllSurahsOpen(true)}
+				>
+					All Surahs
+				</Button>
+			</MenuFooter>
+			<AllSurahsModal
+				open={allSurahsOpen}
+				onClose={() => setAllSurahsOpen(false)}
+				projects={projects}
+			/>
 		</ProjectsMenuWrapper>
 	);
 };

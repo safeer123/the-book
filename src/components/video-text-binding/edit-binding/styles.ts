@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 export const Panel = styled.div<{ $open?: boolean }>`
 	width: ${({ $open }) => ($open ? '380px' : '0px')};
@@ -103,6 +103,29 @@ export const BindingListContainer = styled.div`
 	margin: 0 24px;
 `;
 
+export const BindingListHeader = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 6px 14px 5px;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+	flex-shrink: 0;
+
+	.label {
+		font-size: 11px;
+		color: rgba(0, 0, 0, 0.4);
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+	}
+
+	.count {
+		font-size: 12px;
+		font-weight: 600;
+		color: rgba(0, 0, 0, 0.55);
+		font-variant-numeric: tabular-nums;
+	}
+`;
+
 export const BindingProgressBar = styled.div<{
 	$pct: number;
 	$complete: boolean;
@@ -130,12 +153,13 @@ export const BindingListItems = styled.div`
 	}
 `;
 
-export const BindingItem = styled.div`
+export const BindingItem = styled.div<{ $active?: boolean }>`
 	display: flex;
-	gap: 16px;
+	gap: 8px;
 	align-items: center;
-	padding: 4px 16px;
+	padding: 4px 8px 4px 12px;
 	border-radius: 4px;
+	transition: background-color 0.15s;
 
 	&:not(.right-align):nth-child(odd) {
 		background-color: #ffffff;
@@ -144,6 +168,12 @@ export const BindingItem = styled.div`
 	&:not(.right-align):nth-child(even) {
 		background-color: #f5f5f5;
 	}
+
+	${({ $active }) =>
+		$active &&
+		css`
+			background-color: #e6f4ff !important;
+		`}
 
 	.binding-item-action {
 		opacity: 0;
@@ -158,11 +188,7 @@ export const BindingItem = styled.div`
 
 export const ActionArea = styled.div`
 	display: flex;
-	gap: 16px;
-	padding: 12px 24px 0;
-	justify-content: flex-end;
-
-	&:last-child {
-		padding-bottom: 20px;
-	}
+	align-items: center;
+	gap: 8px;
+	padding: 12px 24px 20px;
 `;
