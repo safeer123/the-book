@@ -380,6 +380,7 @@ const EditBindingConfiguration: FC<Props> = ({
 											<ChapterSelector
 												elementId={element.id}
 												onChangeVerseKey={onChangeVerseKey}
+												projectTitle={projectConfig?.title}
 											/>
 											<Button
 												className="binding-item-action"

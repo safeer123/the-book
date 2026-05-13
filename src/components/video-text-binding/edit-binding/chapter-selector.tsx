@@ -36,9 +36,14 @@ const ChapterItem = styled.div<{ $active: boolean }>`
 interface Props {
 	onChangeVerseKey: (id: number, k?: string) => void;
 	elementId: number;
+	projectTitle?: string;
 }
 
-const ChapterSelector: FC<Props> = ({ onChangeVerseKey, elementId }) => {
+const ChapterSelector: FC<Props> = ({
+	onChangeVerseKey,
+	elementId,
+	projectTitle,
+}) => {
 	const [open, setOpen] = useState(false);
 	const [search, setSearch] = useState('');
 	const [activeIndex, setActiveIndex] = useState(-1);
@@ -66,9 +71,15 @@ const ChapterSelector: FC<Props> = ({ onChangeVerseKey, elementId }) => {
 
 	useEffect(() => {
 		if (open) {
-			setSearch('');
+			const firstSegment = projectTitle?.split(' - ')[0] ?? '';
+			const match = firstSegment.match(/^Surah\s+(.+)$/i);
+			const titleChapter = match ? match[1] : '';
+			setSearch(titleChapter);
 			setActiveIndex(-1);
-			setTimeout(() => inputRef.current?.focus(), 50);
+			setTimeout(() => {
+				inputRef.current?.focus();
+				inputRef.current?.select();
+			}, 50);
 		}
 	}, [open]);
 
@@ -91,9 +102,9 @@ const ChapterSelector: FC<Props> = ({ onChangeVerseKey, elementId }) => {
 		} else if (e.key === 'ArrowUp') {
 			e.preventDefault();
 			setActiveIndex((i) => Math.max(i - 1, 0));
-		} else if (e.key === 'Enter' && activeIndex >= 0) {
+		} else if (e.key === 'Enter' && filteredChapters.length > 0) {
 			e.preventDefault();
-			select(filteredChapters[activeIndex].id);
+			select(filteredChapters[activeIndex >= 0 ? activeIndex : 0].id);
 		} else if (e.key === 'Escape') {
 			setOpen(false);
 		}
