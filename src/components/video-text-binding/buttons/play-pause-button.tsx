@@ -1,5 +1,25 @@
 import PlayerStates from 'youtube-player/dist/constants/PlayerStates';
+import styled, { keyframes } from 'styled-components';
 import { IconBtnLarge } from './icon-btn';
+
+const pulse = keyframes`
+	0% {
+		box-shadow: 0 0 0 0 rgba(126, 208, 236, 0.55);
+	}
+	70% {
+		box-shadow: 0 0 0 16px rgba(126, 208, 236, 0);
+	}
+	100% {
+		box-shadow: 0 0 0 0 rgba(126, 208, 236, 0);
+	}
+`;
+
+const PlayPauseRing = styled.div<{ $playing?: boolean }>`
+	display: inline-flex;
+	border-radius: 50%;
+	animation: ${({ $playing }) => ($playing ? pulse : 'none')} 1.8s ease-out
+		infinite;
+`;
 
 const PlayIcon = (
 	<svg
@@ -84,10 +104,13 @@ export const PlayPause = ({
 	state?: PlayerStates;
 	onClick: () => void;
 }) => {
+	const isPlaying = state === PlayerStates.PLAYING;
 	return (
-		<IconBtnLarge type="text" onClick={onClick}>
-			{state === PlayerStates.PLAYING && PauseIcon}
-			{state !== PlayerStates.PLAYING && PlayIcon}
-		</IconBtnLarge>
+		<PlayPauseRing $playing={isPlaying}>
+			<IconBtnLarge type="text" onClick={onClick}>
+				{isPlaying && PauseIcon}
+				{!isPlaying && PlayIcon}
+			</IconBtnLarge>
+		</PlayPauseRing>
 	);
 };

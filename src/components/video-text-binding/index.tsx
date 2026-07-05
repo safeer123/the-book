@@ -12,6 +12,7 @@ import { YouTubePlayer } from 'react-youtube';
 import PlayerStates from 'youtube-player/dist/constants/PlayerStates';
 import { UploadProjects } from './upload-projects';
 import { Settings as SettingsBtn } from './buttons/settings-btn';
+import { DiceIcon } from './buttons/dice-icon';
 import { IconBtnMedium } from './buttons/icon-btn';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ProjectsMenu from './projects-menu';
@@ -61,11 +62,25 @@ const SettingsArea = styled.div`
 	}
 `;
 
-const ProjectTitleDropdown = styled.div`
+const TopBarControls = styled.div`
 	z-index: 3;
 	position: absolute;
 	top: 16px;
 	left: 16px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+
+	@media (min-width: 320px) {
+		display: none;
+	}
+
+	@media (min-width: 961px) {
+		display: flex;
+	}
+`;
+
+const ProjectTitleDropdown = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -102,14 +117,6 @@ const ProjectTitleDropdown = styled.div`
 		.chevron {
 			opacity: 1;
 		}
-	}
-
-	@media (min-width: 320px) {
-		display: none;
-	}
-
-	@media (min-width: 961px) {
-		display: flex;
 	}
 `;
 
@@ -227,6 +234,14 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 		}
 	};
 
+	const pickRandomProject = () => {
+		if (!projects.length) return;
+		const otherProjects = projects.filter((p) => p !== projectConfig);
+		const pool = otherProjects.length ? otherProjects : projects;
+		const randomIndex = ~~(Math.random() * pool.length);
+		onClickProjectItem(pool[randomIndex]);
+	};
+
 	const copyToClipboard = async () => {
 		const jsonStr = JSON.stringify({ projects });
 		return navigator?.clipboard?.writeText(jsonStr);
@@ -260,30 +275,41 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 		<TranslationVisibilityProvider>
 			<Page>
 				<ContentArea>
-					<Popover
-						open={projectMenuVisible}
-						onOpenChange={(state) => setProjectMenuVisible(state)}
-						trigger={['click']}
-						placement="bottomLeft"
-						arrow={false}
-						content={
-							<ProjectsMenu
-								projects={projects}
-								projectConfig={projectConfig}
-								viewerMode={viewerMode}
-								newProject={newProject}
-								onClickProjectItem={onClickProjectItem}
-								open={projectMenuVisible}
-							/>
-						}
-					>
-						<ProjectTitleDropdown>
-							<span className="title-text">
-								{projectConfig?.title || '—untitled—'}
-							</span>
-							<DownOutlined className="chevron" />
-						</ProjectTitleDropdown>
-					</Popover>
+					<TopBarControls>
+						<Popover
+							open={projectMenuVisible}
+							onOpenChange={(state) => setProjectMenuVisible(state)}
+							trigger={['click']}
+							placement="bottomLeft"
+							arrow={false}
+							content={
+								<ProjectsMenu
+									projects={projects}
+									projectConfig={projectConfig}
+									viewerMode={viewerMode}
+									newProject={newProject}
+									onClickProjectItem={onClickProjectItem}
+									open={projectMenuVisible}
+								/>
+							}
+						>
+							<ProjectTitleDropdown>
+								<span className="title-text">
+									{projectConfig?.title || '—untitled—'}
+								</span>
+								<DownOutlined className="chevron" />
+							</ProjectTitleDropdown>
+						</Popover>
+						{viewerMode && (
+							<Tooltip title="Pick random" placement="bottom">
+								<IconBtnMedium
+									type="text"
+									icon={<DiceIcon />}
+									onClick={pickRandomProject}
+								/>
+							</Tooltip>
+						)}
+					</TopBarControls>
 
 					<SettingsArea>
 						{!viewerMode && <UploadProjects loadProjects={loadProjects} />}

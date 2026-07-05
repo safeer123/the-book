@@ -150,6 +150,34 @@ const VerseTooltipWrapper = styled.div`
 	}
 `;
 
+const VerseMarkItem = styled(Button)`
+	background-color: transparent;
+	width: 15px;
+	height: 15px;
+	padding: 0px !important;
+	border-radius: 7px;
+	opacity: 0;
+	transform: scale(0.3) translateY(3px);
+	transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+		transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+	svg {
+		width: 15px;
+		height: 15px;
+	}
+
+	@media (min-width: 320px) {
+		display: none;
+	}
+
+	@media (min-width: 961px) {
+		display: block;
+	}
+`;
+
+const BlankMarkItem = styled(VerseMarkItem)`
+	border: 1.5px dotted #7ed0ec;
+`;
+
 const ControlsWrapper = styled.div`
 	flex: 1;
 	display: flex;
@@ -171,6 +199,11 @@ const ControlsWrapper = styled.div`
 		position: relative;
 		top: 0;
 		border-top: 1px dashed #54aaeb;
+	}
+
+	&:hover ${VerseMarkItem} {
+		opacity: 1;
+		transform: scale(1) translateY(0);
 	}
 `;
 
@@ -227,26 +260,6 @@ const TimeDivider = styled.span`
 	color: rgba(0, 0, 0, 0.15);
 	font-size: 11px;
 	font-weight: 300;
-`;
-
-const VerseMarkItem = styled(Button)`
-	background-color: transparent;
-	width: 15px;
-	height: 15px;
-	padding: 0px !important;
-	border-radius: 7px;
-	svg {
-		width: 15px;
-		height: 15px;
-	}
-
-	@media (min-width: 320px) {
-		display: none;
-	}
-
-	@media (min-width: 961px) {
-		display: block;
-	}
 `;
 
 interface Props {
@@ -390,6 +403,10 @@ const VideoPage = ({
 								<TimelineMarkItemIcon />
 							</VerseMarkItem>
 						</Popover>
+					);
+				} else {
+					marksObj[item.t] = (
+						<BlankMarkItem size="small" onClick={() => seekTo(item.t)} />
 					);
 				}
 			});

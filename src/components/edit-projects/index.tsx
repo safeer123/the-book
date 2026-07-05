@@ -683,7 +683,7 @@ const EditProjects: FC = () => {
 
 	const columns: ColumnsType<ProjectConfig> = [
 		{
-			title: 'Surah#',
+			title: '#',
 			dataIndex: 'verseId',
 			key: 'verseId',
 			width: 80,
