@@ -220,6 +220,20 @@ const TimelineControl = styled.div`
 	.play-control-slider {
 		width: 100%;
 	}
+
+	.ant-slider-dot {
+		width: 2px !important;
+		height: 9px !important;
+		border-radius: 1px !important;
+		border: none !important;
+		background-color: #a8d8f0 !important;
+		top: 50% !important;
+		transform: translate(-50%, -50%) !important;
+	}
+
+	.ant-slider-dot-active {
+		background-color: #54aaeb !important;
+	}
 `;
 
 const TimeInfoRow = styled.div`
