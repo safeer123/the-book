@@ -125,12 +125,17 @@ const VerseTooltipWrapper = styled.div`
 		box-shadow: none;
 	}
 
+	&&& .ant-collapse-header {
+		display: none;
+	}
+
 	&&& .ant-collapse-content {
 		text-align: center;
 		height: calc(100% - 57px);
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		border-top: none;
 	}
 
 	.arabic-verse-text {
@@ -139,6 +144,10 @@ const VerseTooltipWrapper = styled.div`
 
 	.translation-text {
 		font-size: 16px;
+	}
+
+	.translation-text > *:not(.translation-text-content) {
+		display: none;
 	}
 
 	.arabic-verse-text-small {
