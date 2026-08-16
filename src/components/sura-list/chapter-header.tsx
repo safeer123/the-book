@@ -8,6 +8,21 @@ import useVerseBarRecords from 'data/use-verse-bar-record';
 import { useInView } from 'react-intersection-observer';
 import { isPhone } from 'utils/device-utils';
 
+const AvailableArea = styled.div`
+	flex: 1;
+	height: 30px;
+
+	@media (min-width: 320px) {
+		display: none;
+	}
+
+	@media (min-width: 961px) {
+		display: flex;
+		opacity: 0.4;
+		transition: opacity 0.2s ease;
+	}
+`;
+
 const HeaderWrapper = styled.div`
 	font-size: 18px;
 	color: #605757;
@@ -32,18 +47,9 @@ const HeaderWrapper = styled.div`
 		gap: 24px;
 		margin-right: 16px;
 	}
-`;
 
-const AvailableArea = styled.div`
-	flex: 1;
-	height: 30px;
-
-	@media (min-width: 320px) {
-		display: none;
-	}
-
-	@media (min-width: 961px) {
-		display: flex;
+	&:hover ${AvailableArea} {
+		opacity: 1;
 	}
 `;
 

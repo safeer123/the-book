@@ -6,6 +6,7 @@ import { isPhone } from 'utils/device-utils';
 import { VerseTranslationSelector } from './translation-selector';
 import { useTranslationVisibility } from '../../../context/translation-visibility-context';
 import ReciteButton from '../recite-player/recite-button';
+import { VerseRow } from './styles';
 
 const TRANSLATION_CLASSNAME = 'translation-text';
 const TRANSLATION_SMALL_CLASSNAME = 'translation-text-small';
@@ -40,6 +41,15 @@ const TranslationContent = styled.div`
 const ItemsWrapper = styled.div`
 	display: flex;
 	align-items: center;
+
+	@media (min-width: 961px) {
+		opacity: 0.4;
+		transition: opacity 0.15s ease;
+
+		${VerseRow}:hover & {
+			opacity: 1;
+		}
+	}
 `;
 
 interface Props {

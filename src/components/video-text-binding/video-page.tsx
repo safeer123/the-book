@@ -6,7 +6,7 @@ import YouTube, {
 	YouTubePlayer,
 	YouTubeProps,
 } from 'react-youtube';
-import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useVerseBinding } from './use-verse-binding';
 import Results from 'components/sura-list/results';
 import { ProjectConfig, VideoStatusInfo } from 'types';
@@ -33,9 +33,28 @@ const VideoWrapper = styled.div`
 		justify-content: center;
 		align-items: flex-end;
 		background-color: #180f2f;
+		background-image: radial-gradient(
+			ellipse at 50% 100%,
+			rgba(84, 170, 235, 0.12),
+			transparent 70%
+		);
 		position: relative;
 		opacity: 1;
 		overflow: hidden;
+		padding-bottom: 18px;
+	}
+
+	.embed-youtube {
+		border-radius: 14px;
+		overflow: hidden;
+		border: 1px solid rgba(126, 208, 236, 0.25);
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 0, 0, 0.25);
+		transition: border-color 0.2s ease, box-shadow 0.2s ease;
+	}
+
+	.embed-youtube:hover {
+		border-color: rgba(126, 208, 236, 0.5);
+		box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.25);
 	}
 `;
 
@@ -281,9 +300,9 @@ const TimelineControl = styled.div`
 	}
 
 	.ant-slider-dot {
-		width: 3px !important;
+		width: 1.5px !important;
 		height: 11px !important;
-		border-radius: 1.5px !important;
+		border-radius: 1px !important;
 		border: none !important;
 		background-color: rgba(84, 170, 235, 0.45) !important;
 		top: 50% !important;
@@ -405,6 +424,7 @@ const VideoPage = ({
 	viewerMode,
 }: Props) => {
 	const [videoVisibility, setVideoVisibility] = useState(true);
+	const timelineRef = useRef<HTMLDivElement>(null);
 	const { verses, timeToVerse } = useVerseBinding({
 		currentTime,
 		bindingConfig: projectConfig?.bindingConfig || [],
@@ -534,6 +554,18 @@ const VideoPage = ({
 		return {};
 	}, [projectConfig?.bindingConfig, verseData?.ayaByKey]);
 
+	useEffect(() => {
+		const sortedTimes = Object.keys(marks)
+			.map(Number)
+			.sort((a, b) => a - b);
+		const dotEls = timelineRef.current?.querySelectorAll('.ant-slider-dot');
+		dotEls?.forEach((el, i) => {
+			if (sortedTimes[i] !== undefined) {
+				el.setAttribute('title', formatDuration(sortedTimes[i]));
+			}
+		});
+	}, [marks]);
+
 	return (
 		<>
 			<VideoWrapper>
@@ -604,7 +636,7 @@ const VideoPage = ({
 						onClick={() => playPause()}
 						state={videoStatus?.playStatus}
 					/>
-					<TimelineControl>
+					<TimelineControl ref={timelineRef}>
 						<Slider
 							className="play-control-slider"
 							max={videoStatus?.duration || 1}
