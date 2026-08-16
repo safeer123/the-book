@@ -41,6 +41,8 @@ import {
 	BindingProgressBar,
 	BindingListItems,
 	ActionArea,
+	UrlErrorText,
+	DurationText,
 } from './styles';
 import { useVerseBindSaveEnabled } from 'data/use-verse-bind-save-enabled';
 import { useChapters } from 'data/use-chapters';
@@ -288,32 +290,9 @@ const EditBindingConfiguration: FC<Props> = ({
 								/>
 							</InputGroup>
 						</InputItem>
-						{urlError && (
-							<div
-								style={{
-									color: '#ff4d4f',
-									fontSize: 12,
-									marginTop: -8,
-									paddingLeft: 52,
-									lineHeight: 1.4,
-								}}
-							>
-								{urlError}
-							</div>
-						)}
+						{urlError && <UrlErrorText>{urlError}</UrlErrorText>}
 						{!!videoDuration && (
-							<div
-								style={{
-									textAlign: 'right',
-									fontSize: 11,
-									color: 'rgba(0,0,0,0.5)',
-									marginTop: -10,
-									paddingRight: 2,
-									fontVariantNumeric: 'tabular-nums',
-									fontFamily: 'monospace',
-									letterSpacing: '0.2px',
-								}}
-							>
+							<DurationText>
 								{(() => {
 									const h = Math.floor(videoDuration / 3600);
 									const m = Math.floor((videoDuration % 3600) / 60);
@@ -324,7 +303,7 @@ const EditBindingConfiguration: FC<Props> = ({
 									if (s > 0) parts.push(`${s}s`);
 									return `Duration ${parts.length ? parts.join(' ') : '0s'}`;
 								})()}
-							</div>
+							</DurationText>
 						)}
 					</ProjectDetailsArea>
 					{!!projectConfig?.videoUrl && (

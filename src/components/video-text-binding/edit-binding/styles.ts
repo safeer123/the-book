@@ -20,6 +20,13 @@ export const PanelInner = styled.div`
 		'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 	font-size: 14px;
 	color: rgba(0, 0, 0, 0.88);
+
+	[data-theme='dark'] & {
+		background-color: #1e1b33;
+		border-left-color: rgba(156, 142, 224, 0.2);
+		box-shadow: -2px 0 8px rgba(0, 0, 0, 0.35);
+		color: #e8e2fa;
+	}
 `;
 
 export const PanelHeader = styled.div`
@@ -30,6 +37,10 @@ export const PanelHeader = styled.div`
 	border-bottom: 1px solid rgba(5, 5, 5, 0.06);
 	flex-shrink: 0;
 	white-space: nowrap;
+
+	[data-theme='dark'] & {
+		border-bottom-color: rgba(156, 142, 224, 0.2);
+	}
 `;
 
 export const PanelTitle = styled.span`
@@ -37,6 +48,10 @@ export const PanelTitle = styled.span`
 	font-weight: 600;
 	line-height: 1.5;
 	color: rgba(0, 0, 0, 0.88);
+
+	[data-theme='dark'] & {
+		color: #e8e2fa;
+	}
 `;
 
 export const Wrapper = styled.div`
@@ -60,6 +75,17 @@ export const Wrapper = styled.div`
 			background: #fff;
 		}
 	}
+
+	[data-theme='dark'] & .ant-input {
+		&:hover {
+			border-color: rgba(156, 142, 224, 0.4);
+		}
+
+		&:focus {
+			border-color: #9c8ee0;
+			background: rgba(255, 255, 255, 0.04);
+		}
+	}
 `;
 
 export const ProjectDetailsArea = styled.div`
@@ -80,6 +106,37 @@ export const InputLabel = styled.span`
 	font-size: 13px;
 	flex-shrink: 0;
 	width: 44px;
+
+	[data-theme='dark'] & {
+		color: #a89cd8;
+	}
+`;
+
+export const UrlErrorText = styled.div`
+	color: #ff4d4f;
+	font-size: 12px;
+	margin-top: -8px;
+	padding-left: 52px;
+	line-height: 1.4;
+
+	[data-theme='dark'] & {
+		color: #ff7875;
+	}
+`;
+
+export const DurationText = styled.div`
+	text-align: right;
+	font-size: 11px;
+	color: rgba(0, 0, 0, 0.5);
+	margin-top: -10px;
+	padding-right: 2px;
+	font-variant-numeric: tabular-nums;
+	font-family: monospace;
+	letter-spacing: 0.2px;
+
+	[data-theme='dark'] & {
+		color: #a89cd8;
+	}
 `;
 
 export const InputGroup = styled.div`
@@ -101,6 +158,10 @@ export const BindingListContainer = styled.div`
 	border: 1px solid #72727299;
 	border-radius: 5px;
 	margin: 0 24px;
+
+	[data-theme='dark'] & {
+		border-color: rgba(156, 142, 224, 0.3);
+	}
 `;
 
 export const BindingListHeader = styled.div`
@@ -123,6 +184,18 @@ export const BindingListHeader = styled.div`
 		font-weight: 600;
 		color: rgba(0, 0, 0, 0.55);
 		font-variant-numeric: tabular-nums;
+	}
+
+	[data-theme='dark'] & {
+		border-bottom-color: rgba(156, 142, 224, 0.2);
+
+		.label {
+			color: #a89cd8;
+		}
+
+		.count {
+			color: #e8e2fa;
+		}
 	}
 `;
 
@@ -169,10 +242,22 @@ export const BindingItem = styled.div<{ $active?: boolean }>`
 		background-color: #f5f5f5;
 	}
 
+	[data-theme='dark'] &:not(.right-align):nth-child(odd) {
+		background-color: transparent;
+	}
+
+	[data-theme='dark'] &:not(.right-align):nth-child(even) {
+		background-color: rgba(156, 142, 224, 0.08);
+	}
+
 	${({ $active }) =>
 		$active &&
 		css`
 			background-color: #e6f4ff !important;
+
+			[data-theme='dark'] & {
+				background-color: rgba(64, 150, 255, 0.25) !important;
+			}
 		`}
 
 	.binding-item-action {
