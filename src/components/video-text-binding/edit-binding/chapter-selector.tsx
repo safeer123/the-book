@@ -4,6 +4,7 @@ import { PlusCircleOutlined } from '@ant-design/icons';
 import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useChapters } from 'data/use-chapters';
+import { DARK_POPOVER_STYLE, useAppTheme } from 'context/theme-context';
 
 const ContentWrapper = styled.div`
 	width: 300px;
@@ -31,6 +32,11 @@ const ChapterItem = styled.div<{ $active: boolean }>`
 		background: ${({ $active }) =>
 			$active ? 'rgba(52, 84, 244, 0.18)' : 'rgba(0, 0, 0, 0.04)'};
 	}
+
+	[data-theme='dark'] &:hover {
+		background: ${({ $active }) =>
+			$active ? 'rgba(64, 150, 255, 0.28)' : 'rgba(255, 255, 255, 0.06)'};
+	}
 `;
 
 interface Props {
@@ -52,6 +58,7 @@ const ChapterSelector: FC<Props> = ({
 	const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
 	const { data: chapterData } = useChapters();
+	const { mode } = useAppTheme();
 
 	const filteredChapters = useMemo(() => {
 		const q = search.toLowerCase();
@@ -116,6 +123,7 @@ const ChapterSelector: FC<Props> = ({
 			placement="bottomRight"
 			open={open}
 			onOpenChange={setOpen}
+			overlayInnerStyle={mode === 'dark' ? DARK_POPOVER_STYLE : undefined}
 			content={
 				<ContentWrapper>
 					<SearchWrapper>

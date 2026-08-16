@@ -26,6 +26,11 @@ const StyledTrButton = styled(Button)`
 	font-size: 18px;
 	color: rgba(10, 10, 10, 0.604);
 	border: 0.8px dashed rgba(10, 10, 10, 0.449);
+
+	[data-theme='dark'] & {
+		color: #d8d0f0;
+		border-color: rgba(156, 142, 224, 0.55);
+	}
 `;
 
 const TabPaneContent = styled.div`
@@ -68,9 +73,10 @@ const CompactTopBar = styled.div`
 `;
 
 const CompactTabPaneContent = styled.div`
+	max-height: 320px;
 	overflow-y: auto;
-	display: flex;
-	flex-wrap: wrap;
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
 	gap: 6px;
 	padding: 6px;
 `;
@@ -263,6 +269,7 @@ const LanguageTabs = ({
 				<CompactTabs
 					onTabClick={(key) => setActiveKey(key)}
 					tabPosition="left"
+					style={{ height: 320 }}
 					tabBarStyle={{ width: 140 }}
 					activeKey={activeKey}
 				>
