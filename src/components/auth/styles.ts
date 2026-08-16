@@ -7,10 +7,6 @@ export const Container = styled.div`
 	align-items: center;
 	min-height: 100vh;
 	background-color: #f0f2f5;
-
-	[data-theme='dark'] & {
-		background-color: #151225;
-	}
 `;
 
 export const FormContainer = styled.div`
@@ -20,22 +16,12 @@ export const FormContainer = styled.div`
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	width: 100%;
 	max-width: 400px;
-
-	[data-theme='dark'] & {
-		background: #1e1b33;
-		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
-		border: 1px solid rgba(156, 142, 224, 0.2);
-	}
 `;
 
 export const Title = styled.h2`
 	text-align: center;
 	margin-bottom: 24px;
 	color: rgba(0, 0, 0, 0.85);
-
-	[data-theme='dark'] & {
-		color: #e8e2fa;
-	}
 `;
 
 export const GoogleButton = styled(Button)`
@@ -56,28 +42,12 @@ export const GoogleButton = styled(Button)`
 	svg {
 		margin-right: 8px;
 	}
-
-	[data-theme='dark'] && {
-		background-color: #241f3d;
-		color: #e8e2fa;
-		border-color: rgba(156, 142, 224, 0.35);
-
-		&:hover {
-			background-color: #241f3d;
-			color: #9c8ee0;
-			border-color: #9c8ee0;
-		}
-	}
 `;
 
 export const ErrorMessage = styled.div`
 	color: red;
 	text-align: center;
 	margin-bottom: 16px;
-
-	[data-theme='dark'] & {
-		color: #ff7875;
-	}
 `;
 
 export const SignUpLink = styled.div`
