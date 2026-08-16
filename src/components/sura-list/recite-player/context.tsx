@@ -122,7 +122,9 @@ export const RecitePlayerProvider = ({ children }: { children: ReactNode }) => {
 	const seekStep = useCallback(
 		(step: number) => {
 			const t = timeToVerse(step);
-			if (t > 0) playerRef.current?.seekTo(t, true);
+			// -1 is the "no such verse" sentinel from useVerseBinding; a verse
+			// bound to the very start of the video is a legitimate t === 0.
+			if (t >= 0) playerRef.current?.seekTo(t, true);
 		},
 		[timeToVerse]
 	);
@@ -205,8 +207,8 @@ export const RecitePlayerProvider = ({ children }: { children: ReactNode }) => {
 				next={next}
 				prev={prev}
 				stop={stop}
-				hasNext={timeToVerse(1) > 0}
-				hasPrev={timeToVerse(-1) > 0}
+				hasNext={timeToVerse(1) >= 0}
+				hasPrev={timeToVerse(-1) >= 0}
 			/>
 		</RecitePlayerContext.Provider>
 	);
