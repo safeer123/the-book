@@ -198,6 +198,7 @@ const ControlsWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
+	box-sizing: border-box;
 	padding: 10px 20px 14px;
 	gap: 6px;
 
@@ -211,6 +212,7 @@ const ControlsWrapper = styled.div`
 	@media (min-width: 961px) {
 		position: relative;
 		top: 0;
+		width: auto;
 		background: linear-gradient(
 			to bottom,
 			rgba(255, 255, 255, 0),
