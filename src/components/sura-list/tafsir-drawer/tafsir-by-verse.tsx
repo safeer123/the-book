@@ -23,6 +23,10 @@ const TafsirContentWrapper = styled.div`
 	line-height: 1.2;
 	padding-top: 16px;
 
+	[data-theme='dark'] & {
+		color: #d8d0f0;
+	}
+
 	h1,
 	h2 {
 		margin-bottom: 16px;

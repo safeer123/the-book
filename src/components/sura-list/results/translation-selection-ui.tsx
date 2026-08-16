@@ -15,6 +15,10 @@ const CompactToggleLabel = styled.span`
 	color: rgba(0, 0, 0, 0.45);
 	white-space: nowrap;
 	margin-left: 4px;
+
+	[data-theme='dark'] & {
+		color: #a89cd8;
+	}
 `;
 
 interface TranslationSelectionUIProps {

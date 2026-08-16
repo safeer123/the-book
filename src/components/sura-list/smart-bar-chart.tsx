@@ -25,6 +25,20 @@ const Wrapper = styled.div`
 		// border: 0.2px dashed #1ec002a8;
 		box-sizing: content-box;
 	}
+
+	[data-theme='dark'] & {
+		.bar-item {
+			background-color: rgba(156, 142, 224, 0.35);
+		}
+
+		.bar-item-selected {
+			background-color: rgba(255, 138, 101, 0.55);
+		}
+
+		.bar-wrapper-selected {
+			background-color: rgba(156, 142, 224, 0.15);
+		}
+	}
 `;
 
 const BarItem = styled.div`
@@ -49,6 +63,20 @@ const BarItemWrapper = styled.div`
 		}
 		.bar-item-selected {
 			background-color: #e34400cf;
+		}
+	}
+
+	[data-theme='dark'] & {
+		background-color: rgba(156, 142, 224, 0.06);
+
+		&:hover {
+			background-color: rgba(156, 142, 224, 0.25);
+			.bar-item {
+				background-color: #c4b8f0;
+			}
+			.bar-item-selected {
+				background-color: #ff9d7a;
+			}
 		}
 	}
 `;

@@ -53,6 +53,7 @@ export const useVerses = (): UseQueryResult<{
 		},
 		{
 			staleTime: Infinity,
+			keepPreviousData: true,
 		}
 	);
 };

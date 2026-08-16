@@ -5,7 +5,11 @@ import type { ColumnsType } from 'antd/es/table';
 import styled from 'styled-components';
 import { useChapters } from 'data/use-chapters';
 import { ChapterItem, ProjectConfig } from 'types';
-import { isFullSurah } from 'utils/project-utils';
+import {
+	getChapterIdForProject,
+	getReciterFromTitle,
+	isFullSurah,
+} from 'utils/project-utils';
 import { formatDuration } from './utils';
 
 interface Props {
@@ -57,15 +61,6 @@ const FilterBtn = styled.button<{ $active: boolean }>`
 	}
 `;
 
-const getChapterId = (p: ProjectConfig): number | undefined => {
-	if (p.verseId && p.verseId >= 1 && p.verseId <= 114) return p.verseId;
-	for (const b of p.bindingConfig || []) {
-		const chNum = Number(b.k.split(':')[0]);
-		if (Number.isInteger(chNum) && chNum >= 1 && chNum <= 114) return chNum;
-	}
-	return undefined;
-};
-
 const AllSurahsModal = ({ open, onClose, projects }: Props) => {
 	const [search, setSearch] = useState('');
 	const [placeFilter, setPlaceFilter] = useState<PlaceFilter>('all');
@@ -76,11 +71,9 @@ const AllSurahsModal = ({ open, onClose, projects }: Props) => {
 		const map = new Map<number, Recitation[]>();
 		for (const p of projects) {
 			if (!isFullSurah(p.title)) continue;
-			const chapterId = getChapterId(p);
+			const chapterId = getChapterIdForProject(p);
 			if (!chapterId) continue;
-			const dashIdx = p.title.indexOf(' - ');
-			const reciter =
-				dashIdx !== -1 ? p.title.slice(dashIdx + 3).trim() : p.title.trim();
+			const reciter = getReciterFromTitle(p.title);
 			if (!reciter) continue;
 			const existing = map.get(chapterId) ?? [];
 			existing.push({ reciter, videoUrl: p.videoUrl, duration: p.duration });

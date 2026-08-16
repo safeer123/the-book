@@ -2,7 +2,19 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import styled, { keyframes } from 'styled-components';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Drawer, Slider, Spin } from 'antd';
+// antd's ConfigProvider type declaration fails to parse under this repo's
+// pinned TypeScript version, tripping a false-positive import/named error
+// even though the export exists at runtime (see theme-context.tsx).
+/* eslint-disable import/named */
+import {
+	Button,
+	ConfigProvider,
+	Drawer,
+	Slider,
+	Spin,
+	theme as antdTheme,
+} from 'antd';
+/* eslint-enable import/named */
 import {
 	MenuOutlined,
 	StepBackwardOutlined,
@@ -25,6 +37,7 @@ import { ProjectConfig, TafsirConfig, VideoStatusInfo } from 'types';
 import { useProjectStore } from 'components/video-text-binding/use-project-store';
 import { useVerseBinding } from 'components/video-text-binding/use-verse-binding';
 import { usePersistedVideoState } from 'components/video-text-binding/use-persisted-video-state';
+import { useAppTheme } from 'context/theme-context';
 import { formatDuration } from 'components/video-text-binding/utils';
 import { TranslationVisibilityProvider } from 'context/translation-visibility-context';
 import TranslationSelectionUI from 'components/sura-list/results/translation-selection-ui';
@@ -531,6 +544,7 @@ const MobileQBind = () => {
 		bindingConfig: projectConfig?.bindingConfig || [],
 	});
 	const { getTime } = usePersistedVideoState();
+	const { mode } = useAppTheme();
 
 	const verse = verses[0];
 	const isPlaying = videoStatus?.playStatus === PlayerStates.PLAYING;
@@ -542,6 +556,23 @@ const MobileQBind = () => {
 		mq.addEventListener('change', handler);
 		return () => mq.removeEventListener('change', handler);
 	}, []);
+
+	// This player is always dark, independent of the site-wide theme toggle —
+	// force it while mounted and restore the user's real preference on exit.
+	// data-theme-forced tells AppThemeProvider not to clobber this back to the
+	// user's actual mode on its own (later-running, since it's an ancestor)
+	// mount effect.
+	useEffect(() => {
+		const root = document.documentElement;
+		root.setAttribute('data-theme-forced', 'true');
+		root.setAttribute('data-theme', 'dark');
+		root.setAttribute('data-hide-theme-toggle', 'true');
+		return () => {
+			root.removeAttribute('data-theme-forced');
+			root.removeAttribute('data-hide-theme-toggle');
+			root.setAttribute('data-theme', mode);
+		};
+	}, [mode]);
 
 	// Apply pid → project
 	useEffect(() => {
@@ -699,269 +730,273 @@ const MobileQBind = () => {
 	}
 
 	return (
-		<TranslationVisibilityProvider>
-			<Page>
-				{/* Hidden audio player */}
-				<HiddenPlayer>
-					{videoId && (
-						<YouTube
-							videoId={videoId}
-							opts={opts}
-							onStateChange={handleStateChange}
-							onReady={(e) => {
-								console.log('MobileQBind: player ready');
-								playerRef.current = e.target;
-								setVideoStatus({
-									duration: e.target.getDuration() as unknown as number,
-									playStatus:
-										e.target.getPlayerState() as unknown as PlayerStates,
-								});
-							}}
-						/>
-					)}
-				</HiddenPlayer>
-
-				{/* Top bar */}
-				<TopBar>
-					<ProjectButton onClick={() => setProjectMenuOpen(true)}>
-						<MenuOutlined />
-						<span
-							style={{
-								overflow: 'hidden',
-								textOverflow: 'ellipsis',
-								whiteSpace: 'nowrap',
-							}}
-						>
-							{projectConfig?.title || '—'}
-						</span>
-					</ProjectButton>
-
-					<VerseButton onClick={() => setVerseDrawerOpen(true)}>
-						{currentBindingIndex !== undefined && currentBindingIndex >= 0
-							? verseOptions[currentBindingIndex]?.label
-							: '—'}
-						<DownOutlined />
-					</VerseButton>
-
-					<TopActions>
-						<TopBtn
-							icon={<TranslationOutlined />}
-							title="Change translation"
-							onClick={() => setTranslationMenuOpen(true)}
-						/>
-						<TopBtn
-							icon={<BookOutlined />}
-							title="Tafsir"
-							disabled={!verse}
-							onClick={() =>
-								verse && setTafsirConfig({ verseKey: verse.verse_key })
-							}
-						/>
-					</TopActions>
-				</TopBar>
-
-				{/* Main content: Arabic | Translation */}
-				<ContentRow>
-					<ArabicPanel onClick={playPause}>
-						<ArabicScroll ref={arabicScrollRef}>
-							{verse ? (
-								<ArabicText key={verse.verse_key} ref={arabicTextRef}>
-									{verse.text_uthmani}
-								</ArabicText>
-							) : (
-								<EmptyVerseHint>
-									{!projectConfig ? (
-										projects.length === 0 ? (
-											<Spin />
-										) : (
-											'Select a recitation'
-										)
-									) : (
-										'Press ▶ to start'
-									)}
-								</EmptyVerseHint>
-							)}
-						</ArabicScroll>
-					</ArabicPanel>
-
-					<TranslationPanel onClick={playPause}>
-						{verse?.translation ? (
-							<TranslationScroll
-								ref={translationScrollRef}
-								key={verse.verse_key}
-								dangerouslySetInnerHTML={{
-									__html: sanitizeHtml(verse.translation),
+		<ConfigProvider theme={{ algorithm: antdTheme.darkAlgorithm }}>
+			<TranslationVisibilityProvider>
+				<Page>
+					{/* Hidden audio player */}
+					<HiddenPlayer>
+						{videoId && (
+							<YouTube
+								videoId={videoId}
+								opts={opts}
+								onStateChange={handleStateChange}
+								onReady={(e) => {
+									console.log('MobileQBind: player ready');
+									playerRef.current = e.target;
+									setVideoStatus({
+										duration: e.target.getDuration() as unknown as number,
+										playStatus:
+											e.target.getPlayerState() as unknown as PlayerStates,
+									});
 								}}
 							/>
-						) : (
-							<EmptyVerseHint style={{ margin: 'auto' }}>
-								{verse ? '—' : ''}
-							</EmptyVerseHint>
 						)}
-					</TranslationPanel>
-				</ContentRow>
+					</HiddenPlayer>
 
-				{/* Playback controls */}
-				<ControlsBar>
-					<CtrlBtn
-						icon={<StepBackwardOutlined />}
-						onClick={prevVerse}
-						disabled={timeToVerse(-1) < 0}
-					/>
-					<PlayBtn
-						icon={isPlaying ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
-						onClick={playPause}
-						disabled={!videoId}
-					/>
-					<CtrlBtn
-						icon={<StepForwardOutlined />}
-						onClick={nextVerse}
-						disabled={timeToVerse(1) < 0}
-					/>
-
-					<SliderWrapper>
-						<Slider
-							min={0}
-							max={videoStatus?.duration || 1}
-							value={currentTime}
-							tooltip={{ open: false }}
-							onChange={(t) => {
-								playerRef.current?.seekTo(t, true);
-							}}
-							style={{ margin: '0 4px' }}
-						/>
-					</SliderWrapper>
-
-					<TimeLabel>
-						{formatDuration(currentTime)} /{' '}
-						{formatDuration(videoStatus?.duration || 0)}
-					</TimeLabel>
-				</ControlsBar>
-
-				{/* Verse selector */}
-				<Drawer
-					placement="bottom"
-					height="auto"
-					style={{ maxHeight: '75vh' }}
-					styles={{
-						header: {
-							background: '#14112b',
-							borderBottom: '1px solid rgba(255,255,255,0.08)',
-						},
-						body: { background: '#14112b', padding: 0 },
-					}}
-					title={
-						<span style={{ color: '#c8c0e0', fontSize: 14 }}>
-							Jump to Verse
-						</span>
-					}
-					open={verseDrawerOpen}
-					onClose={() => setVerseDrawerOpen(false)}
-					closable
-				>
-					<VerseList>
-						{verseOptions.map((opt) => (
-							<VerseItem
-								key={opt.value}
-								$active={opt.value === currentBindingIndex}
-								id={
-									opt.value === currentBindingIndex
-										? 'verse-item-active'
-										: undefined
-								}
-								onClick={() => onSelectVerse(opt.value)}
+					{/* Top bar */}
+					<TopBar>
+						<ProjectButton onClick={() => setProjectMenuOpen(true)}>
+							<MenuOutlined />
+							<span
+								style={{
+									overflow: 'hidden',
+									textOverflow: 'ellipsis',
+									whiteSpace: 'nowrap',
+								}}
 							>
-								{opt.label}
-							</VerseItem>
-						))}
-					</VerseList>
-				</Drawer>
+								{projectConfig?.title || '—'}
+							</span>
+						</ProjectButton>
 
-				{/* Project selector */}
-				<Drawer
-					placement="bottom"
-					height="auto"
-					style={{ maxHeight: '65vh' }}
-					styles={{
-						header: {
-							background: '#14112b',
-							borderBottom: '1px solid rgba(255,255,255,0.08)',
-							color: '#c8c0e0',
-						},
-						body: { background: '#1a1730', padding: '12px' },
-					}}
-					title={
-						<span style={{ color: '#c8c0e0', fontSize: 14 }}>
-							Select Recitation
-						</span>
-					}
-					open={projectMenuOpen}
-					onClose={() => setProjectMenuOpen(false)}
-					closable
-				>
-					<DrawerContent>
-						<ProjectsMenu
-							projects={projects}
-							projectConfig={projectConfig}
-							viewerMode
-							onClickProjectItem={onClickProject}
-							newProject={() => undefined}
-							open={projectMenuOpen}
+						<VerseButton onClick={() => setVerseDrawerOpen(true)}>
+							{currentBindingIndex !== undefined && currentBindingIndex >= 0
+								? verseOptions[currentBindingIndex]?.label
+								: '—'}
+							<DownOutlined />
+						</VerseButton>
+
+						<TopActions>
+							<TopBtn
+								icon={<TranslationOutlined />}
+								title="Change translation"
+								onClick={() => setTranslationMenuOpen(true)}
+							/>
+							<TopBtn
+								icon={<BookOutlined />}
+								title="Tafsir"
+								disabled={!verse}
+								onClick={() =>
+									verse && setTafsirConfig({ verseKey: verse.verse_key })
+								}
+							/>
+						</TopActions>
+					</TopBar>
+
+					{/* Main content: Arabic | Translation */}
+					<ContentRow>
+						<ArabicPanel onClick={playPause}>
+							<ArabicScroll ref={arabicScrollRef}>
+								{verse ? (
+									<ArabicText key={verse.verse_key} ref={arabicTextRef}>
+										{verse.text_uthmani}
+									</ArabicText>
+								) : (
+									<EmptyVerseHint>
+										{!projectConfig ? (
+											projects.length === 0 ? (
+												<Spin />
+											) : (
+												'Select a recitation'
+											)
+										) : (
+											'Press ▶ to start'
+										)}
+									</EmptyVerseHint>
+								)}
+							</ArabicScroll>
+						</ArabicPanel>
+
+						<TranslationPanel onClick={playPause}>
+							{verse?.translation ? (
+								<TranslationScroll
+									ref={translationScrollRef}
+									key={verse.verse_key}
+									dangerouslySetInnerHTML={{
+										__html: sanitizeHtml(verse.translation),
+									}}
+								/>
+							) : (
+								<EmptyVerseHint style={{ margin: 'auto' }}>
+									{verse ? '—' : ''}
+								</EmptyVerseHint>
+							)}
+						</TranslationPanel>
+					</ContentRow>
+
+					{/* Playback controls */}
+					<ControlsBar>
+						<CtrlBtn
+							icon={<StepBackwardOutlined />}
+							onClick={prevVerse}
+							disabled={timeToVerse(-1) < 0}
 						/>
-					</DrawerContent>
-				</Drawer>
+						<PlayBtn
+							icon={
+								isPlaying ? <PauseCircleOutlined /> : <PlayCircleOutlined />
+							}
+							onClick={playPause}
+							disabled={!videoId}
+						/>
+						<CtrlBtn
+							icon={<StepForwardOutlined />}
+							onClick={nextVerse}
+							disabled={timeToVerse(1) < 0}
+						/>
 
-				{/* Translation selector */}
-				<Drawer
-					placement="bottom"
-					height="auto"
-					style={{ maxHeight: '75vh' }}
-					styles={{
-						header: {
-							background: '#14112b',
-							borderBottom: '1px solid rgba(255,255,255,0.08)',
-						},
-						body: { padding: 0, overflowY: 'auto' },
-					}}
-					title={
-						<span style={{ color: '#c8c0e0', fontSize: 14 }}>
-							Change Translation
-						</span>
-					}
-					open={translationMenuOpen}
-					onClose={() => setTranslationMenuOpen(false)}
-					closable
-				>
-					<TranslationSelectionUI compact />
-				</Drawer>
+						<SliderWrapper>
+							<Slider
+								min={0}
+								max={videoStatus?.duration || 1}
+								value={currentTime}
+								tooltip={{ open: false }}
+								onChange={(t) => {
+									playerRef.current?.seekTo(t, true);
+								}}
+								style={{ margin: '0 4px' }}
+							/>
+						</SliderWrapper>
 
-				{/* Tafsir */}
-				<Drawer
-					placement="bottom"
-					height="auto"
-					style={{ maxHeight: '75vh' }}
-					styles={{
-						header: {
-							background: '#14112b',
-							borderBottom: '1px solid rgba(255,255,255,0.08)',
-						},
-						body: { padding: '16px' },
-					}}
-					title={
-						<span style={{ color: '#c8c0e0', fontSize: 14 }}>
-							Tafsir — Verse {tafsirConfig?.verseKey || ''}
-						</span>
-					}
-					open={Boolean(tafsirConfig)}
-					onClose={() => setTafsirConfig(undefined)}
-					closable
-				>
-					<CompactDrawerContent>
-						<TafsirByVerse tafsirConfig={tafsirConfig} />
-					</CompactDrawerContent>
-				</Drawer>
-			</Page>
-		</TranslationVisibilityProvider>
+						<TimeLabel>
+							{formatDuration(currentTime)} /{' '}
+							{formatDuration(videoStatus?.duration || 0)}
+						</TimeLabel>
+					</ControlsBar>
+
+					{/* Verse selector */}
+					<Drawer
+						placement="bottom"
+						height="auto"
+						style={{ maxHeight: '75vh' }}
+						styles={{
+							header: {
+								background: '#14112b',
+								borderBottom: '1px solid rgba(255,255,255,0.08)',
+							},
+							body: { background: '#14112b', padding: 0 },
+						}}
+						title={
+							<span style={{ color: '#c8c0e0', fontSize: 14 }}>
+								Jump to Verse
+							</span>
+						}
+						open={verseDrawerOpen}
+						onClose={() => setVerseDrawerOpen(false)}
+						closable
+					>
+						<VerseList>
+							{verseOptions.map((opt) => (
+								<VerseItem
+									key={opt.value}
+									$active={opt.value === currentBindingIndex}
+									id={
+										opt.value === currentBindingIndex
+											? 'verse-item-active'
+											: undefined
+									}
+									onClick={() => onSelectVerse(opt.value)}
+								>
+									{opt.label}
+								</VerseItem>
+							))}
+						</VerseList>
+					</Drawer>
+
+					{/* Project selector */}
+					<Drawer
+						placement="bottom"
+						height="auto"
+						style={{ maxHeight: '65vh' }}
+						styles={{
+							header: {
+								background: '#14112b',
+								borderBottom: '1px solid rgba(255,255,255,0.08)',
+								color: '#c8c0e0',
+							},
+							body: { background: '#1a1730', padding: '12px' },
+						}}
+						title={
+							<span style={{ color: '#c8c0e0', fontSize: 14 }}>
+								Select Recitation
+							</span>
+						}
+						open={projectMenuOpen}
+						onClose={() => setProjectMenuOpen(false)}
+						closable
+					>
+						<DrawerContent>
+							<ProjectsMenu
+								projects={projects}
+								projectConfig={projectConfig}
+								viewerMode
+								onClickProjectItem={onClickProject}
+								newProject={() => undefined}
+								open={projectMenuOpen}
+							/>
+						</DrawerContent>
+					</Drawer>
+
+					{/* Translation selector */}
+					<Drawer
+						placement="bottom"
+						height="auto"
+						style={{ maxHeight: '75vh' }}
+						styles={{
+							header: {
+								background: '#14112b',
+								borderBottom: '1px solid rgba(255,255,255,0.08)',
+							},
+							body: { padding: 0, overflowY: 'auto' },
+						}}
+						title={
+							<span style={{ color: '#c8c0e0', fontSize: 14 }}>
+								Change Translation
+							</span>
+						}
+						open={translationMenuOpen}
+						onClose={() => setTranslationMenuOpen(false)}
+						closable
+					>
+						<TranslationSelectionUI compact />
+					</Drawer>
+
+					{/* Tafsir */}
+					<Drawer
+						placement="bottom"
+						height="auto"
+						style={{ maxHeight: '75vh' }}
+						styles={{
+							header: {
+								background: '#14112b',
+								borderBottom: '1px solid rgba(255,255,255,0.08)',
+							},
+							body: { padding: '16px' },
+						}}
+						title={
+							<span style={{ color: '#c8c0e0', fontSize: 14 }}>
+								Tafsir — Verse {tafsirConfig?.verseKey || ''}
+							</span>
+						}
+						open={Boolean(tafsirConfig)}
+						onClose={() => setTafsirConfig(undefined)}
+						closable
+					>
+						<CompactDrawerContent>
+							<TafsirByVerse tafsirConfig={tafsirConfig} />
+						</CompactDrawerContent>
+					</Drawer>
+				</Page>
+			</TranslationVisibilityProvider>
+		</ConfigProvider>
 	);
 };
 

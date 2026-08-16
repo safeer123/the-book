@@ -38,12 +38,28 @@ export const ArabicVerseWrapper = styled.div`
 	margin: 16px;
 `;
 
+export const VerseRow = styled.div<{ $active?: boolean }>`
+	border-radius: 8px;
+	transition: background-color 0.3s ease;
+	background-color: ${({ $active }) =>
+		$active ? 'rgba(22, 119, 255, 0.08)' : 'transparent'};
+
+	[data-theme='dark'] & {
+		background-color: ${({ $active }) =>
+			$active ? 'rgba(156, 142, 224, 0.18)' : 'transparent'};
+	}
+`;
+
 export const ArabicVerseText = styled.span`
 	font-family: 'Amiri Quran';
 	color: rgb(14, 2, 121);
 	font-size: 42px;
 	font-weight: 400;
 	font-style: normal;
+
+	[data-theme='dark'] & {
+		color: #e8d9c0;
+	}
 
 	svg {
 		width: 36px;
@@ -74,6 +90,10 @@ export const BismiWrapper = styled.div`
 	color: rgb(57, 44, 177);
 	font-size: 36px;
 	font-weight: 400;
+
+	[data-theme='dark'] & {
+		color: #b8aaee;
+	}
 `;
 
 export const EngTranslation = styled.div`
@@ -117,6 +137,10 @@ export const BtnLabel = styled.span`
 	font-size: 18px;
 	color: rgb(14, 2, 121);
 	font-weight: 600;
+
+	[data-theme='dark'] & {
+		color: #b8aaee;
+	}
 `;
 
 export const StyledCard = styled(Card)<{ $selected: boolean }>`

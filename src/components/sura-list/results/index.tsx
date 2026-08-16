@@ -22,8 +22,10 @@ import {
 	ArabicVerseWrapper,
 	ArabicVerseText,
 	BismiWrapper,
+	VerseRow,
 } from './styles';
 import { VerseTranslation } from './translation';
+import { useRecitePlayer } from '../recite-player/context';
 
 const ARABIC_VERSE_CLASSNAME = 'arabic-verse-text';
 const ARABIC_VERSE_SMALL_CLASSNAME = 'arabic-verse-text-small';
@@ -59,6 +61,7 @@ const Results = ({
 	const { toVersePage } = useURLNavigation();
 
 	const { isLoading: tafsirMetaInfoLoading } = useTafsirInfoById();
+	const { currentVerseKey } = useRecitePlayer();
 
 	const onTextSelectionUpdate = useCallback(
 		debounce(() => {
@@ -131,7 +134,11 @@ const Results = ({
 					<div>
 						{chapter?.bismillah_pre && <BismiWrapper>{BISMI}</BismiWrapper>}
 						{verseKeyList.map((verseKey) => (
-							<div key={verseKey} id={`ve-${verseKey}`}>
+							<VerseRow
+								key={verseKey}
+								id={`ve-${verseKey}`}
+								$active={verseKey === currentVerseKey}
+							>
 								<ArabicVerseWrapper key={verseKey}>
 									<cite dir="rtl">
 										<ArabicVerseText className={ARABIC_VERSE_CLASSNAME}>
@@ -150,7 +157,7 @@ const Results = ({
 									textAnimationClass={config?.textAnimationClass}
 									setTafsirConfig={setTafsirConfig}
 								/>
-							</div>
+							</VerseRow>
 						))}
 					</div>
 				),
@@ -173,7 +180,11 @@ const Results = ({
 					children: (
 						<>
 							{verses.map((verse) => (
-								<div key={verse.verse_key} id={`ve-${verse.verse_key}`}>
+								<VerseRow
+									key={verse.verse_key}
+									id={`ve-${verse.verse_key}`}
+									$active={verse.verse_key === currentVerseKey}
+								>
 									<ArabicVerseWrapper>
 										<cite dir="rtl">
 											<ArabicVerseText
@@ -200,7 +211,7 @@ const Results = ({
 										textAnimationClass={config?.textAnimationClass}
 										setTafsirConfig={setTafsirConfig}
 									/>
-								</div>
+								</VerseRow>
 							))}
 						</>
 					),
@@ -209,7 +220,13 @@ const Results = ({
 		);
 
 		return [...chapterCollapseItems, ...verseCollapseItems];
-	}, [verseData, chapterData, selectedChapters, selectedVerses]);
+	}, [
+		verseData,
+		chapterData,
+		selectedChapters,
+		selectedVerses,
+		currentVerseKey,
+	]);
 
 	const activeKeys = useMemo(() => {
 		if (items?.length === 1) {

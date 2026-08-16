@@ -60,6 +60,11 @@ const CompactTopBar = styled.div`
 	background: #fff;
 	border-bottom: 1px solid #f0f0f0;
 	flex-wrap: nowrap;
+
+	[data-theme='dark'] & {
+		background: #1e1b33;
+		border-bottom-color: rgba(156, 142, 224, 0.15);
+	}
 `;
 
 const CompactTabPaneContent = styled.div`
@@ -75,6 +80,12 @@ const CompactCard = styled(Card)<{ $selected: boolean }>`
 		$selected ? 'rgba(52, 84, 244, 0.149)' : '#FFF'};
 	cursor: pointer;
 
+	[data-theme='dark'] & {
+		background-color: ${({ $selected }) =>
+			$selected ? 'rgba(156, 142, 224, 0.25)' : '#241f3d'};
+		border-color: rgba(156, 142, 224, 0.25);
+	}
+
 	.ant-card-body {
 		padding: 4px 8px !important;
 	}
@@ -89,6 +100,14 @@ const CompactCard = styled(Card)<{ $selected: boolean }>`
 		font-size: 10px;
 		color: rgba(0, 0, 0, 0.45);
 		line-height: 1.3;
+	}
+
+	[data-theme='dark'] & .tr-item-title {
+		color: #e8e2fa;
+	}
+
+	[data-theme='dark'] & .tr-item-subtitle {
+		color: #a89cd8;
 	}
 `;
 

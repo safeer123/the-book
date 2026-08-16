@@ -21,6 +21,25 @@ const Drawer = styled(AntDrawer)`
 		background-color: rgba(255, 255, 255, 0.651);
 		background-image: url(https://www.transparenttextures.com/patterns/textured-paper.png);
 	}
+
+	[data-theme='dark'] && .ant-drawer-header {
+		background-color: #1a1730;
+		background-image: none;
+		border-bottom-color: rgba(156, 142, 224, 0.2);
+	}
+
+	[data-theme='dark'] && .ant-drawer-body {
+		background-color: #1e1b33;
+		background-image: none;
+	}
+
+	[data-theme='dark'] && .ant-drawer-title {
+		color: #e8e2fa;
+	}
+
+	[data-theme='dark'] && .ant-drawer-close {
+		color: #c8c0e0;
+	}
 `;
 
 interface Props {

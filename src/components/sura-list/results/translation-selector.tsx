@@ -29,7 +29,6 @@ const { Search } = Input;
 
 const BtnLabel = styled.span`
 	font-size: 18px;
-	color: rgb(14, 2, 121);
 	font-weight: 600;
 `;
 
@@ -38,6 +37,19 @@ const StyledCard = styled(Card)<{ $selected: boolean }>`
 	background-color: ${({ $selected }) =>
 		$selected ? 'rgba(52, 84, 244, 0.149)' : '#FFF'};
 	cursor: pointer;
+
+	[data-theme='dark'] & {
+		background-color: ${({ $selected }) =>
+			$selected ? 'rgba(156, 142, 224, 0.22)' : '#241f3d'};
+
+		.tr-item-title {
+			color: #e8e2fa;
+		}
+
+		.tr-item-subtitle {
+			color: #9c94b8;
+		}
+	}
 `;
 
 const FooterItems = styled.div`
@@ -264,6 +276,10 @@ const IPopoverWrapper = styled.span`
 	margin-left: 8px;
 `;
 
+const InfoIcon = styled(InfoCircleOutlined)`
+	font-size: 18px;
+`;
+
 export const VerseTranslationSelector = ({
 	trText,
 	searchKey,
@@ -283,11 +299,7 @@ export const VerseTranslationSelector = ({
 		<Button
 			className="verse-info-selector-btn"
 			type="text"
-			icon={
-				<InfoCircleOutlined
-					style={{ fontSize: '18px', color: 'rgb(14, 2, 121)' }}
-				/>
-			}
+			icon={<InfoIcon />}
 		/>
 	);
 

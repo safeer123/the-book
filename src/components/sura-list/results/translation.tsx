@@ -5,6 +5,7 @@ import { TafsirConfig } from 'types';
 import { isPhone } from 'utils/device-utils';
 import { VerseTranslationSelector } from './translation-selector';
 import { useTranslationVisibility } from '../../../context/translation-visibility-context';
+import ReciteButton from '../recite-player/recite-button';
 
 const TRANSLATION_CLASSNAME = 'translation-text';
 const TRANSLATION_SMALL_CLASSNAME = 'translation-text-small';
@@ -30,6 +31,10 @@ const TranslationContent = styled.div`
 	color: rgb(7, 1, 65);
 	font-size: 24px;
 	letter-spacing: 0.01in;
+
+	[data-theme='dark'] & {
+		color: #b0a8c8;
+	}
 `;
 
 const ItemsWrapper = styled.div`
@@ -83,12 +88,16 @@ export const VerseTranslation = ({
 				/>
 			)}
 			{isPhone ? (
-				tafsirButton
+				<ItemsWrapper>
+					{tafsirButton}
+					<ReciteButton verseKey={verseKey} />
+				</ItemsWrapper>
 			) : (
 				<ItemsWrapper>
 					<Tooltip title="Tafsir" placement="bottom">
 						{tafsirButton}
 					</Tooltip>
+					<ReciteButton verseKey={verseKey} />
 					<VerseTranslationSelector
 						trText={trText}
 						searchKey={searchKey}
