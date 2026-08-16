@@ -9,6 +9,7 @@ import 'utils/init-firebase';
 
 import './styles.css';
 import { UserAuthProvider } from 'auth/auth-context';
+import { AppThemeProvider } from 'context/theme-context';
 
 const rootElement = document.getElementById('root')!;
 const root = ReactDOM.createRoot(rootElement);
@@ -39,9 +40,11 @@ root.render(
 			<link rel="manifest" href="/site.webmanifest" />
 		</Helmet>
 		<QueryClientProvider client={queryClient}>
-			<UserAuthProvider>
-				<RouterApp />
-			</UserAuthProvider>
+			<AppThemeProvider>
+				<UserAuthProvider>
+					<RouterApp />
+				</UserAuthProvider>
+			</AppThemeProvider>
 		</QueryClientProvider>
 	</React.StrictMode>
 );

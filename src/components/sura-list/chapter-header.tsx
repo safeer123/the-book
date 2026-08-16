@@ -17,6 +17,10 @@ const HeaderWrapper = styled.div`
 	align-items: center;
 	margin-right: 16px;
 
+	[data-theme='dark'] & {
+		color: #9c94b8;
+	}
+
 	@media (min-width: 320px) {
 		font-size: 1em;
 		gap: 0.5em;
@@ -53,6 +57,14 @@ const ArabicTitle = styled.span`
 		color: #004cb6;
 	}
 
+	[data-theme='dark'] & {
+		color: #e8d9c0;
+
+		&:hover {
+			color: #ffdca8;
+		}
+	}
+
 	@media (min-width: 320px) {
 		font-size: 1.2em;
 		margin-bottom: 1em;
@@ -70,11 +82,19 @@ const TitleText = styled.span`
 	&:hover {
 		color: #004cb6;
 	}
+
+	[data-theme='dark'] &:hover {
+		color: #ffdca8;
+	}
 `;
 
 const ChapterIndex = styled.span`
 	font-size: 18px;
 	color: #621515;
+
+	[data-theme='dark'] & {
+		color: #b8aaee;
+	}
 
 	@media (min-width: 320px) {
 		font-size: 1em;
@@ -88,6 +108,10 @@ const ChapterIndex = styled.span`
 const VerseDetails = styled.span`
 	color: #505050;
 	font-size: 14px;
+
+	[data-theme='dark'] & {
+		color: #9c94b8;
+	}
 
 	@media (min-width: 320px) {
 		font-size: 0.5em;
@@ -105,6 +129,12 @@ const RevelationPlaceInfo = styled.div`
 	padding: 0px 10px;
 	border-radius: 4px;
 	border: 1px solid #aaaaaa;
+
+	[data-theme='dark'] & {
+		color: #c8c0e0;
+		background-color: rgba(156, 142, 224, 0.15);
+		border-color: rgba(156, 142, 224, 0.4);
+	}
 
 	@media (min-width: 320px) {
 		font-size: 0.5em;

@@ -22,6 +22,11 @@ const ShortTextWrapper = styled.div`
 	line-height: 1.2;
 	border-radius: 4px;
 
+	[data-theme='dark'] & {
+		color: #d8d0f0;
+		border-color: rgba(156, 142, 224, 0.4);
+	}
+
 	@media (min-width: 320px) {
 		font-size: 14px;
 		padding: 4px;
@@ -42,6 +47,10 @@ const SourceInfoWrapper = styled.div`
 	padding: 16px;
 	margin: 16px;
 
+	[data-theme='dark'] & {
+		color: #a89cd8;
+	}
+
 	@media (min-width: 320px) {
 		font-size: 10px;
 	}
@@ -56,6 +65,10 @@ const DetailedContentWrapper = styled.div`
 	color: rgb(7 1 62);
 	line-height: 1.2;
 	padding-top: 16px;
+
+	[data-theme='dark'] & {
+		color: #d8d0f0;
+	}
 
 	h1,
 	h2 {

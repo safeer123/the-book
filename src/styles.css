@@ -3,6 +3,12 @@
 	background-color: rgba(255, 255, 255, 0.651);
 	background-image: url(https://www.transparenttextures.com/patterns/textured-paper.png);
 }
+
+[data-theme='dark'] #root {
+	background-color: #14112b;
+	background-blend-mode: overlay;
+	color: #c8c0e0;
+}
 .App {
 	font-family: sans-serif;
 	text-align: center;
@@ -75,6 +81,20 @@ body {
 	background-position: center center;
 	background-repeat: no-repeat;
 	background-size: 35px;
+}
+
+[data-theme='dark'] .scrollable::-webkit-scrollbar-track {
+	background-image: none;
+	background-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme='dark'] .scrollable::-webkit-scrollbar-thumb {
+	background-image: none;
+	background-color: rgba(156, 142, 224, 0.45);
+}
+
+[data-theme='dark'] .scrollable::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(156, 142, 224, 0.7);
 }
 
 @keyframes zoomFadeIn {
