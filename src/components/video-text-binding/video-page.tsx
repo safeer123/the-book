@@ -6,7 +6,7 @@ import YouTube, {
 	YouTubePlayer,
 	YouTubeProps,
 } from 'react-youtube';
-import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useVerseBinding } from './use-verse-binding';
 import Results from 'components/sura-list/results';
 import { ProjectConfig, VideoStatusInfo } from 'types';
@@ -33,9 +33,28 @@ const VideoWrapper = styled.div`
 		justify-content: center;
 		align-items: flex-end;
 		background-color: #180f2f;
+		background-image: radial-gradient(
+			ellipse at 50% 100%,
+			rgba(84, 170, 235, 0.12),
+			transparent 70%
+		);
 		position: relative;
 		opacity: 1;
 		overflow: hidden;
+		padding-bottom: 18px;
+	}
+
+	.embed-youtube {
+		border-radius: 14px;
+		overflow: hidden;
+		border: 1px solid rgba(126, 208, 236, 0.25);
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 0, 0, 0.25);
+		transition: border-color 0.2s ease, box-shadow 0.2s ease;
+	}
+
+	.embed-youtube:hover {
+		border-color: rgba(126, 208, 236, 0.5);
+		box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.25);
 	}
 `;
 
@@ -161,17 +180,22 @@ const VerseTooltipWrapper = styled.div`
 
 const VerseMarkItem = styled(Button)`
 	background-color: transparent;
-	width: 15px;
-	height: 15px;
+	width: 16px;
+	height: 16px;
 	padding: 0px !important;
-	border-radius: 7px;
+	border-radius: 8px;
 	opacity: 0;
 	transform: scale(0.3) translateY(3px);
 	transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-		transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+		transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.15s ease;
 	svg {
-		width: 15px;
-		height: 15px;
+		width: 16px;
+		height: 16px;
+	}
+
+	&:hover {
+		transform: scale(1.3) translateY(0) !important;
+		filter: drop-shadow(0 0 5px rgba(126, 208, 236, 0.8));
 	}
 
 	@media (min-width: 320px) {
@@ -184,7 +208,8 @@ const VerseMarkItem = styled(Button)`
 `;
 
 const BlankMarkItem = styled(VerseMarkItem)`
-	border: 1.5px dotted #7ed0ec;
+	border-radius: 50%;
+	background: radial-gradient(circle, #7ed0ec 0%, rgba(126, 208, 236, 0.3) 75%);
 `;
 
 const ControlsWrapper = styled.div`
@@ -192,22 +217,38 @@ const ControlsWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	padding: 0 16px;
-	gap: 2px;
-	border-top: 1px dashed #54aaeb;
+	box-sizing: border-box;
+	padding: 10px 20px 14px;
+	gap: 6px;
 
 	@media (min-width: 320px) {
 		position: absolute;
 		top: 60px;
 		height: 100px;
 		width: calc(100% - 16px);
-		border-top: none;
 	}
 
 	@media (min-width: 961px) {
 		position: relative;
 		top: 0;
-		border-top: 1px dashed #54aaeb;
+		width: auto;
+		background: linear-gradient(
+			to bottom,
+			rgba(255, 255, 255, 0),
+			rgba(255, 255, 255, 0.92) 40%
+		);
+		box-shadow: 0 -6px 18px rgba(20, 17, 43, 0.06);
+	}
+
+	[data-theme='dark'] & {
+		@media (min-width: 961px) {
+			background: linear-gradient(
+				to bottom,
+				rgba(20, 17, 43, 0),
+				rgba(20, 17, 43, 0.92) 40%
+			);
+			box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.4);
+		}
 	}
 
 	&:hover ${VerseMarkItem} {
@@ -219,6 +260,7 @@ const ControlsWrapper = styled.div`
 const ControlRow = styled.div`
 	display: flex;
 	align-items: center;
+	gap: 14px;
 `;
 
 const TimelineControl = styled.div`
@@ -230,18 +272,72 @@ const TimelineControl = styled.div`
 		width: 100%;
 	}
 
+	.ant-slider-rail {
+		height: 8px !important;
+		border-radius: 4px !important;
+		background-color: rgba(0, 0, 0, 0.08) !important;
+	}
+
+	.ant-slider-track {
+		height: 8px !important;
+		border-radius: 4px !important;
+		background: linear-gradient(90deg, #54aaeb, #7ed0ec) !important;
+	}
+
+	.ant-slider-handle::after {
+		width: 16px !important;
+		height: 16px !important;
+		box-shadow: 0 0 0 2px #54aaeb, 0 2px 6px rgba(20, 17, 43, 0.35) !important;
+		background-color: #fff !important;
+		inset-inline-start: 0 !important;
+		inset-block-start: 0 !important;
+	}
+
+	.ant-slider-handle:hover::after,
+	.ant-slider-handle:focus::after {
+		box-shadow: 0 0 0 4px rgba(84, 170, 235, 0.25), 0 0 0 2px #54aaeb,
+			0 2px 6px rgba(20, 17, 43, 0.35) !important;
+	}
+
 	.ant-slider-dot {
-		width: 2px !important;
-		height: 9px !important;
+		width: 1.5px !important;
+		height: 11px !important;
 		border-radius: 1px !important;
 		border: none !important;
-		background-color: #a8d8f0 !important;
+		background-color: rgba(84, 170, 235, 0.45) !important;
 		top: 50% !important;
 		transform: translate(-50%, -50%) !important;
+		transition: background-color 0.15s ease, box-shadow 0.15s ease,
+			transform 0.15s ease;
+	}
+
+	.ant-slider-dot:hover {
+		background-color: #54aaeb !important;
+		box-shadow: 0 0 6px 1px rgba(84, 170, 235, 0.85) !important;
+		transform: translate(-50%, -50%) scaleY(1.4) !important;
 	}
 
 	.ant-slider-dot-active {
-		background-color: #54aaeb !important;
+		background-color: #3d8bcf !important;
+	}
+
+	[data-theme='dark'] & {
+		.ant-slider-rail {
+			background-color: rgba(255, 255, 255, 0.12) !important;
+		}
+
+		.ant-slider-dot {
+			background-color: rgba(126, 208, 236, 0.45) !important;
+		}
+
+		.ant-slider-dot:hover {
+			background-color: #a8d8f0 !important;
+			box-shadow: 0 0 6px 1px rgba(168, 216, 240, 0.85) !important;
+		}
+
+		.ant-slider-dot-active {
+			background-color: #a8d8f0 !important;
+		}
 	}
 `;
 
@@ -249,8 +345,11 @@ const TimeInfoRow = styled.div`
 	display: flex;
 	justify-content: flex-end;
 	align-items: baseline;
+	align-self: flex-end;
 	gap: 8px;
-	padding-right: 2px;
+	padding: 2px 10px;
+	border-radius: 10px;
+	background: rgba(0, 0, 0, 0.045);
 
 	@media (min-width: 320px) {
 		display: none;
@@ -259,30 +358,46 @@ const TimeInfoRow = styled.div`
 	@media (min-width: 961px) {
 		display: flex;
 	}
+
+	[data-theme='dark'] & {
+		background: rgba(255, 255, 255, 0.07);
+	}
 `;
 
 const TimeFormatted = styled.span`
 	font-size: 13px;
-	font-weight: 500;
-	color: rgba(0, 0, 0, 0.6);
+	font-weight: 600;
+	color: rgba(0, 0, 0, 0.65);
 	font-variant-numeric: tabular-nums;
 	font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier,
 		monospace;
 	letter-spacing: 0.3px;
+
+	[data-theme='dark'] & {
+		color: #d8d0f0;
+	}
 `;
 
 const TimeRaw = styled.span`
 	font-size: 11px;
-	color: rgba(0, 0, 0, 0.28);
+	color: rgba(0, 0, 0, 0.32);
 	font-variant-numeric: tabular-nums;
 	font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier,
 		monospace;
+
+	[data-theme='dark'] & {
+		color: #a89cd8;
+	}
 `;
 
 const TimeDivider = styled.span`
-	color: rgba(0, 0, 0, 0.15);
+	color: rgba(0, 0, 0, 0.18);
 	font-size: 11px;
 	font-weight: 300;
+
+	[data-theme='dark'] & {
+		color: rgba(168, 156, 216, 0.5);
+	}
 `;
 
 interface Props {
@@ -309,6 +424,7 @@ const VideoPage = ({
 	viewerMode,
 }: Props) => {
 	const [videoVisibility, setVideoVisibility] = useState(true);
+	const timelineRef = useRef<HTMLDivElement>(null);
 	const { verses, timeToVerse } = useVerseBinding({
 		currentTime,
 		bindingConfig: projectConfig?.bindingConfig || [],
@@ -438,6 +554,18 @@ const VideoPage = ({
 		return {};
 	}, [projectConfig?.bindingConfig, verseData?.ayaByKey]);
 
+	useEffect(() => {
+		const sortedTimes = Object.keys(marks)
+			.map(Number)
+			.sort((a, b) => a - b);
+		const dotEls = timelineRef.current?.querySelectorAll('.ant-slider-dot');
+		dotEls?.forEach((el, i) => {
+			if (sortedTimes[i] !== undefined) {
+				el.setAttribute('title', formatDuration(sortedTimes[i]));
+			}
+		});
+	}, [marks]);
+
 	return (
 		<>
 			<VideoWrapper>
@@ -508,7 +636,7 @@ const VideoPage = ({
 						onClick={() => playPause()}
 						state={videoStatus?.playStatus}
 					/>
-					<TimelineControl>
+					<TimelineControl ref={timelineRef}>
 						<Slider
 							className="play-control-slider"
 							max={videoStatus?.duration || 1}
