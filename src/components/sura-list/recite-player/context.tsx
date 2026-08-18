@@ -132,6 +132,32 @@ export const RecitePlayerProvider = ({ children }: { children: ReactNode }) => {
 	const next = useCallback(() => seekStep(1), [seekStep]);
 	const prev = useCallback(() => seekStep(-1), [seekStep]);
 
+	useEffect(() => {
+		if (!activeProject) return undefined;
+		const handler = (e: KeyboardEvent) => {
+			const target = e.target as HTMLElement | null;
+			const tag = target?.tagName;
+			const isEditable =
+				tag === 'INPUT' ||
+				tag === 'TEXTAREA' ||
+				Boolean(target?.isContentEditable);
+			if (isEditable || e.metaKey || e.ctrlKey || e.altKey) return;
+
+			if (e.code === 'Space') {
+				e.preventDefault();
+				playPause();
+			} else if (e.code === 'ArrowRight') {
+				e.preventDefault();
+				next();
+			} else if (e.code === 'ArrowLeft') {
+				e.preventDefault();
+				prev();
+			}
+		};
+		document.addEventListener('keydown', handler);
+		return () => document.removeEventListener('keydown', handler);
+	}, [activeProject, playPause, next, prev]);
+
 	const stop = useCallback(() => {
 		playerRef.current?.pauseVideo();
 		playerRef.current = null;

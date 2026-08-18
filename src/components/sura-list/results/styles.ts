@@ -1,7 +1,7 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Collapse as CollapseAntd, Button, Card } from 'antd';
 
-export const Collapse = styled(CollapseAntd)`
+export const Collapse = styled(CollapseAntd)<{ $stickyHeader?: boolean }>`
 	border: none;
 	background-color: transparent;
 
@@ -22,6 +22,21 @@ export const Collapse = styled(CollapseAntd)`
 		-moz-box-shadow: -15px 17px 9px -18px rgba(0, 0, 0, 0.75);
 		box-shadow: -15px 17px 9px -18px rgba(0, 0, 0, 0.75);
 	}
+
+	${({ $stickyHeader }) =>
+		$stickyHeader &&
+		css`
+			&& .ant-collapse-header {
+				position: sticky;
+				top: 0;
+				z-index: 2;
+				background-color: #fff;
+
+				[data-theme='dark'] & {
+					background-color: #14112b;
+				}
+			}
+		`}
 `;
 
 export const SpinWrapper = styled.div`
@@ -47,6 +62,16 @@ export const VerseRow = styled.div<{ $active?: boolean }>`
 	[data-theme='dark'] & {
 		background-color: ${({ $active }) =>
 			$active ? 'rgba(156, 142, 224, 0.18)' : 'transparent'};
+	}
+
+	&:hover {
+		background-color: ${({ $active }) =>
+			$active ? 'rgba(22, 119, 255, 0.12)' : 'rgba(0, 0, 0, 0.02)'};
+	}
+
+	[data-theme='dark'] &:hover {
+		background-color: ${({ $active }) =>
+			$active ? 'rgba(156, 142, 224, 0.24)' : 'rgba(255, 255, 255, 0.035)'};
 	}
 `;
 

@@ -73,6 +73,7 @@ export interface BarChartRecordItem {
 	tooltip?: ReactNode;
 	selected?: boolean;
 	onClick?: () => void;
+	onDoubleClick?: () => void;
 }
 
 export interface VerseBindingElement {

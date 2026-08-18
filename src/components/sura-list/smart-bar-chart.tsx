@@ -162,6 +162,10 @@ const SmartBarChart = ({
 								record.onClick?.();
 								onClickSmartBarItem?.(record.id);
 							}}
+							onDoubleClick={(e) => {
+								e.stopPropagation();
+								record.onDoubleClick?.();
+							}}
 							onMouseDown={() => onSelectionStart(index)}
 							onMouseUp={(e) => {
 								e.stopPropagation();

@@ -22,11 +22,12 @@ const useVerseBarRecords = ({
 
 	const { toVersePage } = useURLNavigation();
 
-	const goToVerse = (verseKey: string) => {
-		// /* scroll to the view */
-		// const verseEle = document.getElementById(`ve-${verseKey}`);
-		// verseEle?.scrollIntoView({ behavior: 'smooth' });
+	const scrollToVerse = (verseKey: string) => {
+		const verseEle = document.getElementById(`ve-${verseKey}`);
+		verseEle?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+	};
 
+	const filterToVerse = (verseKey: string) => {
 		toVersePage(verseKey);
 	};
 
@@ -42,7 +43,8 @@ const useVerseBarRecords = ({
 						value: verseData?.ayaByKey?.[verseKey]?.text_uthmani?.length || 0,
 						tooltip: verseKey,
 						selected: selectedVerses?.has(verseKey),
-						onClick: () => goToVerse(verseKey),
+						onClick: () => scrollToVerse(verseKey),
+						onDoubleClick: () => filterToVerse(verseKey),
 					});
 				}
 				return rec;
