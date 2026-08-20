@@ -94,8 +94,11 @@ const Results = ({
 		};
 	}, [selectionEnabled]);
 
-	const items: CollapseProps['items'] = useMemo(() => {
-		if (!verseData) return [];
+	const collapseData: {
+		items: CollapseProps['items'];
+		isSingleChapterView: boolean;
+	} = useMemo(() => {
+		if (!verseData) return { items: [], isSingleChapterView: false };
 
 		const verseRangeItems: {
 			chapter: ChapterItem | undefined;
@@ -154,6 +157,7 @@ const Results = ({
 								<VerseTranslation
 									trText={verseData?.ayaByKey?.[verseKey]?.translation || ''}
 									verseKey={verseKey}
+									arabicText={verseData?.ayaByKey?.[verseKey]?.text_uthmani}
 									textAnimationClass={config?.textAnimationClass}
 									setTafsirConfig={setTafsirConfig}
 								/>
@@ -207,6 +211,7 @@ const Results = ({
 									<VerseTranslation
 										trText={verse?.translation || ''}
 										verseKey={verse.verse_key}
+										arabicText={verse?.text_uthmani}
 										searchKey={searchKeys?.[0] || ''}
 										textAnimationClass={config?.textAnimationClass}
 										setTafsirConfig={setTafsirConfig}
@@ -219,7 +224,11 @@ const Results = ({
 			}
 		);
 
-		return [...chapterCollapseItems, ...verseCollapseItems];
+		return {
+			items: [...chapterCollapseItems, ...verseCollapseItems],
+			isSingleChapterView:
+				chapterCollapseItems.length === 1 && verseCollapseItems.length === 0,
+		};
 	}, [
 		verseData,
 		chapterData,
@@ -228,6 +237,8 @@ const Results = ({
 		currentVerseKey,
 	]);
 
+	const { items, isSingleChapterView } = collapseData;
+
 	const activeKeys = useMemo(() => {
 		if (items?.length === 1) {
 			return [items?.[0]?.key || ''];
@@ -235,7 +246,7 @@ const Results = ({
 		const verseItems = items?.filter(
 			(item) => (item?.key as string)?.split('-')[0] === VerseToken
 		);
-		if (verseItems?.length > 0) {
+		if (verseItems && verseItems.length > 0) {
 			return verseItems.map((item) => item?.key || '');
 		}
 		return undefined;
@@ -255,7 +266,11 @@ const Results = ({
 			onMouseLeave={() => setSelectionEnabled(false)}
 			className="verse-display-root"
 		>
-			<Collapse items={items} activeKey={activeKeys} />
+			<Collapse
+				items={items}
+				activeKey={activeKeys}
+				$stickyHeader={isSingleChapterView}
+			/>
 			<TafsirDrawer
 				tafsirConfig={tafsirConfig}
 				chapterInfoConfig={chapterInfoConfig}
