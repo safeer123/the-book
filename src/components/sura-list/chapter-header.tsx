@@ -7,6 +7,7 @@ import SmartBarChart from './smart-bar-chart';
 import useVerseBarRecords from 'data/use-verse-bar-record';
 import { useInView } from 'react-intersection-observer';
 import { isPhone } from 'utils/device-utils';
+import useVersesInView from './use-verses-in-view';
 
 const AvailableArea = styled.div`
 	flex: 1;
@@ -175,6 +176,12 @@ const ChapterHeader = ({
 		threshold: 0,
 	});
 
+	const viewRange = useVersesInView({
+		chapterId: chapter?.id || 0,
+		versesCount: chapter?.verses_count || 0,
+		enabled: inView,
+	});
+
 	const onRangeSelected = (indStart: number, indEnd: number) => {
 		toVersePage(`${chapter?.id || ''}:${indStart + 1}-${indEnd + 1}`);
 	};
@@ -200,6 +207,7 @@ const ChapterHeader = ({
 						data={barRecords}
 						onRangeSelected={onRangeSelected}
 						onClickSmartBarItem={onClickSmartBarItem}
+						viewRange={viewRange}
 					/>
 				</AvailableArea>
 			)}

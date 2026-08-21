@@ -27,13 +27,16 @@ export const Collapse = styled(CollapseAntd)<{ $stickyHeader?: boolean }>`
 		$stickyHeader &&
 		css`
 			&& .ant-collapse-header {
+				padding: 10px 14px;
 				position: sticky;
 				top: 0;
 				z-index: 2;
-				background-color: #fff;
+				background-color: rgba(245, 238, 222, 0.88);
+				backdrop-filter: blur(6px);
+				border-radius: 10px;
 
 				[data-theme='dark'] & {
-					background-color: #14112b;
+					background-color: rgba(30, 27, 51, 0.88);
 				}
 			}
 		`}
@@ -54,6 +57,10 @@ export const ArabicVerseWrapper = styled.div`
 `;
 
 export const VerseRow = styled.div<{ $active?: boolean }>`
+	display: flex;
+	align-items: stretch;
+	gap: 8px;
+	padding: 4px 0;
 	border-radius: 8px;
 	transition: background-color 0.3s ease;
 	background-color: ${({ $active }) =>
@@ -72,6 +79,27 @@ export const VerseRow = styled.div<{ $active?: boolean }>`
 	[data-theme='dark'] &:hover {
 		background-color: ${({ $active }) =>
 			$active ? 'rgba(156, 142, 224, 0.24)' : 'rgba(255, 255, 255, 0.035)'};
+	}
+`;
+
+export const VerseMain = styled.div`
+	flex: 1;
+	min-width: 0;
+`;
+
+export const VerseActionsRail = styled.div`
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	flex-shrink: 0;
+	width: 34px;
+	opacity: 0;
+	transition: opacity 0.15s ease;
+
+	${VerseRow}:hover & {
+		opacity: 1;
 	}
 `;
 
