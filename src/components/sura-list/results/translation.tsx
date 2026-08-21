@@ -2,13 +2,12 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import sanitizeHtml from 'sanitize-html';
 import { Button, Tooltip } from 'antd';
-import { CheckOutlined, CopyOutlined, RobotOutlined } from '@ant-design/icons';
+import { BulbOutlined, CheckOutlined, CopyOutlined } from '@ant-design/icons';
 import { TafsirConfig } from 'types';
 import { isPhone } from 'utils/device-utils';
 import { VerseTranslationSelector } from './translation-selector';
 import { useTranslationVisibility } from '../../../context/translation-visibility-context';
 import ReciteButton from '../recite-player/recite-button';
-import { VerseRow } from './styles';
 
 const TRANSLATION_CLASSNAME = 'translation-text';
 const TRANSLATION_SMALL_CLASSNAME = 'translation-text-small';
@@ -54,15 +53,6 @@ const TranslationContent = styled.div`
 const ItemsWrapper = styled.div`
 	display: flex;
 	align-items: center;
-
-	@media (min-width: 961px) {
-		opacity: 0.4;
-		transition: opacity 0.15s ease;
-
-		${VerseRow}:hover & {
-			opacity: 1;
-		}
-	}
 `;
 
 interface Props {
@@ -75,6 +65,90 @@ interface Props {
 		React.SetStateAction<TafsirConfig | undefined>
 	>;
 }
+
+type ActionsProps = Omit<Props, 'textAnimationClass'>;
+
+// Desktop-only verse actions (listen, translation selector, tafsir, explain,
+// copy), meant to be rendered in a fixed left-hand rail alongside the verse
+// row rather than trailing the translation text, so they line up
+// consistently row to row instead of drifting with each verse's wrapped
+// text height.
+export const VerseActions = ({
+	trText,
+	verseKey,
+	arabicText,
+	searchKey,
+	setTafsirConfig,
+}: ActionsProps) => {
+	const [copied, setCopied] = useState(false);
+
+	const copyVerse = () => {
+		const plainTr = sanitizeHtml(trText, {
+			allowedTags: [],
+			allowedAttributes: {},
+		});
+		const textToCopy = `${
+			arabicText ? `${arabicText}\n\n` : ''
+		}${plainTr} (${verseKey})`;
+		navigator?.clipboard
+			?.writeText(textToCopy)
+			.then(() => {
+				setCopied(true);
+				setTimeout(() => setCopied(false), 2000);
+			})
+			.catch(() => {});
+	};
+
+	const copyButton = (
+		<Button
+			className="verse-copy-btn"
+			type="text"
+			icon={copied ? <CheckOutlined /> : <CopyOutlined />}
+			onClick={copyVerse}
+		/>
+	);
+
+	const tafsirButton = (
+		<Button
+			className="verse-tafsir-btn"
+			type="text"
+			onClick={() => {
+				setTafsirConfig({ verseKey });
+			}}
+		>
+			{'📖'}
+		</Button>
+	);
+
+	const explainButton = (
+		<Button
+			className="verse-explain-btn"
+			type="text"
+			icon={<BulbOutlined />}
+			onClick={() => openExplainChat(verseKey, arabicText)}
+		/>
+	);
+
+	return (
+		<>
+			<ReciteButton verseKey={verseKey} />
+			<VerseTranslationSelector
+				trText={trText}
+				searchKey={searchKey}
+				key={'translation-selector'}
+			/>
+			<Tooltip title="Tafsir" placement="right">
+				{tafsirButton}
+			</Tooltip>
+			<Tooltip title="Explain with AI" placement="right">
+				{explainButton}
+			</Tooltip>
+			<Tooltip title={copied ? 'Copied!' : 'Copy'} placement="right">
+				{copyButton}
+			</Tooltip>
+		</>
+	);
+};
 
 export const VerseTranslation = ({
 	trText,
@@ -129,7 +203,7 @@ export const VerseTranslation = ({
 		<Button
 			className="verse-explain-btn"
 			type="text"
-			icon={<RobotOutlined />}
+			icon={<BulbOutlined />}
 			onClick={() => openExplainChat(verseKey, arabicText)}
 		/>
 	);
@@ -149,30 +223,12 @@ export const VerseTranslation = ({
 					}}
 				/>
 			)}
-			{isPhone ? (
+			{isPhone && (
 				<ItemsWrapper>
-					{copyButton}
+					<ReciteButton verseKey={verseKey} />
 					{tafsirButton}
 					{explainButton}
-					<ReciteButton verseKey={verseKey} />
-				</ItemsWrapper>
-			) : (
-				<ItemsWrapper>
-					<Tooltip title={copied ? 'Copied!' : 'Copy'} placement="bottom">
-						{copyButton}
-					</Tooltip>
-					<Tooltip title="Tafsir" placement="bottom">
-						{tafsirButton}
-					</Tooltip>
-					<Tooltip title="Explain with AI" placement="bottom">
-						{explainButton}
-					</Tooltip>
-					<ReciteButton verseKey={verseKey} />
-					<VerseTranslationSelector
-						trText={trText}
-						searchKey={searchKey}
-						key={'translation-selector'}
-					/>
+					{copyButton}
 				</ItemsWrapper>
 			)}
 		</TranslationContent>

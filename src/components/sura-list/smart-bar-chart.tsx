@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { BarChartRecordItem } from 'types';
 
 const Wrapper = styled.div`
+	position: relative;
 	flex: 1;
 	height: inherit;
 	display: flex;
@@ -81,10 +82,31 @@ const BarItemWrapper = styled.div`
 	}
 `;
 
+// A horizontal line under the bars for the range of verses currently
+// visible in the reader's viewport — a "you are here" minimap indicator,
+// deliberately not reusing the selection colors (blue/orange) so it can't
+// be confused with a click-selection.
+const ViewIndicator = styled.div<{ $right: number; $width: number }>`
+	position: absolute;
+	bottom: -4px;
+	height: 2px;
+	min-width: 3px;
+	border-radius: 1px;
+	background-color: rgba(16, 185, 129, 0.9);
+	right: ${({ $right }) => $right}%;
+	width: ${({ $width }) => $width}%;
+	pointer-events: none;
+
+	[data-theme='dark'] & {
+		background-color: rgba(94, 234, 212, 0.95);
+	}
+`;
+
 interface Props {
 	data: BarChartRecordItem[];
 	onRangeSelected?: (start: number, end: number) => void;
 	onClickSmartBarItem?: (verseKey: string) => void;
+	viewRange?: { start: number; end: number };
 }
 
 interface SelectionRange {
@@ -96,6 +118,7 @@ const SmartBarChart = ({
 	data,
 	onRangeSelected,
 	onClickSmartBarItem,
+	viewRange,
 }: Props) => {
 	const [selectionRange, setSelectionRange] = useState<
 		SelectionRange | undefined
@@ -185,6 +208,12 @@ const SmartBarChart = ({
 					</Tooltip>
 				);
 			})}
+			{viewRange && data.length > 0 && (
+				<ViewIndicator
+					$right={((viewRange.start - 1) / data.length) * 100}
+					$width={((viewRange.end - viewRange.start + 1) / data.length) * 100}
+				/>
+			)}
 		</Wrapper>
 	);
 };

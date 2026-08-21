@@ -16,6 +16,7 @@ import { debounce } from 'utils/search-utils';
 import TafsirDrawer from '../tafsir-drawer';
 import useURLNavigation from 'data/use-url-navigation';
 import { useTafsirInfoById } from 'data/use-tafsirs';
+import { isPhone } from 'utils/device-utils';
 import {
 	Collapse,
 	SpinWrapper,
@@ -23,8 +24,10 @@ import {
 	ArabicVerseText,
 	BismiWrapper,
 	VerseRow,
+	VerseMain,
+	VerseActionsRail,
 } from './styles';
-import { VerseTranslation } from './translation';
+import { VerseActions, VerseTranslation } from './translation';
 import { useRecitePlayer } from '../recite-player/context';
 
 const ARABIC_VERSE_CLASSNAME = 'arabic-verse-text';
@@ -140,27 +143,42 @@ const Results = ({
 							<VerseRow
 								key={verseKey}
 								id={`ve-${verseKey}`}
+								data-verse-num={verseKey.split(':')[1]}
 								$active={verseKey === currentVerseKey}
 							>
-								<ArabicVerseWrapper key={verseKey}>
-									<cite dir="rtl">
-										<ArabicVerseText className={ARABIC_VERSE_CLASSNAME}>
-											{verseData?.ayaByKey?.[verseKey]?.text_uthmani}
-											<VerseNumber
-												number={verseKey.split(':')[1]}
-												onClick={() => toVersePage(verseKey)}
-											/>
-										</ArabicVerseText>
-									</cite>
-								</ArabicVerseWrapper>
+								{!isPhone && (
+									<VerseActionsRail>
+										<VerseActions
+											trText={
+												verseData?.ayaByKey?.[verseKey]?.translation || ''
+											}
+											verseKey={verseKey}
+											arabicText={verseData?.ayaByKey?.[verseKey]?.text_uthmani}
+											setTafsirConfig={setTafsirConfig}
+										/>
+									</VerseActionsRail>
+								)}
+								<VerseMain>
+									<ArabicVerseWrapper key={verseKey}>
+										<cite dir="rtl">
+											<ArabicVerseText className={ARABIC_VERSE_CLASSNAME}>
+												{verseData?.ayaByKey?.[verseKey]?.text_uthmani}
+												<VerseNumber
+													number={verseKey.split(':')[1]}
+													onClick={() => toVersePage(verseKey)}
+												/>
+											</ArabicVerseText>
+										</cite>
+									</ArabicVerseWrapper>
 
-								<VerseTranslation
-									trText={verseData?.ayaByKey?.[verseKey]?.translation || ''}
-									verseKey={verseKey}
-									arabicText={verseData?.ayaByKey?.[verseKey]?.text_uthmani}
-									textAnimationClass={config?.textAnimationClass}
-									setTafsirConfig={setTafsirConfig}
-								/>
+									<VerseTranslation
+										trText={verseData?.ayaByKey?.[verseKey]?.translation || ''}
+										verseKey={verseKey}
+										arabicText={verseData?.ayaByKey?.[verseKey]?.text_uthmani}
+										textAnimationClass={config?.textAnimationClass}
+										setTafsirConfig={setTafsirConfig}
+									/>
+								</VerseMain>
 							</VerseRow>
 						))}
 					</div>
@@ -187,35 +205,49 @@ const Results = ({
 								<VerseRow
 									key={verse.verse_key}
 									id={`ve-${verse.verse_key}`}
+									data-verse-num={verse.verse_key.split(':')[1]}
 									$active={verse.verse_key === currentVerseKey}
 								>
-									<ArabicVerseWrapper>
-										<cite dir="rtl">
-											<ArabicVerseText
-												className={`${ARABIC_VERSE_CLASSNAME}${
-													verse?.text_uthmani?.length >
-													ARABIC_VERSE_LENGTH_LIMIT
-														? ` ${ARABIC_VERSE_SMALL_CLASSNAME}`
-														: ''
-												}`}
-											>
-												{verse?.text_uthmani}
-												<VerseNumber
-													number={verse.verse_key.split(':')[1]}
-													onClick={() => toVersePage(verse.verse_key)}
-												/>
-											</ArabicVerseText>
-										</cite>
-									</ArabicVerseWrapper>
+									{!isPhone && (
+										<VerseActionsRail>
+											<VerseActions
+												trText={verse?.translation || ''}
+												verseKey={verse.verse_key}
+												arabicText={verse?.text_uthmani}
+												searchKey={searchKeys?.[0] || ''}
+												setTafsirConfig={setTafsirConfig}
+											/>
+										</VerseActionsRail>
+									)}
+									<VerseMain>
+										<ArabicVerseWrapper>
+											<cite dir="rtl">
+												<ArabicVerseText
+													className={`${ARABIC_VERSE_CLASSNAME}${
+														verse?.text_uthmani?.length >
+														ARABIC_VERSE_LENGTH_LIMIT
+															? ` ${ARABIC_VERSE_SMALL_CLASSNAME}`
+															: ''
+													}`}
+												>
+													{verse?.text_uthmani}
+													<VerseNumber
+														number={verse.verse_key.split(':')[1]}
+														onClick={() => toVersePage(verse.verse_key)}
+													/>
+												</ArabicVerseText>
+											</cite>
+										</ArabicVerseWrapper>
 
-									<VerseTranslation
-										trText={verse?.translation || ''}
-										verseKey={verse.verse_key}
-										arabicText={verse?.text_uthmani}
-										searchKey={searchKeys?.[0] || ''}
-										textAnimationClass={config?.textAnimationClass}
-										setTafsirConfig={setTafsirConfig}
-									/>
+										<VerseTranslation
+											trText={verse?.translation || ''}
+											verseKey={verse.verse_key}
+											arabicText={verse?.text_uthmani}
+											searchKey={searchKeys?.[0] || ''}
+											textAnimationClass={config?.textAnimationClass}
+											setTafsirConfig={setTafsirConfig}
+										/>
+									</VerseMain>
 								</VerseRow>
 							))}
 						</>
@@ -270,6 +302,10 @@ const Results = ({
 				items={items}
 				activeKey={activeKeys}
 				$stickyHeader={isSingleChapterView}
+				// A single-chapter (or single verse-range) view is always
+				// force-expanded above with no onChange handler, so the expand
+				// arrow would be a dead, misleading affordance.
+				expandIcon={isSingleChapterView ? () => null : undefined}
 			/>
 			<TafsirDrawer
 				tafsirConfig={tafsirConfig}
