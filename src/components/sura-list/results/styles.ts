@@ -103,19 +103,20 @@ export const VerseActionsRail = styled.div`
 	}
 `;
 
-export const ArabicVerseText = styled.span`
+export const ArabicVerseText = styled.span<{ $small?: boolean }>`
 	font-family: 'Amiri Quran';
 	color: rgb(14, 2, 121);
-	font-size: 42px;
+	font-size: ${({ $small }) => ($small ? '28px' : '42px')};
 	font-weight: 400;
 	font-style: normal;
+	transition: font-size 0.15s ease;
 
 	[data-theme='dark'] & {
 		color: #e8d9c0;
 	}
 
 	svg {
-		width: 36px;
+		width: ${({ $small }) => ($small ? '26px' : '36px')};
 		cursor: pointer;
 		filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
 
@@ -124,13 +125,13 @@ export const ArabicVerseText = styled.span`
 		}
 
 		@media (min-width: 320px) {
-			width: 30px;
+			width: ${({ $small }) => ($small ? '22px' : '30px')};
 			margin-bottom: -16px;
 			margin-right: 8px;
 		}
 
 		@media (min-width: 961px) {
-			width: 36px;
+			width: ${({ $small }) => ($small ? '26px' : '36px')};
 			margin-bottom: -10px;
 			margin-right: 16px;
 		}

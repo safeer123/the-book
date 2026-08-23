@@ -15,6 +15,7 @@ import { useSearchParams } from 'react-router-dom';
 import useSearch from 'data/use-search';
 import { ChapterToken, SearchConfig, VerseToken } from 'types';
 import { searchConfigFromURLParams } from 'utils/search-utils';
+import TextSizeToggle from './text-size-toggle';
 
 const SearchPanelWrapper = styled.div`
 	display: flex;
@@ -316,6 +317,7 @@ const Search: React.FC = () => {
 			<Checkbox checked={config?.matchCase} onChange={onChangeMatchCase}>
 				{'Match Case'}
 			</Checkbox>
+			<TextSizeToggle />
 		</SearchPanelWrapper>
 	);
 };

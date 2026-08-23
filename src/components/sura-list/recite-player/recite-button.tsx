@@ -1,6 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Button, Popover, Tooltip } from 'antd';
-import { CustomerServiceOutlined, PlayCircleOutlined } from '@ant-design/icons';
+import {
+	CustomerServiceOutlined,
+	ExportOutlined,
+	PlayCircleOutlined,
+} from '@ant-design/icons';
 import styled from 'styled-components';
 import { isPhone } from 'utils/device-utils';
 import { ProjectConfig } from 'types';
@@ -29,6 +33,13 @@ const ReciterRow = styled.div`
 	[data-theme='dark'] & + & {
 		border-top: 1px solid rgba(255, 255, 255, 0.08);
 	}
+`;
+
+const RowActions = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	flex-shrink: 0;
 `;
 
 const ReciterInfo = styled.div`
@@ -97,14 +108,26 @@ const ReciteButton = ({ verseKey }: Props) => {
 						<ReciterName>{reciter}</ReciterName>
 						<ProjectTitle title={project.title}>{project.title}</ProjectTitle>
 					</ReciterInfo>
-					<Button
-						size="small"
-						type="primary"
-						icon={<PlayCircleOutlined />}
-						onClick={() => onPlay(project)}
-					>
-						Play
-					</Button>
+					<RowActions>
+						<Button
+							size="small"
+							type="primary"
+							icon={<PlayCircleOutlined />}
+							onClick={() => onPlay(project)}
+						>
+							Play
+						</Button>
+						<Tooltip title="Open in qbind (new tab)">
+							<Button
+								size="small"
+								type="text"
+								icon={<ExportOutlined />}
+								href={`/qbind/${encodeURIComponent(project.videoUrl)}`}
+								target="_blank"
+								rel="noreferrer"
+							/>
+						</Tooltip>
+					</RowActions>
 				</ReciterRow>
 			))}
 		</ListWrapper>
