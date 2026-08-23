@@ -40,10 +40,11 @@ const openExplainChat = (verseKey: string, arabicText?: string) => {
 	window.open(url, '_blank', 'noopener,noreferrer');
 };
 
-const TranslationContent = styled.div`
+const TranslationContent = styled.div<{ $small?: boolean }>`
 	color: rgb(7, 1, 65);
-	font-size: 24px;
+	font-size: ${({ $small }) => ($small ? '17px' : '24px')};
 	letter-spacing: 0.01in;
+	transition: font-size 0.15s ease;
 
 	[data-theme='dark'] & {
 		color: #b0a8c8;
@@ -158,7 +159,7 @@ export const VerseTranslation = ({
 	textAnimationClass,
 	setTafsirConfig,
 }: Props) => {
-	const { hideTranslations } = useTranslationVisibility();
+	const { hideTranslations, textSize } = useTranslationVisibility();
 	const [copied, setCopied] = useState(false);
 
 	const copyVerse = () => {
@@ -209,6 +210,7 @@ export const VerseTranslation = ({
 	);
 	return (
 		<TranslationContent
+			$small={textSize === 'small'}
 			className={`${textAnimationClass || ''} ${TRANSLATION_CLASSNAME}${
 				trText?.length > TRANSLATION_LENGTH_LIMIT
 					? ` ${TRANSLATION_SMALL_CLASSNAME}`

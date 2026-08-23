@@ -1,8 +1,12 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
+export type VerseTextSize = 'big' | 'small';
+
 interface TranslationVisibilityContextType {
 	hideTranslations: boolean;
 	toggleHideTranslations: () => void;
+	textSize: VerseTextSize;
+	setTextSize: (size: VerseTextSize) => void;
 }
 
 const TranslationVisibilityContext = createContext<
@@ -13,6 +17,7 @@ export const TranslationVisibilityProvider: React.FC<{
 	children: ReactNode;
 }> = ({ children }) => {
 	const [hideTranslations, setHideTranslations] = useState(false);
+	const [textSize, setTextSize] = useState<VerseTextSize>('big');
 
 	const toggleHideTranslations = () => {
 		setHideTranslations((prev) => !prev);
@@ -20,7 +25,12 @@ export const TranslationVisibilityProvider: React.FC<{
 
 	return (
 		<TranslationVisibilityContext.Provider
-			value={{ hideTranslations, toggleHideTranslations }}
+			value={{
+				hideTranslations,
+				toggleHideTranslations,
+				textSize,
+				setTextSize,
+			}}
 		>
 			{children}
 		</TranslationVisibilityContext.Provider>

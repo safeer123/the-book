@@ -29,6 +29,7 @@ import {
 } from './styles';
 import { VerseActions, VerseTranslation } from './translation';
 import { useRecitePlayer } from '../recite-player/context';
+import { useTranslationVisibility } from '../../../context/translation-visibility-context';
 
 const ARABIC_VERSE_CLASSNAME = 'arabic-verse-text';
 const ARABIC_VERSE_SMALL_CLASSNAME = 'arabic-verse-text-small';
@@ -65,6 +66,7 @@ const Results = ({
 
 	const { isLoading: tafsirMetaInfoLoading } = useTafsirInfoById();
 	const { currentVerseKey } = useRecitePlayer();
+	const { textSize } = useTranslationVisibility();
 
 	const onTextSelectionUpdate = useCallback(
 		debounce(() => {
@@ -161,7 +163,10 @@ const Results = ({
 								<VerseMain>
 									<ArabicVerseWrapper key={verseKey}>
 										<cite dir="rtl">
-											<ArabicVerseText className={ARABIC_VERSE_CLASSNAME}>
+											<ArabicVerseText
+												$small={textSize === 'small'}
+												className={ARABIC_VERSE_CLASSNAME}
+											>
 												{verseData?.ayaByKey?.[verseKey]?.text_uthmani}
 												<VerseNumber
 													number={verseKey.split(':')[1]}
@@ -223,6 +228,7 @@ const Results = ({
 										<ArabicVerseWrapper>
 											<cite dir="rtl">
 												<ArabicVerseText
+													$small={textSize === 'small'}
 													className={`${ARABIC_VERSE_CLASSNAME}${
 														verse?.text_uthmani?.length >
 														ARABIC_VERSE_LENGTH_LIMIT
@@ -267,6 +273,7 @@ const Results = ({
 		selectedChapters,
 		selectedVerses,
 		currentVerseKey,
+		textSize,
 	]);
 
 	const { items, isSingleChapterView } = collapseData;
