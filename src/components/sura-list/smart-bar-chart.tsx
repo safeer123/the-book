@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { BarChartRecordItem } from 'types';
 
@@ -86,15 +86,20 @@ const BarItemWrapper = styled.div`
 // visible in the reader's viewport — a "you are here" minimap indicator,
 // deliberately not reusing the selection colors (blue/orange) so it can't
 // be confused with a click-selection.
-const ViewIndicator = styled.div<{ $right: number; $width: number }>`
+//
+// Positioned from measured bar pixel offsets rather than a percentage of
+// the wrapper's width: bars are capped at `max-width: 15px` and packed
+// against one edge, so the bar row often doesn't span the full wrapper
+// (e.g. short chapters), which a percentage-based position would ignore.
+const ViewIndicator = styled.div<{ $left: number; $width: number }>`
 	position: absolute;
 	bottom: -4px;
 	height: 2px;
 	min-width: 3px;
 	border-radius: 1px;
 	background-color: rgba(16, 185, 129, 0.9);
-	right: ${({ $right }) => $right}%;
-	width: ${({ $width }) => $width}%;
+	left: ${({ $left }) => $left}px;
+	width: ${({ $width }) => $width}px;
 	pointer-events: none;
 
 	[data-theme='dark'] & {
@@ -123,6 +128,39 @@ const SmartBarChart = ({
 	const [selectionRange, setSelectionRange] = useState<
 		SelectionRange | undefined
 	>();
+
+	const wrapperRef = useRef<HTMLDivElement>(null);
+	const barRefs = useRef<(HTMLDivElement | null)[]>([]);
+	const [indicatorRect, setIndicatorRect] = useState<{
+		left: number;
+		width: number;
+	} | null>(null);
+
+	useLayoutEffect(() => {
+		const wrapperEl = wrapperRef.current;
+		if (!wrapperEl) return;
+
+		const recompute = () => {
+			const startEl = viewRange && barRefs.current[viewRange.start - 1];
+			const endEl = viewRange && barRefs.current[viewRange.end - 1];
+			if (!startEl || !endEl) {
+				setIndicatorRect(null);
+				return;
+			}
+			const wrapperRect = wrapperEl.getBoundingClientRect();
+			const startRect = startEl.getBoundingClientRect();
+			const endRect = endEl.getBoundingClientRect();
+			const left = Math.min(startRect.left, endRect.left) - wrapperRect.left;
+			const right = Math.max(startRect.right, endRect.right) - wrapperRect.left;
+			setIndicatorRect({ left, width: right - left });
+		};
+
+		recompute();
+
+		const resizeObserver = new ResizeObserver(recompute);
+		resizeObserver.observe(wrapperEl);
+		return () => resizeObserver.disconnect();
+	}, [viewRange, data.length]);
 
 	const maxValue = useMemo(() => {
 		return Math.max(...data.map((rec) => rec.value));
@@ -169,12 +207,13 @@ const SmartBarChart = ({
 	};
 
 	return (
-		<Wrapper>
+		<Wrapper ref={wrapperRef}>
 			{data?.map((record, index) => {
 				const height = `${(100 * record.value) / maxValue}%`;
 				return (
 					<Tooltip key={record?.id} title={record.tooltip} placement="bottom">
 						<BarItemWrapper
+							ref={(el) => (barRefs.current[index] = el)}
 							className={
 								record.selected || shouldHighlight(index)
 									? 'bar-wrapper-selected'
@@ -208,10 +247,10 @@ const SmartBarChart = ({
 					</Tooltip>
 				);
 			})}
-			{viewRange && data.length > 0 && (
+			{indicatorRect && (
 				<ViewIndicator
-					$right={((viewRange.start - 1) / data.length) * 100}
-					$width={((viewRange.end - viewRange.start + 1) / data.length) * 100}
+					$left={indicatorRect.left}
+					$width={indicatorRect.width}
 				/>
 			)}
 		</Wrapper>
