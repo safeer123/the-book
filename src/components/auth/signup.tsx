@@ -9,7 +9,6 @@ import {
 	Button,
 	ConfigProvider,
 	Form,
-	Input,
 	theme as antdTheme,
 	Typography,
 } from 'antd';
@@ -18,14 +17,23 @@ import { useUserAuth } from 'auth/auth-context';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
+	Brand,
+	BrandSubtitle,
+	BrandTitle,
+	CompactFormWrapper,
 	Container,
+	Divider,
 	ErrorMessage,
 	FormContainer,
 	GoogleButton,
 	SignUpLink,
+	StyledInput,
+	StyledPasswordInput,
 	Title,
 } from './styles';
 import { useForceLightTheme } from './use-force-light-theme';
+
+const PRIMARY_COLOR = 'rgb(14, 2, 121)';
 
 interface FormValues {
 	email: string;
@@ -42,9 +50,7 @@ const SignUpPage = () => {
 	useForceLightTheme();
 
 	const handleSubmit = async (values: FormValues) => {
-		console.log('Signup Form submitted with values:', values);
 		try {
-			console.log('The user info is : ', values);
 			await signUp(values.email, values.password);
 			navigate('/');
 		} catch (errorObj) {
@@ -64,86 +70,100 @@ const SignUpPage = () => {
 	};
 
 	return (
-		<ConfigProvider theme={{ algorithm: antdTheme.defaultAlgorithm }}>
+		<ConfigProvider
+			theme={{
+				algorithm: antdTheme.defaultAlgorithm,
+				token: { colorPrimary: PRIMARY_COLOR },
+			}}
+		>
 			<Container>
+				<Brand>
+					<BrandTitle>The Book</BrandTitle>
+					<BrandSubtitle>Read, listen, and study the Quran</BrandSubtitle>
+				</Brand>
 				<FormContainer>
-					<Title>Sign Up</Title>
+					<Title>Sign up for The Book</Title>
 					{error && <ErrorMessage>{error}</ErrorMessage>}
-					<Form
-						form={form}
-						name="signup"
-						initialValues={{ remember: true }}
-						onFinish={handleSubmit}
-						layout="vertical"
-					>
-						<Form.Item
-							name="email"
-							label="Email"
-							rules={[
-								{ required: true, message: 'Please input your email!' },
-								{ type: 'email', message: 'Please enter a valid email!' },
-							]}
+					<CompactFormWrapper>
+						<Form
+							form={form}
+							name="signup"
+							initialValues={{ remember: true }}
+							onFinish={handleSubmit}
+							layout="vertical"
+							requiredMark={false}
 						>
-							<Input prefix={<MailOutlined />} placeholder="Email" />
-						</Form.Item>
-
-						<Form.Item
-							name="password"
-							label="Password"
-							rules={[
-								{ required: true, message: 'Please input your password!' },
-							]}
-						>
-							<Input.Password
-								prefix={<LockOutlined />}
-								placeholder="Password"
-							/>
-						</Form.Item>
-
-						<Form.Item
-							name="confirmPassword"
-							label="Confirm Password"
-							dependencies={['password']}
-							rules={[
-								{ required: true, message: 'Please confirm your password!' },
-								({ getFieldValue }) => ({
-									validator(_, value) {
-										if (!value || getFieldValue('password') === value) {
-											return Promise.resolve();
-										}
-										return Promise.reject(
-											new Error('The two passwords do not match!')
-										);
-									},
-								}),
-							]}
-						>
-							<Input.Password
-								prefix={<LockOutlined />}
-								placeholder="Confirm Password"
-							/>
-						</Form.Item>
-
-						<Form.Item>
-							<Button type="primary" htmlType="submit" block>
-								Sign Up
-							</Button>
-						</Form.Item>
-
-						<Form.Item>
-							<GoogleButton
-								icon={<GoogleOutlined />}
-								onClick={handleGoogleSignIn}
+							<Form.Item
+								name="email"
+								label="Email"
+								rules={[
+									{ required: true, message: 'Please input your email!' },
+									{ type: 'email', message: 'Please enter a valid email!' },
+								]}
 							>
-								Sign up with Google
-							</GoogleButton>
-						</Form.Item>
-					</Form>
+								<StyledInput prefix={<MailOutlined />} placeholder="Email" />
+							</Form.Item>
+
+							<Form.Item
+								name="password"
+								label="Password"
+								rules={[
+									{ required: true, message: 'Please input your password!' },
+								]}
+							>
+								<StyledPasswordInput
+									prefix={<LockOutlined />}
+									placeholder="Password"
+								/>
+							</Form.Item>
+
+							<Form.Item
+								name="confirmPassword"
+								label="Confirm Password"
+								dependencies={['password']}
+								rules={[
+									{ required: true, message: 'Please confirm your password!' },
+									({ getFieldValue }) => ({
+										validator(_, value) {
+											if (!value || getFieldValue('password') === value) {
+												return Promise.resolve();
+											}
+											return Promise.reject(
+												new Error('The two passwords do not match!')
+											);
+										},
+									}),
+								]}
+							>
+								<StyledPasswordInput
+									prefix={<LockOutlined />}
+									placeholder="Confirm Password"
+								/>
+							</Form.Item>
+
+							<Form.Item>
+								<Button type="primary" htmlType="submit" block>
+									Sign Up
+								</Button>
+							</Form.Item>
+
+							<Divider>or</Divider>
+
+							<Form.Item>
+								<GoogleButton
+									icon={<GoogleOutlined />}
+									onClick={handleGoogleSignIn}
+								>
+									Sign up with Google
+								</GoogleButton>
+							</Form.Item>
+						</Form>
+					</CompactFormWrapper>
 
 					<SignUpLink>
 						<Typography.Text>
 							Already have an account?{' '}
-							<Link to="/login" style={{ color: '#1890ff' }}>
+							<Link to="/login" style={{ color: PRIMARY_COLOR }}>
 								Sign In
 							</Link>
 						</Typography.Text>

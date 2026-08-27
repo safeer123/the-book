@@ -10,6 +10,7 @@ import ChapterBarChart from './chapter-bar-chart';
 import EmptyScreen from './empty';
 import { TranslationVisibilityProvider } from 'context/translation-visibility-context';
 import { RecitePlayerProvider } from './recite-player/context';
+import UserProfileMenu from 'components/user-profile-menu';
 
 const Wrapper = styled.div`
 	padding: 0px 16px;
@@ -57,6 +58,7 @@ const SuraList = () => {
 	return (
 		<TranslationVisibilityProvider>
 			<RecitePlayerProvider>
+				<UserProfileMenu />
 				<Wrapper>
 					<PageHeader>
 						<ChapterBarChart

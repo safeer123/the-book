@@ -44,6 +44,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { isFullSurah } from 'utils/project-utils';
 import TitleBuilderModal from 'components/video-text-binding/edit-binding/title-builder-modal';
 import AllSurahsModal from 'components/video-text-binding/all-surahs-modal';
+import UserProfileMenu from 'components/user-profile-menu';
+import { useAppTheme } from 'context/theme-context';
 
 const PROJECTS_KEY = 'verse-binding-projects';
 
@@ -57,12 +59,20 @@ const PageWrapper = styled.div`
 	gap: 16px;
 	background: #f5f5f5;
 	box-sizing: border-box;
+
+	[data-theme='dark'] & {
+		background: #14112b;
+	}
 `;
 
 const PageHeader = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+
+	[data-theme='dark'] & {
+		color: #e8e2fa;
+	}
 `;
 
 const HeaderActions = styled.div`
@@ -80,6 +90,10 @@ const ToolbarRow = styled.div`
 const ProjectCount = styled.span`
 	color: #8c8c8c;
 	font-size: 13px;
+
+	[data-theme='dark'] & {
+		color: #a89cd8;
+	}
 `;
 
 const UnsavedBadge = styled.span`
@@ -114,6 +128,19 @@ const TableWrapper = styled.div`
 	.ant-table-tbody > tr:hover > td.col-action {
 		opacity: 1;
 	}
+
+	[data-theme='dark'] & {
+		background: #1e1b33;
+		border-color: rgba(156, 142, 224, 0.2);
+
+		.ant-table-tbody > tr.row-incomplete > td {
+			background: rgba(250, 173, 20, 0.12);
+		}
+
+		.ant-table-tbody > tr.row-incomplete:hover > td {
+			background: rgba(250, 173, 20, 0.2) !important;
+		}
+	}
 `;
 
 const CellInput = styled(Input)`
@@ -133,11 +160,26 @@ const CellInput = styled(Input)`
 			background: #fff;
 		}
 	}
+
+	[data-theme='dark'] &&& {
+		&:hover {
+			border-color: rgba(156, 142, 224, 0.4);
+		}
+
+		&:focus {
+			border-color: #7e57ff;
+			background: rgba(255, 255, 255, 0.04);
+		}
+	}
 `;
 
 const BindingsContainer = styled.div`
 	padding: 12px 48px;
 	background: #fafafa;
+
+	[data-theme='dark'] & {
+		background: rgba(255, 255, 255, 0.03);
+	}
 `;
 
 const BindingsList = styled.div`
@@ -150,6 +192,10 @@ const BindingsList = styled.div`
 	border: 1px solid #e8e8e8;
 	border-radius: 4px;
 	padding: 4px;
+
+	[data-theme='dark'] & {
+		border-color: rgba(156, 142, 224, 0.2);
+	}
 `;
 
 const BindingRow = styled.div`
@@ -174,6 +220,16 @@ const BindingRow = styled.div`
 	&:hover .delete-btn {
 		opacity: 1;
 	}
+
+	[data-theme='dark'] & {
+		&:nth-child(odd) {
+			background: rgba(255, 255, 255, 0.03);
+		}
+
+		&:nth-child(even) {
+			background: transparent;
+		}
+	}
 `;
 
 const BindingIndex = styled.span`
@@ -182,6 +238,10 @@ const BindingIndex = styled.span`
 	width: 28px;
 	flex-shrink: 0;
 	text-align: right;
+
+	[data-theme='dark'] & {
+		color: #8478ad;
+	}
 `;
 
 const BindingActionsRow = styled.div`
@@ -195,6 +255,10 @@ const EmptyBindings = styled.div`
 	font-size: 12px;
 	padding: 8px;
 	text-align: center;
+
+	[data-theme='dark'] & {
+		color: #8478ad;
+	}
 `;
 
 const PageFooter = styled.div`
@@ -216,6 +280,14 @@ const FooterLink = styled.button`
 	&:hover {
 		color: #4096ff;
 	}
+
+	[data-theme='dark'] & {
+		color: #a89cd8;
+
+		&:hover {
+			color: #7ed0ec;
+		}
+	}
 `;
 
 const MissingSuraRow = styled.div`
@@ -228,6 +300,10 @@ const MissingSuraRow = styled.div`
 	&:last-child {
 		border-bottom: none;
 	}
+
+	[data-theme='dark'] & {
+		border-bottom-color: rgba(156, 142, 224, 0.2);
+	}
 `;
 
 const SuraNumber = styled.span`
@@ -236,23 +312,39 @@ const SuraNumber = styled.span`
 	width: 28px;
 	flex-shrink: 0;
 	text-align: right;
+
+	[data-theme='dark'] & {
+		color: #8478ad;
+	}
 `;
 
 const SuraNameEn = styled.span`
 	font-size: 13px;
 	flex: 1;
+
+	[data-theme='dark'] & {
+		color: #e8e2fa;
+	}
 `;
 
 const SuraNameAr = styled.span`
 	font-size: 15px;
 	color: #595959;
 	font-family: 'Amiri', serif;
+
+	[data-theme='dark'] & {
+		color: #a89cd8;
+	}
 `;
 
 const SuraVerseCount = styled.span`
 	font-size: 11px;
 	color: #8c8c8c;
 	flex-shrink: 0;
+
+	[data-theme='dark'] & {
+		color: #8478ad;
+	}
 `;
 
 const ReciterRow = styled.div`
@@ -261,6 +353,10 @@ const ReciterRow = styled.div`
 
 	&:last-child {
 		border-bottom: none;
+	}
+
+	[data-theme='dark'] & {
+		border-bottom-color: rgba(156, 142, 224, 0.2);
 	}
 `;
 
@@ -276,6 +372,10 @@ const ReciterName = styled.span`
 	font-weight: 600;
 	color: rgba(0, 0, 0, 0.85);
 	flex: 1;
+
+	[data-theme='dark'] & {
+		color: #e8e2fa;
+	}
 `;
 
 const ReciterCount = styled.span`
@@ -284,6 +384,11 @@ const ReciterCount = styled.span`
 	background: #f5f5f5;
 	padding: 1px 6px;
 	border-radius: 10px;
+
+	[data-theme='dark'] & {
+		color: #a89cd8;
+		background: rgba(156, 142, 224, 0.15);
+	}
 `;
 
 const SuraTagsList = styled.div`
@@ -308,6 +413,18 @@ const SuraTag = styled.a`
 		border-color: #4096ff;
 		color: #0958d9;
 	}
+
+	[data-theme='dark'] & {
+		color: #7ed0ec;
+		background: rgba(84, 170, 235, 0.15);
+		border-color: rgba(84, 170, 235, 0.4);
+
+		&:hover {
+			background: rgba(84, 170, 235, 0.28);
+			border-color: #54aaeb;
+			color: #bfe6f5;
+		}
+	}
 `;
 
 const FindReplaceBar = styled.div`
@@ -319,6 +436,12 @@ const FindReplaceBar = styled.div`
 	border-radius: 8px;
 	border: 1px solid #e0e0e0;
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+
+	[data-theme='dark'] & {
+		background: #1e1b33;
+		border-color: rgba(156, 142, 224, 0.2);
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+	}
 `;
 
 const FindMatchCount = styled.span`
@@ -326,6 +449,10 @@ const FindMatchCount = styled.span`
 	color: #8c8c8c;
 	white-space: nowrap;
 	min-width: 72px;
+
+	[data-theme='dark'] & {
+		color: #a89cd8;
+	}
 `;
 
 const escapeForRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -447,6 +574,7 @@ const EditProjects: FC = () => {
 	const verseBindSaveEnabled = useVerseBindSaveEnabled();
 	const navigate = useNavigate();
 	const { data: chaptersData } = useChapters();
+	const { mode } = useAppTheme();
 
 	const [projects, setProjects] = useState<ProjectConfig[]>([]);
 	const [savedSnapshot, setSavedSnapshot] = useState('');
@@ -748,8 +876,11 @@ const EditProjects: FC = () => {
 							style={
 								isMatch
 									? {
-											borderColor: '#1677ff',
-											background: '#e6f4ff',
+											borderColor: mode === 'dark' ? '#54aaeb' : '#1677ff',
+											background:
+												mode === 'dark'
+													? 'rgba(84, 170, 235, 0.18)'
+													: '#e6f4ff',
 											boxShadow: 'none',
 									  }
 									: undefined
@@ -920,6 +1051,7 @@ const EditProjects: FC = () => {
 					>
 						Save All
 					</Button>
+					<UserProfileMenu floating={false} />
 				</HeaderActions>
 			</PageHeader>
 
