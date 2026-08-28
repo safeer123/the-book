@@ -15,6 +15,7 @@ import MobileQBind from 'components/mobile-qbind';
 import { styled } from 'styled-components';
 import { isPhone } from 'utils/device-utils';
 import UserProfileMenu from 'components/user-profile-menu';
+import HomeButton from 'components/home-button';
 import { useIsAdmin } from 'data/use-is-admin';
 
 const HomeWrapper = styled.div`
@@ -174,6 +175,7 @@ const HomePage = () => {
 
 	return (
 		<HomePageWrapper>
+			<HomeButton />
 			<UserProfileMenu />
 			<HomeHeading>
 				<HomeTitle>The Book</HomeTitle>

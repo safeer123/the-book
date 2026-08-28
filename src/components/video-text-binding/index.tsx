@@ -10,7 +10,6 @@ import VideoPage from './video-page';
 import { useProjectStore } from './use-project-store';
 import { YouTubePlayer } from 'react-youtube';
 import PlayerStates from 'youtube-player/dist/constants/PlayerStates';
-import { UploadProjects } from './upload-projects';
 import { Settings as SettingsBtn } from './buttons/settings-btn';
 import { DiceIcon } from './buttons/dice-icon';
 import { IconBtnMedium } from './buttons/icon-btn';
@@ -19,6 +18,7 @@ import ProjectsMenu from './projects-menu';
 import { useUserAuth } from 'auth/auth-context';
 import { TranslationVisibilityProvider } from 'context/translation-visibility-context';
 import UserProfileMenu from 'components/user-profile-menu';
+import HomeButton from 'components/home-button';
 
 const Page = styled.div`
 	height: 100vh;
@@ -161,7 +161,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 	const { user } = useUserAuth();
 	const pidAppliedRef = useRef<string | undefined>(undefined);
 
-	const { saveProject, deleteProject, loadProjects, projects, downloadAsJson } =
+	const { saveProject, deleteProject, projects, downloadAsJson } =
 		useProjectStore({
 			setProjectConfig,
 			viewerMode,
@@ -264,6 +264,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 			<Page>
 				<ContentArea>
 					<TopBarControls>
+						<HomeButton floating={false} />
 						<Popover
 							open={projectMenuVisible}
 							onOpenChange={(state) => setProjectMenuVisible(state)}
@@ -300,8 +301,6 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 					</TopBarControls>
 
 					<SettingsArea>
-						{!viewerMode && <UploadProjects loadProjects={loadProjects} />}
-
 						{!viewerMode && (
 							<Tooltip title="Edit" placement="bottom">
 								<SettingsBtn

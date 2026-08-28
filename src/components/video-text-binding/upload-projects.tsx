@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+import { ReactNode } from 'react';
 import type { UploadProps } from 'antd';
 import { Upload } from 'antd';
 import { RcFile } from 'antd/es/upload';
@@ -7,49 +7,63 @@ import { Upload as UploadBtn } from './buttons/upload-btn';
 
 interface Props {
 	loadProjects: (projects: ProjectConfig[]) => void;
+	onUploadSuccess?: () => void;
+	onUploadError?: (message: string) => void;
+	// Defaults to the icon-only trigger styled for the video editor's dark
+	// toolbar; callers on a light page (e.g. Project Manager) pass their own.
+	children?: ReactNode;
 }
 
-const readProjectsFile = async (f?: RcFile) => {
-	try {
-		const textContent = await f?.text();
-		if (textContent) {
-			const projectsRead = JSON.parse(textContent) as {
-				projects: ProjectConfig[];
-			};
-			return projectsRead;
-		}
-	} catch {
-		console.error('Error: Failed reading the file!');
+const readProjectsFile = async (file: RcFile): Promise<ProjectConfig[]> => {
+	const textContent = await file.text();
+	const parsed = JSON.parse(textContent) as { projects?: ProjectConfig[] };
+	if (!Array.isArray(parsed.projects)) {
+		throw new Error('File is missing a top-level "projects" array');
 	}
+	return parsed.projects;
 };
 
-const props = (loadProjects: Props['loadProjects']): UploadProps => {
-	return {
-		name: 'file',
-		action: 'https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188',
-		headers: {
-			authorization: 'authorization-text',
-		},
-		showUploadList: false,
-		onChange: (info) => {
-			if (info.file.status !== 'uploading') {
-				// console.log(info.file, info.fileList);
-			}
-			if (info.file.status === 'done') {
-				console.log(`${info.file.name} file uploaded successfully`);
-				// eslint-disable-next-line @typescript-eslint/no-floating-promises
-				readProjectsFile(info.file?.originFileObj).then((data) => {
-					loadProjects(data?.projects || []);
-				});
-			} else if (info.file.status === 'error') {
-				console.log(`${info.file.name} file upload failed.`);
-			}
-		},
-	};
-};
+const buildUploadProps = ({
+	loadProjects,
+	onUploadSuccess,
+	onUploadError,
+}: Pick<
+	Props,
+	'loadProjects' | 'onUploadSuccess' | 'onUploadError'
+>): UploadProps => ({
+	name: 'file',
+	accept: '.json,application/json',
+	showUploadList: false,
+	// Parsed entirely client-side — no server involved. (This used to point
+	// `action` at a mocky.io test endpoint, which meant every upload did a
+	// real network POST there first; once that mock expired the status
+	// never reached "done" and nothing ever loaded.)
+	customRequest: (options) => {
+		const file = options.file as RcFile;
+		readProjectsFile(file)
+			.then((projects) => {
+				loadProjects(projects);
+				options.onSuccess?.({});
+				onUploadSuccess?.();
+			})
+			.catch((e: unknown) => {
+				const message =
+					e instanceof Error ? e.message : 'Failed to read the file';
+				options.onError?.(new Error(message));
+				onUploadError?.(message);
+			});
+	},
+});
 
-export const UploadProjects = ({ loadProjects }: Props) => (
-	<Upload {...props(loadProjects)}>
-		<UploadBtn />
+export const UploadProjects = ({
+	loadProjects,
+	onUploadSuccess,
+	onUploadError,
+	children,
+}: Props) => (
+	<Upload
+		{...buildUploadProps({ loadProjects, onUploadSuccess, onUploadError })}
+	>
+		{children || <UploadBtn />}
 	</Upload>
 );

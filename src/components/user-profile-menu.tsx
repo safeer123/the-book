@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, Button, Popover, Switch } from 'antd';
+import { LogoutOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 import { useUserAuth } from 'auth/auth-context';
 import { DARK_POPOVER_STYLE, useAppTheme } from 'context/theme-context';
@@ -120,7 +121,7 @@ const UserProfileMenu = ({ floating = true }: Props) => {
 						/>
 					</ThemeSwitchRow>
 					<Button
-						type="primary"
+						icon={<LogoutOutlined />}
 						size="small"
 						onClick={() => navigate('/logout')}
 					>

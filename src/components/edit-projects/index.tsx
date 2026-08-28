@@ -34,6 +34,7 @@ import {
 	PlusCircleOutlined,
 	SaveOutlined,
 	SwapOutlined,
+	UploadOutlined,
 } from '@ant-design/icons';
 import styled from 'styled-components';
 import { ChapterItem, ProjectConfig, VerseBindingElement } from 'types';
@@ -44,7 +45,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { isFullSurah } from 'utils/project-utils';
 import TitleBuilderModal from 'components/video-text-binding/edit-binding/title-builder-modal';
 import AllSurahsModal from 'components/video-text-binding/all-surahs-modal';
+import { UploadProjects } from 'components/video-text-binding/upload-projects';
 import UserProfileMenu from 'components/user-profile-menu';
+import HomeButton from 'components/home-button';
 import { useAppTheme } from 'context/theme-context';
 
 const PROJECTS_KEY = 'verse-binding-projects';
@@ -79,6 +82,12 @@ const HeaderActions = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 8px;
+`;
+
+const TitleRow = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 12px;
 `;
 
 const ToolbarRow = styled.div`
@@ -545,24 +554,30 @@ const BindingsEditor: FC<BindingsEditorProps> = ({ project, onUpdate }) => {
 							placeholder="2:255"
 							onChange={(e) => changeKey(el.id, e.target.value)}
 						/>
-						<Button
-							className="delete-btn"
-							size="small"
-							type="link"
-							danger
-							icon={<DeleteOutlined />}
-							onClick={() => remove(index)}
-						/>
+						<Tooltip title="Remove binding">
+							<Button
+								className="delete-btn"
+								size="small"
+								type="link"
+								danger
+								icon={<DeleteOutlined />}
+								onClick={() => remove(index)}
+							/>
+						</Tooltip>
 					</BindingRow>
 				))}
 			</BindingsList>
 			<BindingActionsRow>
-				<Button size="small" type="primary" onClick={addNext}>
-					{`+ Next (${chapter}:${Number(verse) + 1})`}
-				</Button>
-				<Button size="small" onClick={addBlank}>
-					+ Blank
-				</Button>
+				<Tooltip title="Add a binding for the next verse">
+					<Button size="small" type="primary" onClick={addNext}>
+						{`+ Next (${chapter}:${Number(verse) + 1})`}
+					</Button>
+				</Tooltip>
+				<Tooltip title="Add an empty binding row">
+					<Button size="small" onClick={addBlank}>
+						+ Blank
+					</Button>
+				</Tooltip>
 			</BindingActionsRow>
 		</BindingsContainer>
 	);
@@ -583,6 +598,7 @@ const EditProjects: FC = () => {
 	const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
 	const [saveIcon, setSaveIcon] = useState<ReactNode | undefined>();
 	const [saving, setSaving] = useState(false);
+	const [importIcon, setImportIcon] = useState<ReactNode | undefined>();
 	const [deleteTarget, setDeleteTarget] = useState<ProjectConfig | null>(null);
 	const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 	const [missingSurasOpen, setMissingSurasOpen] = useState(false);
@@ -804,6 +820,17 @@ const EditProjects: FC = () => {
 		link.click();
 	}, [projects]);
 
+	const onImportSuccess = useCallback(() => {
+		setImportIcon(<CheckOutlined />);
+		setTimeout(() => setImportIcon(undefined), 3000);
+	}, []);
+
+	const onImportError = useCallback((message: string) => {
+		console.error(message);
+		setImportIcon(<ExclamationOutlined />);
+		setTimeout(() => setImportIcon(undefined), 3000);
+	}, []);
+
 	const rowSelection: TableRowSelection<ProjectConfig> = {
 		selectedRowKeys: selectedKeys,
 		onChange: (keys) => setSelectedKeys(keys as string[]),
@@ -967,18 +994,15 @@ const EditProjects: FC = () => {
 			onCell: () => ({ className: 'col-action' }),
 			render: (_: unknown, record: ProjectConfig) =>
 				record.videoUrl ? (
-					<a
-						href={`/qbind/${encodeURIComponent(record.videoUrl)}`}
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						<Button
-							size="small"
-							type="text"
-							icon={<LinkOutlined />}
-							title="Open in player"
-						/>
-					</a>
+					<Tooltip title="Open in player">
+						<a
+							href={`/qbind/${encodeURIComponent(record.videoUrl)}`}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<Button size="small" type="text" icon={<LinkOutlined />} />
+						</a>
+					</Tooltip>
 				) : null,
 		},
 		{
@@ -1001,13 +1025,15 @@ const EditProjects: FC = () => {
 			width: 48,
 			onCell: () => ({ className: 'col-action' }),
 			render: (_: unknown, record: ProjectConfig) => (
-				<Button
-					size="small"
-					type="text"
-					danger
-					icon={<DeleteOutlined />}
-					onClick={() => setDeleteTarget(record)}
-				/>
+				<Tooltip title="Delete project">
+					<Button
+						size="small"
+						type="text"
+						danger
+						icon={<DeleteOutlined />}
+						onClick={() => setDeleteTarget(record)}
+					/>
+				</Tooltip>
 			),
 		},
 	];
@@ -1015,42 +1041,62 @@ const EditProjects: FC = () => {
 	return (
 		<PageWrapper>
 			<PageHeader>
-				<Typography.Title level={4} style={{ margin: 0 }}>
-					Project Manager
-				</Typography.Title>
+				<TitleRow>
+					<HomeButton floating={false} />
+					<Typography.Title level={4} style={{ margin: 0 }}>
+						Project Manager
+					</Typography.Title>
+				</TitleRow>
 				<HeaderActions>
 					{hasUnsavedChanges && <UnsavedBadge>● unsaved changes</UnsavedBadge>}
-					<Button
-						size="small"
-						icon={<SwapOutlined />}
-						type={findReplaceOpen ? 'primary' : 'default'}
-						onClick={() => {
-							setFindReplaceOpen((p) => !p);
-							setFindText('');
-							setReplaceText('');
-						}}
+					<Tooltip title="Find and replace text across project titles">
+						<Button
+							size="small"
+							icon={<SwapOutlined />}
+							type={findReplaceOpen ? 'primary' : 'default'}
+							onClick={() => {
+								setFindReplaceOpen((p) => !p);
+								setFindText('');
+								setReplaceText('');
+							}}
+						>
+							Find & Replace
+						</Button>
+					</Tooltip>
+					<UploadProjects
+						loadProjects={setProjects}
+						onUploadSuccess={onImportSuccess}
+						onUploadError={onImportError}
 					>
-						Find & Replace
-					</Button>
-					<Button
-						size="small"
-						icon={<DownloadOutlined />}
-						onClick={downloadAsJson}
-					>
-						Export
-					</Button>
-					<Button
-						type="primary"
-						size="small"
-						icon={saveIcon || <SaveOutlined />}
-						onClick={async () => {
-							await saveAll();
-						}}
-						loading={saving}
-						disabled={!hasUnsavedChanges}
-					>
-						Save All
-					</Button>
+						<Tooltip title="Import projects from a JSON file">
+							<Button size="small" icon={importIcon || <UploadOutlined />}>
+								Import
+							</Button>
+						</Tooltip>
+					</UploadProjects>
+					<Tooltip title="Download all projects as a JSON file">
+						<Button
+							size="small"
+							icon={<DownloadOutlined />}
+							onClick={downloadAsJson}
+						>
+							Export
+						</Button>
+					</Tooltip>
+					<Tooltip title="Save all changes to the database">
+						<Button
+							type="primary"
+							size="small"
+							icon={saveIcon || <SaveOutlined />}
+							onClick={async () => {
+								await saveAll();
+							}}
+							loading={saving}
+							disabled={!hasUnsavedChanges}
+						>
+							Save All
+						</Button>
+					</Tooltip>
 					<UserProfileMenu floating={false} />
 				</HeaderActions>
 			</PageHeader>
@@ -1090,14 +1136,16 @@ const EditProjects: FC = () => {
 							? `${matchCount} match${matchCount !== 1 ? 'es' : ''}`
 							: ''}
 					</FindMatchCount>
-					<Button
-						size="small"
-						type="primary"
-						disabled={!findText || matchCount === 0}
-						onClick={replaceAll}
-					>
-						Replace All
-					</Button>
+					<Tooltip title="Replace all matches in project titles">
+						<Button
+							size="small"
+							type="primary"
+							disabled={!findText || matchCount === 0}
+							onClick={replaceAll}
+						>
+							Replace All
+						</Button>
+					</Tooltip>
 				</FindReplaceBar>
 			)}
 
@@ -1110,25 +1158,29 @@ const EditProjects: FC = () => {
 					style={{ width: 320 }}
 					size="small"
 				/>
-				<Button
-					size="small"
-					type={incompleteFilter ? 'primary' : 'default'}
-					onClick={() => setIncompleteFilter((p) => !p)}
-				>
-					Unfinished
-				</Button>
+				<Tooltip title="Show only projects missing verses">
+					<Button
+						size="small"
+						type={incompleteFilter ? 'primary' : 'default'}
+						onClick={() => setIncompleteFilter((p) => !p)}
+					>
+						Unfinished
+					</Button>
+				</Tooltip>
 				<ProjectCount>
 					{filteredProjects.length} / {projects.length} projects
 				</ProjectCount>
 				{selectedKeys.length > 0 && (
-					<Button
-						danger
-						size="small"
-						icon={<DeleteOutlined />}
-						onClick={() => setBulkDeleteOpen(true)}
-					>
-						Delete selected ({selectedKeys.length})
-					</Button>
+					<Tooltip title="Delete the selected projects">
+						<Button
+							danger
+							size="small"
+							icon={<DeleteOutlined />}
+							onClick={() => setBulkDeleteOpen(true)}
+						>
+							Delete selected ({selectedKeys.length})
+						</Button>
+					</Tooltip>
 				)}
 			</ToolbarRow>
 
