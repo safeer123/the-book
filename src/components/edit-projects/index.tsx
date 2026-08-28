@@ -39,9 +39,8 @@ import {
 import styled from 'styled-components';
 import { ChapterItem, ProjectConfig, VerseBindingElement } from 'types';
 import { getData, updateData } from 'utils/firestore-utils';
-import { useVerseBindSaveEnabled } from 'data/use-verse-bind-save-enabled';
 import { useChapters } from 'data/use-chapters';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { isFullSurah } from 'utils/project-utils';
 import TitleBuilderModal from 'components/video-text-binding/edit-binding/title-builder-modal';
 import AllSurahsModal from 'components/video-text-binding/all-surahs-modal';
@@ -586,8 +585,6 @@ const BindingsEditor: FC<BindingsEditorProps> = ({ project, onUpdate }) => {
 // ── EditProjects ────────────────────────────────────────────────────────────
 
 const EditProjects: FC = () => {
-	const verseBindSaveEnabled = useVerseBindSaveEnabled();
-	const navigate = useNavigate();
 	const { data: chaptersData } = useChapters();
 	const { mode } = useAppTheme();
 
@@ -616,12 +613,6 @@ const EditProjects: FC = () => {
 		null
 	);
 	const titleBlurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-	useEffect(() => {
-		if (verseBindSaveEnabled === false) {
-			navigate('/');
-		}
-	}, [verseBindSaveEnabled, navigate]);
 
 	useEffect(() => {
 		const stored = localStorage.getItem(PROJECTS_KEY);

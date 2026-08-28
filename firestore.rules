@@ -3,23 +3,15 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // True only for a signed-in user who has a doc at /admins/{uid}.
-    // Membership is managed directly in the Firestore console (or via the
-    // Admin SDK) — never through a client write, see the `admins` rules
-    // below.
+    // Mirrors the FE allowlist in src/data/use-is-admin.ts — keep both in
+    // sync. request.auth.token.email comes straight off the ID token, so
+    // this needs no extra Firestore lookup/collection.
     function isAdmin() {
       return request.auth != null &&
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
-    }
-
-    // A signed-in user may only fetch their OWN admin doc (to decide
-    // whether to show admin UI client-side) — they can never list the
-    // collection or read anyone else's doc, so the admin list can't be
-    // enumerated. Nobody can write here from the client.
-    match /admins/{userId} {
-      allow get: if request.auth != null && request.auth.uid == userId;
-      allow list: if false;
-      allow write: if false;
+        request.auth.token.email in [
+          'safeer2c@gmail.com',
+          'dumpfolders2c@gmail.com'
+        ];
     }
 
     // Recitation-binding projects (path taken from

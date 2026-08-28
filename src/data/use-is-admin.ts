@@ -1,12 +1,9 @@
 import { useUserAuth } from 'auth/auth-context';
 
-// FE-only allowlist: hides/redirects the admin UI (Recitation Timeline
-// Editor, Project Manager) for everyone except these emails. This does NOT
-// protect the underlying Firestore writes on its own — anyone who can
-// write to Firestore directly (e.g. via devtools) isn't blocked by this.
-// Real enforcement would need Firestore Security Rules (see
-// firestore.rules for the ready-to-deploy version), intentionally not
-// wired in for now.
+// Hides/redirects the admin UI (Recitation Timeline Editor, Project
+// Manager) for everyone except these emails. Mirrored in firestore.rules'
+// isAdmin() — keep both lists in sync, since that's the actual write
+// enforcement; this one is only what decides what renders on the client.
 const ADMIN_EMAILS = ['safeer2c@gmail.com', 'dumpfolders2c@gmail.com'];
 
 export const useIsAdmin = (): boolean => {

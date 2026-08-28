@@ -28,7 +28,20 @@ export const PATH_TO_DOCUMENT =
 // Initialize Firebase
 
 export const fbApp: FirebaseApp = initializeApp(firebaseConfig);
-export const fbAnalytics: Analytics = getAnalytics(fbApp);
+
+// Analytics isn't provisioned on every project (it needs a linked Google
+// Analytics account, set up separately from the rest of Firebase), and a
+// missing/invalid measurementId can throw here — never let that take the
+// whole app down.
+export let fbAnalytics: Analytics | undefined;
+try {
+	if (firebaseConfig.measurementId) {
+		fbAnalytics = getAnalytics(fbApp);
+	}
+} catch (e) {
+	console.error('Analytics not initialized:', e);
+}
+
 export const fbDB = getFirestore(fbApp);
 export const auth = getAuth(fbApp);
 export const remoteConfig = getRemoteConfig(fbApp);
