@@ -171,7 +171,7 @@ const mobileHomeLink = {
 };
 
 const HomePage = () => {
-	const isAdmin = useIsAdmin();
+	const { data: isAdmin } = useIsAdmin();
 
 	return (
 		<HomePageWrapper>

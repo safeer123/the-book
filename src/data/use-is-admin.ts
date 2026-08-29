@@ -1,13 +1,21 @@
 import { useUserAuth } from 'auth/auth-context';
+import { useQuery, UseQueryResult } from 'react-query';
+import { doc, getDoc } from 'firebase/firestore';
+import { fbDB } from 'utils/init-firebase';
 
-// Hides/redirects the admin UI (Recitation Timeline Editor, Project
-// Manager) for everyone except these emails. Mirrored in firestore.rules'
-// isAdmin() — keep both lists in sync, since that's the actual write
-// enforcement; this one is only what decides what renders on the client.
-const ADMIN_EMAILS = ['safeer2c@gmail.com', 'dumpfolders2c@gmail.com'];
-
-export const useIsAdmin = (): boolean => {
+// Admin status is server-side only: existence of a doc at admins/{uid}
+// grants admin rights (see firestore.rules' isAdmin()). No admin
+// emails/uids are shipped in the client bundle — a user can only ever
+// check their own doc, never list the collection.
+export const useIsAdmin = (): UseQueryResult<boolean> => {
 	const { user } = useUserAuth();
-	const email = user?.email?.toLowerCase();
-	return Boolean(email && ADMIN_EMAILS.includes(email));
+	return useQuery(
+		['is-admin', user?.uid],
+		async () => {
+			if (!user) return false;
+			const snap = await getDoc(doc(fbDB, 'admins', user.uid));
+			return snap.exists();
+		},
+		{ enabled: Boolean(user), staleTime: Infinity }
+	);
 };

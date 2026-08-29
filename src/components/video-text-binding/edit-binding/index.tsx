@@ -91,7 +91,7 @@ const EditBindingConfiguration: FC<Props> = ({
 	const [titleBuilderOpen, setTitleBuilderOpen] = useState(false);
 	const [urlError, setUrlError] = useState<string | undefined>();
 
-	const isAdmin = useIsAdmin();
+	const { data: isAdmin } = useIsAdmin();
 	const { data: chaptersData } = useChapters();
 
 	const { bindingConfig = [] } = projectConfig || {};

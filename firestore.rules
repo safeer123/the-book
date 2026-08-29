@@ -3,15 +3,21 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Mirrors the FE allowlist in src/data/use-is-admin.ts — keep both in
-    // sync. request.auth.token.email comes straight off the ID token, so
-    // this needs no extra Firestore lookup/collection.
+    // A doc existing at admins/{uid} grants that user admin rights. No
+    // admin emails/uids live in this rules file — add/remove admins by
+    // creating/deleting a doc in the Firebase Console's Data tab, keyed by
+    // the user's Auth UID (Authentication > Users).
     function isAdmin() {
       return request.auth != null &&
-        request.auth.token.email in [
-          'safeer2c@gmail.com',
-          'dumpfolders2c@gmail.com'
-        ];
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // A signed-in user may only check their OWN admin doc (get), never
+    // list the collection — so nobody can enumerate who else is an admin.
+    // Writes happen out-of-band via the Console, not through the app.
+    match /admins/{uid} {
+      allow get: if request.auth != null && request.auth.uid == uid;
+      allow list, write: if false;
     }
 
     // Recitation-binding projects (path taken from
