@@ -15,7 +15,7 @@ import { DiceIcon } from './buttons/dice-icon';
 import { IconBtnMedium } from './buttons/icon-btn';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ProjectsMenu from './projects-menu';
-import { useUserAuth } from 'auth/auth-context';
+import { useIsAdmin } from 'data/use-is-admin';
 import { TranslationVisibilityProvider } from 'context/translation-visibility-context';
 import UserProfileMenu from 'components/user-profile-menu';
 import HomeButton from 'components/home-button';
@@ -158,7 +158,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 	const navigate = useNavigate();
 	const { pid } = useParams();
 
-	const { user } = useUserAuth();
+	const { data: isAdmin } = useIsAdmin();
 	const pidAppliedRef = useRef<string | undefined>(undefined);
 
 	const { saveProject, deleteProject, projects, downloadAsJson } =
@@ -309,7 +309,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 							</Tooltip>
 						)}
 
-						{viewerMode && user && projectConfig && (
+						{viewerMode && isAdmin && projectConfig && (
 							<Tooltip title="Edit project" placement="bottom">
 								<IconBtnMedium
 									type="text"
