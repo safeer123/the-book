@@ -7,12 +7,16 @@ import AIPromptApp from 'components/ai-prompt-test';
 import SignInPage from 'components/auth/login';
 import SignUpPage from 'components/auth/signup';
 import ProtectedRoutes from './protected-routes';
+import AdminProtectedRoutes from './admin-protected-routes';
 import SignOutPage from 'components/auth/logout';
 import { Playground } from 'components/playground';
 import EditProjects from 'components/edit-projects';
 import MobileQBind from 'components/mobile-qbind';
 import { styled } from 'styled-components';
 import { isPhone } from 'utils/device-utils';
+import UserProfileMenu from 'components/user-profile-menu';
+import HomeButton from 'components/home-button';
+import { useIsAdmin } from 'data/use-is-admin';
 
 const HomeWrapper = styled.div`
 	display: flex;
@@ -142,6 +146,7 @@ const homeLinks = [
 		icon: '🎬',
 		title: 'Recitation Timeline Editor',
 		description: 'Bind a recitation video to verses, timestamp by timestamp.',
+		adminOnly: true,
 	},
 	{
 		to: '/qbind',
@@ -154,6 +159,7 @@ const homeLinks = [
 		icon: '🗂️',
 		title: 'Project Manager',
 		description: 'Organize and manage your recitation-to-verse projects.',
+		adminOnly: true,
 	},
 ];
 
@@ -164,25 +170,33 @@ const mobileHomeLink = {
 	description: 'A pocket-friendly recitation player for on-the-go listening.',
 };
 
-const HomePage = () => (
-	<HomePageWrapper>
-		<HomeHeading>
-			<HomeTitle>The Book</HomeTitle>
-			<HomeSubtitle>Read, listen, and study the Quran</HomeSubtitle>
-		</HomeHeading>
-		<LinkGrid>
-			{[...homeLinks, ...(isPhone ? [mobileHomeLink] : [])].map((link) => (
-				<LinkCard to={link.to} key={link.to}>
-					<LinkIcon>{link.icon}</LinkIcon>
-					<LinkText>
-						<LinkTitle>{link.title}</LinkTitle>
-						<LinkDescription>{link.description}</LinkDescription>
-					</LinkText>
-				</LinkCard>
-			))}
-		</LinkGrid>
-	</HomePageWrapper>
-);
+const HomePage = () => {
+	const { data: isAdmin } = useIsAdmin();
+
+	return (
+		<HomePageWrapper>
+			<HomeButton />
+			<UserProfileMenu />
+			<HomeHeading>
+				<HomeTitle>The Book</HomeTitle>
+				<HomeSubtitle>Read, listen, and study the Quran</HomeSubtitle>
+			</HomeHeading>
+			<LinkGrid>
+				{[...homeLinks, ...(isPhone ? [mobileHomeLink] : [])]
+					.filter((link) => !('adminOnly' in link) || isAdmin)
+					.map((link) => (
+						<LinkCard to={link.to} key={link.to}>
+							<LinkIcon>{link.icon}</LinkIcon>
+							<LinkText>
+								<LinkTitle>{link.title}</LinkTitle>
+								<LinkDescription>{link.description}</LinkDescription>
+							</LinkText>
+						</LinkCard>
+					))}
+			</LinkGrid>
+		</HomePageWrapper>
+	);
+};
 
 const devHome = (
 	<HomeWrapper>
@@ -214,14 +228,6 @@ const router = createBrowserRouter([
 				element: devHome,
 			},
 			{
-				path: 'verse-binding',
-				element: <VideoTextBinding />,
-			},
-			{
-				path: 'verse-binding/:pid',
-				element: <VideoTextBinding />,
-			},
-			{
 				path: 'ai-prompt-app',
 				element: <AIPromptApp />,
 			},
@@ -234,8 +240,21 @@ const router = createBrowserRouter([
 				element: <Playground />,
 			},
 			{
-				path: 'edit-projects',
-				element: <EditProjects />,
+				element: <AdminProtectedRoutes />,
+				children: [
+					{
+						path: 'verse-binding',
+						element: <VideoTextBinding />,
+					},
+					{
+						path: 'verse-binding/:pid',
+						element: <VideoTextBinding />,
+					},
+					{
+						path: 'edit-projects',
+						element: <EditProjects />,
+					},
+				],
 			},
 		],
 	},

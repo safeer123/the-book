@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import styled from 'styled-components';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Avatar, Button, Popover, Switch, Tooltip } from 'antd';
+import { Popover, Tooltip } from 'antd';
 import { DownOutlined, EditOutlined } from '@ant-design/icons';
 import EditBindingConfiguration from './edit-binding';
 import { ProjectConfig, VideoStatusInfo } from 'types';
@@ -10,15 +10,15 @@ import VideoPage from './video-page';
 import { useProjectStore } from './use-project-store';
 import { YouTubePlayer } from 'react-youtube';
 import PlayerStates from 'youtube-player/dist/constants/PlayerStates';
-import { UploadProjects } from './upload-projects';
 import { Settings as SettingsBtn } from './buttons/settings-btn';
 import { DiceIcon } from './buttons/dice-icon';
 import { IconBtnMedium } from './buttons/icon-btn';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ProjectsMenu from './projects-menu';
-import { useUserAuth } from 'auth/auth-context';
+import { useIsAdmin } from 'data/use-is-admin';
 import { TranslationVisibilityProvider } from 'context/translation-visibility-context';
-import { DARK_POPOVER_STYLE, useAppTheme } from 'context/theme-context';
+import UserProfileMenu from 'components/user-profile-menu';
+import HomeButton from 'components/home-button';
 
 const Page = styled.div`
 	height: 100vh;
@@ -130,51 +130,6 @@ const newProjectConfig = (): ProjectConfig => {
 	};
 };
 
-const ProfileMenuWrapper = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-`;
-
-const StyledAvatar = styled(Avatar)``;
-
-const UserDisplayName = styled.div`
-	color: #000;
-	font-size: 14px;
-	display: flex;
-	align-items: center;
-	gap: 8px;
-
-	[data-theme='dark'] & {
-		color: #e8e2fa;
-	}
-`;
-
-const UserEmail = styled.div`
-	color: #707070;
-	font-size: 12px;
-
-	[data-theme='dark'] & {
-		color: #a89cd8;
-	}
-`;
-
-const ThemeSwitchRow = styled.div`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-	padding-top: 4px;
-	border-top: 1px solid #f0f0f0;
-	color: #000;
-	font-size: 13px;
-
-	[data-theme='dark'] & {
-		color: #e8e2fa;
-		border-top-color: rgba(156, 142, 224, 0.2);
-	}
-`;
-
 interface Props {
 	viewerMode?: boolean;
 }
@@ -189,7 +144,6 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 	>();
 	const [videoStatus, setVideoStatus] = useState<VideoStatusInfo | undefined>();
 	const [searchParams] = useSearchParams();
-	const { mode, toggleTheme } = useAppTheme();
 
 	// The global toggle collides with this page's own top-right controls;
 	// the theme switch lives in the profile menu here instead (see below).
@@ -204,10 +158,10 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 	const navigate = useNavigate();
 	const { pid } = useParams();
 
-	const { user } = useUserAuth();
+	const { data: isAdmin } = useIsAdmin();
 	const pidAppliedRef = useRef<string | undefined>(undefined);
 
-	const { saveProject, deleteProject, loadProjects, projects, downloadAsJson } =
+	const { saveProject, deleteProject, projects, downloadAsJson } =
 		useProjectStore({
 			setProjectConfig,
 			viewerMode,
@@ -310,6 +264,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 			<Page>
 				<ContentArea>
 					<TopBarControls>
+						<HomeButton floating={false} />
 						<Popover
 							open={projectMenuVisible}
 							onOpenChange={(state) => setProjectMenuVisible(state)}
@@ -346,8 +301,6 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 					</TopBarControls>
 
 					<SettingsArea>
-						{!viewerMode && <UploadProjects loadProjects={loadProjects} />}
-
 						{!viewerMode && (
 							<Tooltip title="Edit" placement="bottom">
 								<SettingsBtn
@@ -356,7 +309,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 							</Tooltip>
 						)}
 
-						{viewerMode && user && projectConfig && (
+						{viewerMode && isAdmin && projectConfig && (
 							<Tooltip title="Edit project" placement="bottom">
 								<IconBtnMedium
 									type="text"
@@ -372,59 +325,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 							</Tooltip>
 						)}
 
-						{user && (
-							<Popover
-								trigger={'hover'}
-								overlayInnerStyle={
-									mode === 'dark' ? DARK_POPOVER_STYLE : undefined
-								}
-								content={
-									<ProfileMenuWrapper>
-										<UserDisplayName>
-											<Avatar
-												src={
-													user?.photoURL ? (
-														<img
-															src={user?.photoURL}
-															referrerPolicy="no-referrer"
-														/>
-													) : undefined
-												}
-											>
-												{user?.displayName?.[0]?.toUpperCase()}
-											</Avatar>
-											{user?.displayName}
-										</UserDisplayName>
-										<UserEmail>{user?.email}</UserEmail>
-										<ThemeSwitchRow>
-											{mode === 'dark' ? '🌙 Dark mode' : '☀️ Light mode'}
-											<Switch
-												size="small"
-												checked={mode === 'dark'}
-												onChange={toggleTheme}
-											/>
-										</ThemeSwitchRow>
-										<Button
-											type="primary"
-											size="small"
-											onClick={() => navigate('/logout')}
-										>
-											Logout
-										</Button>
-									</ProfileMenuWrapper>
-								}
-							>
-								<StyledAvatar
-									src={
-										user?.photoURL ? (
-											<img src={user?.photoURL} referrerPolicy="no-referrer" />
-										) : undefined
-									}
-								>
-									{user?.displayName?.[0]?.toUpperCase()}
-								</StyledAvatar>
-							</Popover>
-						)}
+						<UserProfileMenu floating={false} />
 					</SettingsArea>
 
 					<VideoPage

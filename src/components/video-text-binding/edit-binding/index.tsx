@@ -44,7 +44,7 @@ import {
 	UrlErrorText,
 	DurationText,
 } from './styles';
-import { useVerseBindSaveEnabled } from 'data/use-verse-bind-save-enabled';
+import { useIsAdmin } from 'data/use-is-admin';
 import { useChapters } from 'data/use-chapters';
 import { isFullSurah } from 'utils/project-utils';
 import { Link } from 'react-router-dom';
@@ -91,7 +91,7 @@ const EditBindingConfiguration: FC<Props> = ({
 	const [titleBuilderOpen, setTitleBuilderOpen] = useState(false);
 	const [urlError, setUrlError] = useState<string | undefined>();
 
-	const verseBindSaveEnabled = useVerseBindSaveEnabled();
+	const { data: isAdmin } = useIsAdmin();
 	const { data: chaptersData } = useChapters();
 
 	const { bindingConfig = [] } = projectConfig || {};
@@ -234,7 +234,7 @@ const EditBindingConfiguration: FC<Props> = ({
 				<PanelHeader>
 					<PanelTitle>Edit timeline</PanelTitle>
 					<Space size="small">
-						{verseBindSaveEnabled && (
+						{isAdmin && (
 							<Link to="/edit-projects">
 								<Button type="link" size="small">
 									Projects
@@ -387,7 +387,7 @@ const EditBindingConfiguration: FC<Props> = ({
 								</BindingListItems>
 							</BindingListContainer>
 							<ActionArea>
-								{verseBindSaveEnabled && (
+								{isAdmin && (
 									<Button
 										type="primary"
 										danger
@@ -452,7 +452,7 @@ const EditBindingConfiguration: FC<Props> = ({
 										onClick={downloadAsJson}
 									/>
 								</Tooltip>
-								{verseBindSaveEnabled && (
+								{isAdmin && (
 									<Button
 										type="primary"
 										icon={saveLoadingIcon || <SaveOutlined />}

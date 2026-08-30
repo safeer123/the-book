@@ -10,6 +10,8 @@ import ChapterBarChart from './chapter-bar-chart';
 import EmptyScreen from './empty';
 import { TranslationVisibilityProvider } from 'context/translation-visibility-context';
 import { RecitePlayerProvider } from './recite-player/context';
+import UserProfileMenu from 'components/user-profile-menu';
+import HomeButton from 'components/home-button';
 
 const Wrapper = styled.div`
 	padding: 0px 16px;
@@ -20,6 +22,10 @@ const Wrapper = styled.div`
 
 const PageHeader = styled.div`
 	margin: 0px 16px 16px 16px;
+	/* Leaves room for the fixed HomeButton at top:16/left:16 (44px wide),
+	   mirroring the 72px offset the recite floating panel reserves on the
+	   opposite corner for the theme toggle. */
+	padding-left: 40px;
 `;
 
 const Content = styled.div`
@@ -57,6 +63,8 @@ const SuraList = () => {
 	return (
 		<TranslationVisibilityProvider>
 			<RecitePlayerProvider>
+				<HomeButton />
+				<UserProfileMenu />
 				<Wrapper>
 					<PageHeader>
 						<ChapterBarChart

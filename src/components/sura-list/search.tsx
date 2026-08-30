@@ -55,6 +55,10 @@ const ArabicTitle = styled.span`
 	font-family: 'Amiri Quran';
 	color: rgb(14, 2, 121);
 	font-size: 16px;
+
+	[data-theme='dark'] & {
+		color: #e8d9c0;
+	}
 `;
 
 const ItemWrapper = styled.div`

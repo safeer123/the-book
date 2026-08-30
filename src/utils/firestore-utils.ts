@@ -36,11 +36,9 @@ export const updateData = async (
 	updatedData: object,
 	id = DOCUMENT_ID
 ): Promise<void> => {
-	try {
-		const docRef = doc(fbDB, PATH_TO_DOCUMENT, id);
-		await updateDoc(docRef, updatedData);
-		console.log('Data updated successfully!');
-	} catch (error) {
-		console.error('Error updating data:', error);
-	}
+	const docRef = doc(fbDB, PATH_TO_DOCUMENT, id);
+	// Deliberately not caught here — callers (e.g. Save All's success/error
+	// icon) need to know a write actually failed rather than see a false
+	// "saved" state.
+	await updateDoc(docRef, updatedData);
 };

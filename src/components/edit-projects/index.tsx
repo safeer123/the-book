@@ -34,16 +34,20 @@ import {
 	PlusCircleOutlined,
 	SaveOutlined,
 	SwapOutlined,
+	UploadOutlined,
 } from '@ant-design/icons';
 import styled from 'styled-components';
 import { ChapterItem, ProjectConfig, VerseBindingElement } from 'types';
 import { getData, updateData } from 'utils/firestore-utils';
-import { useVerseBindSaveEnabled } from 'data/use-verse-bind-save-enabled';
 import { useChapters } from 'data/use-chapters';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { isFullSurah } from 'utils/project-utils';
 import TitleBuilderModal from 'components/video-text-binding/edit-binding/title-builder-modal';
 import AllSurahsModal from 'components/video-text-binding/all-surahs-modal';
+import { UploadProjects } from 'components/video-text-binding/upload-projects';
+import UserProfileMenu from 'components/user-profile-menu';
+import HomeButton from 'components/home-button';
+import { useAppTheme } from 'context/theme-context';
 
 const PROJECTS_KEY = 'verse-binding-projects';
 
@@ -57,18 +61,32 @@ const PageWrapper = styled.div`
 	gap: 16px;
 	background: #f5f5f5;
 	box-sizing: border-box;
+
+	[data-theme='dark'] & {
+		background: #14112b;
+	}
 `;
 
 const PageHeader = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+
+	[data-theme='dark'] & {
+		color: #e8e2fa;
+	}
 `;
 
 const HeaderActions = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 8px;
+`;
+
+const TitleRow = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 12px;
 `;
 
 const ToolbarRow = styled.div`
@@ -80,6 +98,10 @@ const ToolbarRow = styled.div`
 const ProjectCount = styled.span`
 	color: #8c8c8c;
 	font-size: 13px;
+
+	[data-theme='dark'] & {
+		color: #a89cd8;
+	}
 `;
 
 const UnsavedBadge = styled.span`
@@ -114,6 +136,19 @@ const TableWrapper = styled.div`
 	.ant-table-tbody > tr:hover > td.col-action {
 		opacity: 1;
 	}
+
+	[data-theme='dark'] & {
+		background: #1e1b33;
+		border-color: rgba(156, 142, 224, 0.2);
+
+		.ant-table-tbody > tr.row-incomplete > td {
+			background: rgba(250, 173, 20, 0.12);
+		}
+
+		.ant-table-tbody > tr.row-incomplete:hover > td {
+			background: rgba(250, 173, 20, 0.2) !important;
+		}
+	}
 `;
 
 const CellInput = styled(Input)`
@@ -133,11 +168,26 @@ const CellInput = styled(Input)`
 			background: #fff;
 		}
 	}
+
+	[data-theme='dark'] &&& {
+		&:hover {
+			border-color: rgba(156, 142, 224, 0.4);
+		}
+
+		&:focus {
+			border-color: #7e57ff;
+			background: rgba(255, 255, 255, 0.04);
+		}
+	}
 `;
 
 const BindingsContainer = styled.div`
 	padding: 12px 48px;
 	background: #fafafa;
+
+	[data-theme='dark'] & {
+		background: rgba(255, 255, 255, 0.03);
+	}
 `;
 
 const BindingsList = styled.div`
@@ -150,6 +200,10 @@ const BindingsList = styled.div`
 	border: 1px solid #e8e8e8;
 	border-radius: 4px;
 	padding: 4px;
+
+	[data-theme='dark'] & {
+		border-color: rgba(156, 142, 224, 0.2);
+	}
 `;
 
 const BindingRow = styled.div`
@@ -174,6 +228,16 @@ const BindingRow = styled.div`
 	&:hover .delete-btn {
 		opacity: 1;
 	}
+
+	[data-theme='dark'] & {
+		&:nth-child(odd) {
+			background: rgba(255, 255, 255, 0.03);
+		}
+
+		&:nth-child(even) {
+			background: transparent;
+		}
+	}
 `;
 
 const BindingIndex = styled.span`
@@ -182,6 +246,10 @@ const BindingIndex = styled.span`
 	width: 28px;
 	flex-shrink: 0;
 	text-align: right;
+
+	[data-theme='dark'] & {
+		color: #8478ad;
+	}
 `;
 
 const BindingActionsRow = styled.div`
@@ -195,6 +263,10 @@ const EmptyBindings = styled.div`
 	font-size: 12px;
 	padding: 8px;
 	text-align: center;
+
+	[data-theme='dark'] & {
+		color: #8478ad;
+	}
 `;
 
 const PageFooter = styled.div`
@@ -216,6 +288,14 @@ const FooterLink = styled.button`
 	&:hover {
 		color: #4096ff;
 	}
+
+	[data-theme='dark'] & {
+		color: #a89cd8;
+
+		&:hover {
+			color: #7ed0ec;
+		}
+	}
 `;
 
 const MissingSuraRow = styled.div`
@@ -228,6 +308,10 @@ const MissingSuraRow = styled.div`
 	&:last-child {
 		border-bottom: none;
 	}
+
+	[data-theme='dark'] & {
+		border-bottom-color: rgba(156, 142, 224, 0.2);
+	}
 `;
 
 const SuraNumber = styled.span`
@@ -236,23 +320,39 @@ const SuraNumber = styled.span`
 	width: 28px;
 	flex-shrink: 0;
 	text-align: right;
+
+	[data-theme='dark'] & {
+		color: #8478ad;
+	}
 `;
 
 const SuraNameEn = styled.span`
 	font-size: 13px;
 	flex: 1;
+
+	[data-theme='dark'] & {
+		color: #e8e2fa;
+	}
 `;
 
 const SuraNameAr = styled.span`
 	font-size: 15px;
 	color: #595959;
 	font-family: 'Amiri', serif;
+
+	[data-theme='dark'] & {
+		color: #a89cd8;
+	}
 `;
 
 const SuraVerseCount = styled.span`
 	font-size: 11px;
 	color: #8c8c8c;
 	flex-shrink: 0;
+
+	[data-theme='dark'] & {
+		color: #8478ad;
+	}
 `;
 
 const ReciterRow = styled.div`
@@ -261,6 +361,10 @@ const ReciterRow = styled.div`
 
 	&:last-child {
 		border-bottom: none;
+	}
+
+	[data-theme='dark'] & {
+		border-bottom-color: rgba(156, 142, 224, 0.2);
 	}
 `;
 
@@ -276,6 +380,10 @@ const ReciterName = styled.span`
 	font-weight: 600;
 	color: rgba(0, 0, 0, 0.85);
 	flex: 1;
+
+	[data-theme='dark'] & {
+		color: #e8e2fa;
+	}
 `;
 
 const ReciterCount = styled.span`
@@ -284,6 +392,11 @@ const ReciterCount = styled.span`
 	background: #f5f5f5;
 	padding: 1px 6px;
 	border-radius: 10px;
+
+	[data-theme='dark'] & {
+		color: #a89cd8;
+		background: rgba(156, 142, 224, 0.15);
+	}
 `;
 
 const SuraTagsList = styled.div`
@@ -308,6 +421,18 @@ const SuraTag = styled.a`
 		border-color: #4096ff;
 		color: #0958d9;
 	}
+
+	[data-theme='dark'] & {
+		color: #7ed0ec;
+		background: rgba(84, 170, 235, 0.15);
+		border-color: rgba(84, 170, 235, 0.4);
+
+		&:hover {
+			background: rgba(84, 170, 235, 0.28);
+			border-color: #54aaeb;
+			color: #bfe6f5;
+		}
+	}
 `;
 
 const FindReplaceBar = styled.div`
@@ -319,6 +444,12 @@ const FindReplaceBar = styled.div`
 	border-radius: 8px;
 	border: 1px solid #e0e0e0;
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+
+	[data-theme='dark'] & {
+		background: #1e1b33;
+		border-color: rgba(156, 142, 224, 0.2);
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+	}
 `;
 
 const FindMatchCount = styled.span`
@@ -326,6 +457,10 @@ const FindMatchCount = styled.span`
 	color: #8c8c8c;
 	white-space: nowrap;
 	min-width: 72px;
+
+	[data-theme='dark'] & {
+		color: #a89cd8;
+	}
 `;
 
 const escapeForRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -418,24 +553,30 @@ const BindingsEditor: FC<BindingsEditorProps> = ({ project, onUpdate }) => {
 							placeholder="2:255"
 							onChange={(e) => changeKey(el.id, e.target.value)}
 						/>
-						<Button
-							className="delete-btn"
-							size="small"
-							type="link"
-							danger
-							icon={<DeleteOutlined />}
-							onClick={() => remove(index)}
-						/>
+						<Tooltip title="Remove binding">
+							<Button
+								className="delete-btn"
+								size="small"
+								type="link"
+								danger
+								icon={<DeleteOutlined />}
+								onClick={() => remove(index)}
+							/>
+						</Tooltip>
 					</BindingRow>
 				))}
 			</BindingsList>
 			<BindingActionsRow>
-				<Button size="small" type="primary" onClick={addNext}>
-					{`+ Next (${chapter}:${Number(verse) + 1})`}
-				</Button>
-				<Button size="small" onClick={addBlank}>
-					+ Blank
-				</Button>
+				<Tooltip title="Add a binding for the next verse">
+					<Button size="small" type="primary" onClick={addNext}>
+						{`+ Next (${chapter}:${Number(verse) + 1})`}
+					</Button>
+				</Tooltip>
+				<Tooltip title="Add an empty binding row">
+					<Button size="small" onClick={addBlank}>
+						+ Blank
+					</Button>
+				</Tooltip>
 			</BindingActionsRow>
 		</BindingsContainer>
 	);
@@ -444,9 +585,8 @@ const BindingsEditor: FC<BindingsEditorProps> = ({ project, onUpdate }) => {
 // ── EditProjects ────────────────────────────────────────────────────────────
 
 const EditProjects: FC = () => {
-	const verseBindSaveEnabled = useVerseBindSaveEnabled();
-	const navigate = useNavigate();
 	const { data: chaptersData } = useChapters();
+	const { mode } = useAppTheme();
 
 	const [projects, setProjects] = useState<ProjectConfig[]>([]);
 	const [savedSnapshot, setSavedSnapshot] = useState('');
@@ -455,6 +595,7 @@ const EditProjects: FC = () => {
 	const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
 	const [saveIcon, setSaveIcon] = useState<ReactNode | undefined>();
 	const [saving, setSaving] = useState(false);
+	const [importIcon, setImportIcon] = useState<ReactNode | undefined>();
 	const [deleteTarget, setDeleteTarget] = useState<ProjectConfig | null>(null);
 	const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 	const [missingSurasOpen, setMissingSurasOpen] = useState(false);
@@ -472,12 +613,6 @@ const EditProjects: FC = () => {
 		null
 	);
 	const titleBlurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-	useEffect(() => {
-		if (verseBindSaveEnabled === false) {
-			navigate('/');
-		}
-	}, [verseBindSaveEnabled, navigate]);
 
 	useEffect(() => {
 		const stored = localStorage.getItem(PROJECTS_KEY);
@@ -676,6 +811,17 @@ const EditProjects: FC = () => {
 		link.click();
 	}, [projects]);
 
+	const onImportSuccess = useCallback(() => {
+		setImportIcon(<CheckOutlined />);
+		setTimeout(() => setImportIcon(undefined), 3000);
+	}, []);
+
+	const onImportError = useCallback((message: string) => {
+		console.error(message);
+		setImportIcon(<ExclamationOutlined />);
+		setTimeout(() => setImportIcon(undefined), 3000);
+	}, []);
+
 	const rowSelection: TableRowSelection<ProjectConfig> = {
 		selectedRowKeys: selectedKeys,
 		onChange: (keys) => setSelectedKeys(keys as string[]),
@@ -748,8 +894,11 @@ const EditProjects: FC = () => {
 							style={
 								isMatch
 									? {
-											borderColor: '#1677ff',
-											background: '#e6f4ff',
+											borderColor: mode === 'dark' ? '#54aaeb' : '#1677ff',
+											background:
+												mode === 'dark'
+													? 'rgba(84, 170, 235, 0.18)'
+													: '#e6f4ff',
 											boxShadow: 'none',
 									  }
 									: undefined
@@ -836,18 +985,15 @@ const EditProjects: FC = () => {
 			onCell: () => ({ className: 'col-action' }),
 			render: (_: unknown, record: ProjectConfig) =>
 				record.videoUrl ? (
-					<a
-						href={`/qbind/${encodeURIComponent(record.videoUrl)}`}
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						<Button
-							size="small"
-							type="text"
-							icon={<LinkOutlined />}
-							title="Open in player"
-						/>
-					</a>
+					<Tooltip title="Open in player">
+						<a
+							href={`/qbind/${encodeURIComponent(record.videoUrl)}`}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<Button size="small" type="text" icon={<LinkOutlined />} />
+						</a>
+					</Tooltip>
 				) : null,
 		},
 		{
@@ -870,13 +1016,15 @@ const EditProjects: FC = () => {
 			width: 48,
 			onCell: () => ({ className: 'col-action' }),
 			render: (_: unknown, record: ProjectConfig) => (
-				<Button
-					size="small"
-					type="text"
-					danger
-					icon={<DeleteOutlined />}
-					onClick={() => setDeleteTarget(record)}
-				/>
+				<Tooltip title="Delete project">
+					<Button
+						size="small"
+						type="text"
+						danger
+						icon={<DeleteOutlined />}
+						onClick={() => setDeleteTarget(record)}
+					/>
+				</Tooltip>
 			),
 		},
 	];
@@ -884,42 +1032,63 @@ const EditProjects: FC = () => {
 	return (
 		<PageWrapper>
 			<PageHeader>
-				<Typography.Title level={4} style={{ margin: 0 }}>
-					Project Manager
-				</Typography.Title>
+				<TitleRow>
+					<HomeButton floating={false} />
+					<Typography.Title level={4} style={{ margin: 0 }}>
+						Project Manager
+					</Typography.Title>
+				</TitleRow>
 				<HeaderActions>
 					{hasUnsavedChanges && <UnsavedBadge>● unsaved changes</UnsavedBadge>}
-					<Button
-						size="small"
-						icon={<SwapOutlined />}
-						type={findReplaceOpen ? 'primary' : 'default'}
-						onClick={() => {
-							setFindReplaceOpen((p) => !p);
-							setFindText('');
-							setReplaceText('');
-						}}
+					<Tooltip title="Find and replace text across project titles">
+						<Button
+							size="small"
+							icon={<SwapOutlined />}
+							type={findReplaceOpen ? 'primary' : 'default'}
+							onClick={() => {
+								setFindReplaceOpen((p) => !p);
+								setFindText('');
+								setReplaceText('');
+							}}
+						>
+							Find & Replace
+						</Button>
+					</Tooltip>
+					<UploadProjects
+						loadProjects={setProjects}
+						onUploadSuccess={onImportSuccess}
+						onUploadError={onImportError}
 					>
-						Find & Replace
-					</Button>
-					<Button
-						size="small"
-						icon={<DownloadOutlined />}
-						onClick={downloadAsJson}
-					>
-						Export
-					</Button>
-					<Button
-						type="primary"
-						size="small"
-						icon={saveIcon || <SaveOutlined />}
-						onClick={async () => {
-							await saveAll();
-						}}
-						loading={saving}
-						disabled={!hasUnsavedChanges}
-					>
-						Save All
-					</Button>
+						<Tooltip title="Import projects from a JSON file">
+							<Button size="small" icon={importIcon || <UploadOutlined />}>
+								Import
+							</Button>
+						</Tooltip>
+					</UploadProjects>
+					<Tooltip title="Download all projects as a JSON file">
+						<Button
+							size="small"
+							icon={<DownloadOutlined />}
+							onClick={downloadAsJson}
+						>
+							Export
+						</Button>
+					</Tooltip>
+					<Tooltip title="Save all changes to the database">
+						<Button
+							type="primary"
+							size="small"
+							icon={saveIcon || <SaveOutlined />}
+							onClick={async () => {
+								await saveAll();
+							}}
+							loading={saving}
+							disabled={!hasUnsavedChanges}
+						>
+							Save All
+						</Button>
+					</Tooltip>
+					<UserProfileMenu floating={false} />
 				</HeaderActions>
 			</PageHeader>
 
@@ -958,14 +1127,16 @@ const EditProjects: FC = () => {
 							? `${matchCount} match${matchCount !== 1 ? 'es' : ''}`
 							: ''}
 					</FindMatchCount>
-					<Button
-						size="small"
-						type="primary"
-						disabled={!findText || matchCount === 0}
-						onClick={replaceAll}
-					>
-						Replace All
-					</Button>
+					<Tooltip title="Replace all matches in project titles">
+						<Button
+							size="small"
+							type="primary"
+							disabled={!findText || matchCount === 0}
+							onClick={replaceAll}
+						>
+							Replace All
+						</Button>
+					</Tooltip>
 				</FindReplaceBar>
 			)}
 
@@ -978,25 +1149,29 @@ const EditProjects: FC = () => {
 					style={{ width: 320 }}
 					size="small"
 				/>
-				<Button
-					size="small"
-					type={incompleteFilter ? 'primary' : 'default'}
-					onClick={() => setIncompleteFilter((p) => !p)}
-				>
-					Unfinished
-				</Button>
+				<Tooltip title="Show only projects missing verses">
+					<Button
+						size="small"
+						type={incompleteFilter ? 'primary' : 'default'}
+						onClick={() => setIncompleteFilter((p) => !p)}
+					>
+						Unfinished
+					</Button>
+				</Tooltip>
 				<ProjectCount>
 					{filteredProjects.length} / {projects.length} projects
 				</ProjectCount>
 				{selectedKeys.length > 0 && (
-					<Button
-						danger
-						size="small"
-						icon={<DeleteOutlined />}
-						onClick={() => setBulkDeleteOpen(true)}
-					>
-						Delete selected ({selectedKeys.length})
-					</Button>
+					<Tooltip title="Delete the selected projects">
+						<Button
+							danger
+							size="small"
+							icon={<DeleteOutlined />}
+							onClick={() => setBulkDeleteOpen(true)}
+						>
+							Delete selected ({selectedKeys.length})
+						</Button>
+					</Tooltip>
 				)}
 			</ToolbarRow>
 

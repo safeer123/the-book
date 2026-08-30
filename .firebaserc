@@ -1,0 +1,6 @@
+{
+	"projects": {
+		"default": "the-book-quran",
+		"old-verse-binding": "verse-binding"
+	}
+}
