@@ -32,6 +32,7 @@ import {
 	LinkOutlined,
 	LoadingOutlined,
 	PlusCircleOutlined,
+	PlusOutlined,
 	SaveOutlined,
 	SwapOutlined,
 	UploadOutlined,
@@ -1173,6 +1174,11 @@ const EditProjects: FC = () => {
 						</Button>
 					</Tooltip>
 				)}
+				<Tooltip title="New project">
+					<Link to="/verse-binding/new" style={{ marginLeft: 'auto' }}>
+						<Button size="small" type="primary" icon={<PlusOutlined />} />
+					</Link>
+				</Tooltip>
 			</ToolbarRow>
 
 			<TableWrapper>

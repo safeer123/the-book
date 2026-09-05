@@ -23,6 +23,10 @@ const ProjectsMenuWrapper = styled.div`
 const MenuHeader = styled.div`
 	padding: 10px 10px 8px;
 	border-bottom: 1px solid #f0f0f0;
+
+	[data-theme='dark'] & {
+		border-bottom-color: rgba(156, 142, 224, 0.2);
+	}
 `;
 
 const ProjectItemWrapper = styled.div`
@@ -63,6 +67,19 @@ const ProjectItem = styled.button`
 		color: #2f54eb;
 		font-weight: 500;
 	}
+
+	[data-theme='dark'] & {
+		color: #e8e2fa;
+	}
+
+	[data-theme='dark'] &:hover {
+		background: rgba(156, 142, 224, 0.15);
+	}
+
+	[data-theme='dark'] &.active-item {
+		background: rgba(64, 150, 255, 0.28);
+		color: #9cc4ff;
+	}
 `;
 
 const EmptyState = styled.div`
@@ -77,6 +94,10 @@ const MenuFooter = styled.div`
 	padding: 8px 10px;
 	display: flex;
 	gap: 6px;
+
+	[data-theme='dark'] & {
+		border-top-color: rgba(156, 142, 224, 0.2);
+	}
 `;
 
 interface Props {

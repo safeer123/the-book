@@ -160,6 +160,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 
 	const { data: isAdmin } = useIsAdmin();
 	const pidAppliedRef = useRef<string | undefined>(undefined);
+	const newProjectInitRef = useRef(false);
 
 	const { saveProject, deleteProject, projects, downloadAsJson } =
 		useProjectStore({
@@ -203,6 +204,18 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 		setProjectMenuVisible(false);
 		setSettingsDrawerVisibility(true);
 	};
+
+	useEffect(() => {
+		if (pid === 'new') {
+			if (!newProjectInitRef.current) {
+				newProjectInitRef.current = true;
+				newProject();
+			}
+		} else {
+			newProjectInitRef.current = false;
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [pid]);
 
 	const onClickProjectItem = (p: ProjectConfig) => {
 		if (p === projectConfig) return;
@@ -276,7 +289,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 									projects={projects}
 									projectConfig={projectConfig}
 									viewerMode={viewerMode}
-									newProject={newProject}
+									newProject={() => navigate('/verse-binding/new')}
 									onClickProjectItem={onClickProjectItem}
 									open={projectMenuVisible}
 								/>
@@ -350,10 +363,18 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 						videoDuration={videoStatus?.duration}
 						saveProject={async () => {
 							if (projectConfig) {
-								return saveProject({
+								await saveProject({
 									...projectConfig,
 									duration: videoStatus?.duration,
 								});
+								if (pid === 'new') {
+									navigate(
+										`/verse-binding/${encodeURIComponent(
+											projectConfig.videoUrl
+										)}`,
+										{ replace: true }
+									);
+								}
 							}
 						}}
 						deleteProject={async () => {
