@@ -12,6 +12,10 @@ import SignOutPage from 'components/auth/logout';
 import { Playground } from 'components/playground';
 import EditProjects from 'components/edit-projects';
 import MobileQBind from 'components/mobile-qbind';
+import MobileSuras from 'components/mobile-suras';
+import SuraIndex from 'components/mobile-suras/sura-index';
+import SuraReader from 'components/mobile-suras/sura-reader';
+import { QBindRoute, SurasRoute } from 'components/mobile-suras/redirects';
 import { styled } from 'styled-components';
 import { isPhone } from 'utils/device-utils';
 import UserProfileMenu from 'components/user-profile-menu';
@@ -273,15 +277,35 @@ const router = createBrowserRouter([
 	},
 	{
 		path: 'suras',
-		element: <SuraList />,
+		element: (
+			<SurasRoute>
+				<SuraList />
+			</SurasRoute>
+		),
+	},
+	{
+		path: 'msuras',
+		element: <MobileSuras />,
+		children: [
+			{ index: true, element: <SuraIndex /> },
+			{ path: ':chapterId', element: <SuraReader /> },
+		],
 	},
 	{
 		path: 'qbind',
-		element: <VideoTextBinding viewerMode />,
+		element: (
+			<QBindRoute>
+				<VideoTextBinding viewerMode />
+			</QBindRoute>
+		),
 	},
 	{
 		path: 'qbind/:pid',
-		element: <VideoTextBinding viewerMode />,
+		element: (
+			<QBindRoute>
+				<VideoTextBinding viewerMode />
+			</QBindRoute>
+		),
 	},
 	{
 		path: 'mqbind',
