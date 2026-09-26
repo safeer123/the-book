@@ -63,68 +63,29 @@ const Page = styled.div`
 	position: fixed;
 	inset: 0;
 	font-family: system-ui, sans-serif;
-`;
-
-// Rotate-device overlay (portrait mode)
-const RotateOverlay = styled.div`
-	position: fixed;
-	inset: 0;
-	background: #0d0b1a;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: 20px;
-	z-index: 9999;
-`;
-
-const RotateIconWrapper = styled.div`
-	font-size: 56px;
-	animation: rotateHint 2s ease-in-out infinite;
-
-	@keyframes rotateHint {
-		0% {
-			transform: rotate(0deg);
-		}
-		30% {
-			transform: rotate(-90deg);
-		}
-		60% {
-			transform: rotate(-90deg);
-		}
-		100% {
-			transform: rotate(0deg);
-		}
-	}
-`;
-
-const RotateTitle = styled.div`
-	color: #e8d9c0;
-	font-size: 20px;
-	font-weight: 600;
-	letter-spacing: 0.02em;
-`;
-
-const RotateSubtitle = styled.div`
-	color: #7a748a;
-	font-size: 14px;
+	box-sizing: border-box;
+	padding-left: env(safe-area-inset-left);
+	padding-right: env(safe-area-inset-right);
 `;
 
 // ─── Header ──────────────────────────────────────────────────────────────────
 
 const TopBar = styled.div`
 	height: 46px;
+	box-sizing: content-box;
+	padding-top: env(safe-area-inset-top);
 	flex-shrink: 0;
 	background: rgba(20, 17, 35, 0.98);
 	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 	display: flex;
 	align-items: center;
-	padding: 0 12px;
+	padding-left: 12px;
+	padding-right: 12px;
 	gap: 8px;
 	z-index: 10;
 `;
 
-const ProjectButton = styled.button`
+const ProjectButton = styled.button<{ $portrait: boolean }>`
 	background: rgba(255, 255, 255, 0.06);
 	border: 1px solid rgba(255, 255, 255, 0.1);
 	border-radius: 20px;
@@ -138,15 +99,18 @@ const ProjectButton = styled.button`
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	flex: 0 0 50%;
+	/* Portrait is narrow: let the title shrink so the verse label and the
+	   action icons keep their room. */
+	flex: ${({ $portrait }) => ($portrait ? '1 1 auto' : '0 0 50%')};
+	min-width: 0;
 
 	&:active {
 		background: rgba(255, 255, 255, 0.12);
 	}
 `;
 
-const VerseButton = styled.button`
-	flex: 1;
+const VerseButton = styled.button<{ $portrait: boolean }>`
+	flex: ${({ $portrait }) => ($portrait ? '0 0 auto' : '1')};
 	background: transparent;
 	border: none;
 	color: #7a6fa8;
@@ -160,7 +124,8 @@ const VerseButton = styled.button`
 	gap: 5px;
 	cursor: pointer;
 	height: 46px;
-	padding: 0;
+	padding: ${({ $portrait }) => ($portrait ? '0 6px' : '0')};
+	white-space: nowrap;
 
 	.anticon {
 		font-size: 9px;
@@ -232,22 +197,29 @@ const TopBtn = styled(Button)`
 
 // ─── Verse content area ───────────────────────────────────────────────────────
 
-const ContentRow = styled.div`
+// Landscape: Arabic | Translation side by side.
+// Portrait: Arabic on top, translation below.
+const ContentRow = styled.div<{ $portrait: boolean }>`
 	flex: 1;
 	display: flex;
-	flex-direction: row;
+	flex-direction: ${({ $portrait }) => ($portrait ? 'column' : 'row')};
 	overflow: hidden;
 	min-height: 0;
-	padding-right: 3.5rem;
+	padding-right: ${({ $portrait }) => ($portrait ? '0' : '3.5rem')};
 `;
 
-const ArabicPanel = styled.div`
-	flex: 0 0 45%;
+const ArabicPanel = styled.div<{ $portrait: boolean }>`
+	flex: ${({ $portrait }) => ($portrait ? '1 1 0' : '0 0 45%')};
 	display: flex;
 	flex-direction: column;
 	min-height: 0;
-	padding: 16px 12px 16px 16px;
-	border-right: 1px solid rgba(255, 255, 255, 0.05);
+	min-width: 0;
+	padding: ${({ $portrait }) =>
+		$portrait ? '20px 20px 14px' : '16px 12px 16px 16px'};
+	${({ $portrait }) =>
+		$portrait
+			? 'border-bottom: 1px solid rgba(255, 255, 255, 0.05);'
+			: 'border-right: 1px solid rgba(255, 255, 255, 0.05);'}
 	cursor: pointer;
 	-webkit-tap-highlight-color: transparent;
 `;
@@ -272,11 +244,12 @@ const ArabicText = styled.div`
 	width: 100%;
 `;
 
-const TranslationPanel = styled.div`
-	flex: 0 0 55%;
+const TranslationPanel = styled.div<{ $portrait: boolean }>`
+	flex: ${({ $portrait }) => ($portrait ? '1 1 0' : '0 0 55%')};
 	display: flex;
 	flex-direction: column;
-	padding: 16px 16px 12px 12px;
+	padding: ${({ $portrait }) =>
+		$portrait ? '14px 20px 16px' : '16px 16px 12px 12px'};
 	min-height: 0;
 	min-width: 0;
 	overflow: hidden;
@@ -284,12 +257,13 @@ const TranslationPanel = styled.div`
 	-webkit-tap-highlight-color: transparent;
 `;
 
-const TranslationScroll = styled.div`
+const TranslationScroll = styled.div<{ $portrait: boolean }>`
 	flex: 1;
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
+	text-align: ${({ $portrait }) => ($portrait ? 'center' : 'left')};
 	color: #b0a8c8;
 	font-size: 17px;
 	line-height: 1.65;
@@ -318,15 +292,38 @@ const EmptyVerseHint = styled.div`
 
 // ─── Controls ────────────────────────────────────────────────────────────────
 
-const ControlsBar = styled.div`
-	height: 58px;
+// Landscape: one 58px row (buttons, slider, time).
+// Portrait: seek row on top, larger centered transport buttons below.
+const ControlsBar = styled.div<{ $portrait: boolean }>`
 	flex-shrink: 0;
 	background: rgba(20, 17, 35, 0.98);
 	border-top: 1px solid rgba(255, 255, 255, 0.06);
 	display: flex;
+	flex-direction: ${({ $portrait }) => ($portrait ? 'column' : 'row')};
+	align-items: ${({ $portrait }) => ($portrait ? 'stretch' : 'center')};
+	gap: ${({ $portrait }) => ($portrait ? '6px' : '8px')};
+	min-height: 58px;
+	padding: ${({ $portrait }) => ($portrait ? '10px 16px 12px' : '0 12px')};
+	padding-bottom: ${({ $portrait }) =>
+		$portrait
+			? 'calc(12px + env(safe-area-inset-bottom))'
+			: 'env(safe-area-inset-bottom)'};
+	box-sizing: border-box;
+`;
+
+const SeekRow = styled.div`
+	display: flex;
 	align-items: center;
-	padding: 0 12px;
 	gap: 8px;
+	min-width: 0;
+`;
+
+const TransportRow = styled.div<{ $portrait: boolean }>`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: ${({ $portrait }) => ($portrait ? '28px' : '8px')};
+	flex-shrink: 0;
 `;
 
 const CtrlBtn = styled(Button)`
@@ -547,6 +544,7 @@ const MobileQBind = () => {
 	const { mode } = useAppTheme();
 
 	const verse = verses[0];
+	const isPortrait = !isLandscape;
 	const isPlaying = videoStatus?.playStatus === PlayerStates.PLAYING;
 
 	// Orientation detection
@@ -663,7 +661,15 @@ const MobileQBind = () => {
 		return () => clearInterval(timer);
 	}, []);
 
-	// Auto font-size: shrink until content fits the container without scroll
+	// Auto font-size: shrink until content fits the container without scroll.
+	// Re-fit on orientation change and resize since the panels change shape.
+	const [viewportKey, setViewportKey] = useState(0);
+	useEffect(() => {
+		const onResize = () => setViewportKey((k) => k + 1);
+		window.addEventListener('resize', onResize);
+		return () => window.removeEventListener('resize', onResize);
+	}, []);
+
 	useEffect(() => {
 		const fit = (
 			scroll: HTMLDivElement | null,
@@ -679,9 +685,19 @@ const MobileQBind = () => {
 				text.style.fontSize = `${size}px`;
 			}
 		};
-		fit(arabicScrollRef.current, arabicTextRef.current, 26, 12);
-		fit(translationScrollRef.current, translationScrollRef.current, 17, 10);
-	}, [verse?.verse_key]);
+		fit(
+			arabicScrollRef.current,
+			arabicTextRef.current,
+			isLandscape ? 26 : 32,
+			12
+		);
+		fit(
+			translationScrollRef.current,
+			translationScrollRef.current,
+			isLandscape ? 17 : 18,
+			10
+		);
+	}, [verse?.verse_key, verse?.translation, isLandscape, viewportKey]);
 
 	const verseOptions = useMemo(
 		() =>
@@ -719,15 +735,58 @@ const MobileQBind = () => {
 		}
 	};
 
-	if (!isLandscape) {
-		return (
-			<RotateOverlay>
-				<RotateIconWrapper>📱</RotateIconWrapper>
-				<RotateTitle>Rotate your device</RotateTitle>
-				<RotateSubtitle>This player works in landscape mode</RotateSubtitle>
-			</RotateOverlay>
-		);
-	}
+	const transportRow = (
+		<TransportRow $portrait={isPortrait}>
+			<CtrlBtn
+				icon={<StepBackwardOutlined />}
+				onClick={prevVerse}
+				disabled={timeToVerse(-1) < 0}
+			/>
+			<PlayBtn
+				icon={isPlaying ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+				onClick={playPause}
+				disabled={!videoId}
+			/>
+			<CtrlBtn
+				icon={<StepForwardOutlined />}
+				onClick={nextVerse}
+				disabled={timeToVerse(1) < 0}
+			/>
+		</TransportRow>
+	);
+
+	const slider = (
+		<SliderWrapper>
+			<Slider
+				min={0}
+				max={videoStatus?.duration || 1}
+				value={currentTime}
+				tooltip={{ open: false }}
+				onChange={(t) => {
+					playerRef.current?.seekTo(t, true);
+				}}
+				style={{ margin: '0 4px' }}
+			/>
+		</SliderWrapper>
+	);
+
+	// Portrait puts elapsed/total on either side of the slider; landscape keeps
+	// the compact "elapsed / total" label after it.
+	const seekRow = isPortrait ? (
+		<SeekRow>
+			<TimeLabel>{formatDuration(currentTime)}</TimeLabel>
+			{slider}
+			<TimeLabel>{formatDuration(videoStatus?.duration || 0)}</TimeLabel>
+		</SeekRow>
+	) : (
+		<>
+			{slider}
+			<TimeLabel>
+				{formatDuration(currentTime)} /{' '}
+				{formatDuration(videoStatus?.duration || 0)}
+			</TimeLabel>
+		</>
+	);
 
 	return (
 		<ConfigProvider theme={{ algorithm: antdTheme.darkAlgorithm }}>
@@ -755,7 +814,10 @@ const MobileQBind = () => {
 
 					{/* Top bar */}
 					<TopBar>
-						<ProjectButton onClick={() => setProjectMenuOpen(true)}>
+						<ProjectButton
+							$portrait={isPortrait}
+							onClick={() => setProjectMenuOpen(true)}
+						>
 							<MenuOutlined />
 							<span
 								style={{
@@ -768,7 +830,10 @@ const MobileQBind = () => {
 							</span>
 						</ProjectButton>
 
-						<VerseButton onClick={() => setVerseDrawerOpen(true)}>
+						<VerseButton
+							$portrait={isPortrait}
+							onClick={() => setVerseDrawerOpen(true)}
+						>
 							{currentBindingIndex !== undefined && currentBindingIndex >= 0
 								? verseOptions[currentBindingIndex]?.label
 								: '—'}
@@ -792,9 +857,9 @@ const MobileQBind = () => {
 						</TopActions>
 					</TopBar>
 
-					{/* Main content: Arabic | Translation */}
-					<ContentRow>
-						<ArabicPanel onClick={playPause}>
+					{/* Main content: Arabic | Translation (stacked in portrait) */}
+					<ContentRow $portrait={isPortrait}>
+						<ArabicPanel $portrait={isPortrait} onClick={playPause}>
 							<ArabicScroll ref={arabicScrollRef}>
 								{verse ? (
 									<ArabicText key={verse.verse_key} ref={arabicTextRef}>
@@ -816,9 +881,10 @@ const MobileQBind = () => {
 							</ArabicScroll>
 						</ArabicPanel>
 
-						<TranslationPanel onClick={playPause}>
+						<TranslationPanel $portrait={isPortrait} onClick={playPause}>
 							{verse?.translation ? (
 								<TranslationScroll
+									$portrait={isPortrait}
 									ref={translationScrollRef}
 									key={verse.verse_key}
 									dangerouslySetInnerHTML={{
@@ -834,42 +900,18 @@ const MobileQBind = () => {
 					</ContentRow>
 
 					{/* Playback controls */}
-					<ControlsBar>
-						<CtrlBtn
-							icon={<StepBackwardOutlined />}
-							onClick={prevVerse}
-							disabled={timeToVerse(-1) < 0}
-						/>
-						<PlayBtn
-							icon={
-								isPlaying ? <PauseCircleOutlined /> : <PlayCircleOutlined />
-							}
-							onClick={playPause}
-							disabled={!videoId}
-						/>
-						<CtrlBtn
-							icon={<StepForwardOutlined />}
-							onClick={nextVerse}
-							disabled={timeToVerse(1) < 0}
-						/>
-
-						<SliderWrapper>
-							<Slider
-								min={0}
-								max={videoStatus?.duration || 1}
-								value={currentTime}
-								tooltip={{ open: false }}
-								onChange={(t) => {
-									playerRef.current?.seekTo(t, true);
-								}}
-								style={{ margin: '0 4px' }}
-							/>
-						</SliderWrapper>
-
-						<TimeLabel>
-							{formatDuration(currentTime)} /{' '}
-							{formatDuration(videoStatus?.duration || 0)}
-						</TimeLabel>
+					<ControlsBar $portrait={isPortrait}>
+						{isPortrait ? (
+							<>
+								{seekRow}
+								{transportRow}
+							</>
+						) : (
+							<>
+								{transportRow}
+								{seekRow}
+							</>
+						)}
 					</ControlsBar>
 
 					{/* Verse selector */}
