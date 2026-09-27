@@ -101,6 +101,11 @@ export const VerseActionsRail = styled.div`
 	${VerseRow}:hover & {
 		opacity: 1;
 	}
+
+	/* No hover on touch screens to reveal these with. */
+	@media (hover: none) {
+		opacity: 1;
+	}
 `;
 
 export const ArabicVerseText = styled.span<{ $small?: boolean }>`

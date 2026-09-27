@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Button, Popover, Tooltip } from 'antd';
+import { Button, Popover } from 'antd';
+import AppTooltip from 'components/app-tooltip';
 import {
 	CustomerServiceOutlined,
 	ExportOutlined,
@@ -117,7 +118,7 @@ const ReciteButton = ({ verseKey }: Props) => {
 						>
 							Play
 						</Button>
-						<Tooltip title="Open in qbind (new tab)">
+						<AppTooltip title="Open in qbind (new tab)">
 							<Button
 								size="small"
 								type="text"
@@ -126,7 +127,7 @@ const ReciteButton = ({ verseKey }: Props) => {
 								target="_blank"
 								rel="noreferrer"
 							/>
-						</Tooltip>
+						</AppTooltip>
 					</RowActions>
 				</ReciterRow>
 			))}
@@ -145,9 +146,9 @@ const ReciteButton = ({ verseKey }: Props) => {
 			{isPhone ? (
 				reciteButtonEl
 			) : (
-				<Tooltip title="Listen" placement="bottom">
+				<AppTooltip title="Listen" placement="bottom">
 					{reciteButtonEl}
-				</Tooltip>
+				</AppTooltip>
 			)}
 		</Popover>
 	);

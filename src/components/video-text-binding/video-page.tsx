@@ -17,6 +17,7 @@ import { TimelineMarkItemIcon } from './timeline-mark-item';
 import { useVerses } from 'data/use-verses';
 import { formatDuration } from './utils';
 import { usePersistedVideoState } from './use-persisted-video-state';
+import { isTouchDevice } from 'utils/device-utils';
 
 const VideoWrapper = styled.div`
 	@media (min-width: 320px) {
@@ -204,6 +205,12 @@ const VerseMarkItem = styled(Button)`
 
 	@media (min-width: 961px) {
 		display: block;
+	}
+
+	/* Touch screens have no hover to reveal the marks with. */
+	@media (hover: none) {
+		opacity: 1;
+		transform: scale(1) translateY(0);
 	}
 `;
 
@@ -525,6 +532,9 @@ const VideoPage = ({
 				if (item.k?.includes(':')) {
 					marksObj[item.t] = (
 						<Popover
+							// On touch, a tap should just seek — a hover preview
+							// would eat the first tap on iOS.
+							trigger={isTouchDevice ? [] : 'hover'}
 							content={
 								<VerseTooltipWrapper>
 									<Results

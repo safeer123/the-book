@@ -1,4 +1,5 @@
-import { Segmented, Tooltip } from 'antd';
+import { Segmented } from 'antd';
+import AppTooltip from 'components/app-tooltip';
 import styled from 'styled-components';
 import {
 	useTranslationVisibility,
@@ -27,17 +28,17 @@ const TextSizeToggle = () => {
 				{
 					value: 'big',
 					label: (
-						<Tooltip title="Large text">
+						<AppTooltip title="Large text">
 							<SizeLabel $big>A</SizeLabel>
-						</Tooltip>
+						</AppTooltip>
 					),
 				},
 				{
 					value: 'small',
 					label: (
-						<Tooltip title="Small text">
+						<AppTooltip title="Small text">
 							<SizeLabel>A</SizeLabel>
-						</Tooltip>
+						</AppTooltip>
 					),
 				},
 			]}

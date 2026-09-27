@@ -1,7 +1,8 @@
-import { Button, Popover, Tooltip } from 'antd';
+import { Button, Popover } from 'antd';
+import AppTooltip from 'components/app-tooltip';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import sanitizeHtml from 'sanitize-html';
-import { isPhone } from 'utils/device-utils';
+import { isPhone, isTouchDevice } from 'utils/device-utils';
 import styled from 'styled-components';
 import { DARK_POPOVER_STYLE, useAppTheme } from 'context/theme-context';
 import { useTranslationVisibility } from '../../../context/translation-visibility-context';
@@ -114,16 +115,16 @@ export const VerseTranslationSelector = ({
 			{isPhone ? (
 				TButton
 			) : (
-				<Tooltip title="Select translation" placement="bottom">
+				<AppTooltip title="Select translation" placement="bottom">
 					{TButton}
-				</Tooltip>
+				</AppTooltip>
 			)}
 		</Popover>
 	);
 
 	const IPopover = (
 		<Popover
-			trigger={'hover'}
+			trigger={isTouchDevice ? 'click' : 'hover'}
 			placement="bottom"
 			overlayInnerStyle={mode === 'dark' ? DARK_POPOVER_STYLE : undefined}
 			content={

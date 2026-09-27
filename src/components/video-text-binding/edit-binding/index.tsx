@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { Button, Space, Input, Modal, Tooltip } from 'antd';
+import { Button, Space, Input, Modal } from 'antd';
+import AppTooltip from 'components/app-tooltip';
 import {
 	CaretRightOutlined,
 	CheckOutlined,
@@ -326,7 +327,7 @@ const EditBindingConfiguration: FC<Props> = ({
 											$active={index === activeBindingIndex}
 											data-active={index === activeBindingIndex}
 										>
-											<Tooltip title="Jump to" mouseEnterDelay={0.6}>
+											<AppTooltip title="Jump to" mouseEnterDelay={0.6}>
 												<Button
 													icon={<CaretRightOutlined />}
 													size="small"
@@ -340,7 +341,7 @@ const EditBindingConfiguration: FC<Props> = ({
 													}}
 													onClick={() => seekTo(element.t)}
 												/>
-											</Tooltip>
+											</AppTooltip>
 											<Input
 												size="small"
 												type="number"
@@ -433,7 +434,7 @@ const EditBindingConfiguration: FC<Props> = ({
 									Are you sure?
 								</Modal>
 								<div style={{ flex: 1 }} />
-								<Tooltip title="Copy to clipboard">
+								<AppTooltip title="Copy to clipboard">
 									<Button
 										icon={copySuccess ? <CheckOutlined /> : <CopyOutlined />}
 										size="small"
@@ -444,14 +445,14 @@ const EditBindingConfiguration: FC<Props> = ({
 											})
 										}
 									/>
-								</Tooltip>
-								<Tooltip title="Download JSON">
+								</AppTooltip>
+								<AppTooltip title="Download JSON">
 									<Button
 										icon={<DownloadOutlined />}
 										size="small"
 										onClick={downloadAsJson}
 									/>
-								</Tooltip>
+								</AppTooltip>
 								{isAdmin && (
 									<Button
 										type="primary"

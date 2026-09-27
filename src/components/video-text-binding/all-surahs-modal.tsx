@@ -1,4 +1,5 @@
-import { Input, Modal, Tag, Tooltip, Table, Button } from 'antd';
+import { Input, Modal, Tag, Table, Button } from 'antd';
+import AppTooltip from 'components/app-tooltip';
 import { SearchOutlined } from '@ant-design/icons';
 import { useMemo, useState } from 'react';
 import type { ColumnsType } from 'antd/es/table';
@@ -171,7 +172,7 @@ const AllSurahsModal = ({ open, onClose, projects }: Props) => {
 				return (
 					<div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
 						{recitations.map((r) => (
-							<Tooltip
+							<AppTooltip
 								key={r.videoUrl}
 								title={r.duration ? formatDuration(r.duration) : undefined}
 							>
@@ -191,7 +192,7 @@ const AllSurahsModal = ({ open, onClose, projects }: Props) => {
 										{r.reciter}
 									</Tag>
 								</a>
-							</Tooltip>
+							</AppTooltip>
 						))}
 					</div>
 				);

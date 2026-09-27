@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import sanitizeHtml from 'sanitize-html';
-import { Button, Tooltip } from 'antd';
+import { Button } from 'antd';
+import AppTooltip from 'components/app-tooltip';
 import { BulbOutlined, CheckOutlined, CopyOutlined } from '@ant-design/icons';
 import { TafsirConfig } from 'types';
 import { isPhone } from 'utils/device-utils';
@@ -138,15 +139,15 @@ export const VerseActions = ({
 				searchKey={searchKey}
 				key={'translation-selector'}
 			/>
-			<Tooltip title="Tafsir" placement="right">
+			<AppTooltip title="Tafsir" placement="right">
 				{tafsirButton}
-			</Tooltip>
-			<Tooltip title="Explain with AI" placement="right">
+			</AppTooltip>
+			<AppTooltip title="Explain with AI" placement="right">
 				{explainButton}
-			</Tooltip>
-			<Tooltip title={copied ? 'Copied!' : 'Copy'} placement="right">
+			</AppTooltip>
+			<AppTooltip title={copied ? 'Copied!' : 'Copy'} placement="right">
 				{copyButton}
-			</Tooltip>
+			</AppTooltip>
 		</>
 	);
 };

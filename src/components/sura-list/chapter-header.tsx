@@ -1,4 +1,5 @@
-import { Button, Tooltip } from 'antd';
+import { Button } from 'antd';
+import AppTooltip from 'components/app-tooltip';
 import useURLNavigation from 'data/use-url-navigation';
 import styled from 'styled-components';
 import { ChapterInfoConfig, ChapterItem } from 'types';
@@ -213,7 +214,7 @@ const ChapterHeader = ({
 			)}
 
 			{!verseInfo && (
-				<Tooltip
+				<AppTooltip
 					title={`Revealed in ${capitalizeFirstLetter(
 						chapter?.revelation_place || ''
 					)}`}
@@ -222,15 +223,15 @@ const ChapterHeader = ({
 					<RevelationPlaceInfo>
 						{capitalizeFirstLetter(chapter?.revelation_place || '')}
 					</RevelationPlaceInfo>
-				</Tooltip>
+				</AppTooltip>
 			)}
 
 			{isPhone ? (
 				chapterInfoBtn
 			) : (
-				<Tooltip title="Chapter details" placement="bottom">
+				<AppTooltip title="Chapter details" placement="bottom">
 					{chapterInfoBtn}
-				</Tooltip>
+				</AppTooltip>
 			)}
 
 			<VerseDetails>

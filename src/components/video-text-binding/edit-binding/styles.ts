@@ -269,6 +269,12 @@ export const BindingItem = styled.div<{ $active?: boolean }>`
 			opacity: 1;
 		}
 	}
+
+	@media (hover: none) {
+		.binding-item-action {
+			opacity: 1;
+		}
+	}
 `;
 
 export const ActionArea = styled.div`

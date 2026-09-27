@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Tabs, Card, Tooltip, Input, Button } from 'antd';
+import { Tabs, Card, Input, Button } from 'antd';
+import AppTooltip from 'components/app-tooltip';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { TranslationData, TranslationItem } from 'data/use-translations';
@@ -251,7 +252,7 @@ const LanguageTabs = ({
 						style={{ flex: 1, maxWidth: 180 }}
 					/>
 					{topHitTranslations.map((item) => (
-						<Tooltip
+						<AppTooltip
 							title={`${item.name} (${item.language_name})`}
 							key={item.id}
 						>
@@ -262,7 +263,7 @@ const LanguageTabs = ({
 							>
 								{item.language_name?.[0]?.toUpperCase()}
 							</StyledTrButton>
-						</Tooltip>
+						</AppTooltip>
 					))}
 					{extraTopBarContent}
 				</CompactTopBar>
@@ -297,14 +298,17 @@ const LanguageTabs = ({
 					style={{ width: 300 }}
 				/>
 				{topHitTranslations.map((item) => (
-					<Tooltip title={`${item.name} (${item.language_name})`} key={item.id}>
+					<AppTooltip
+						title={`${item.name} (${item.language_name})`}
+						key={item.id}
+					>
 						<StyledTrButton
 							onClick={() => onClickTranslationItem(item)}
 							disabled={item.id === selectedTrId}
 						>
 							{item.language_name?.[0]?.toUpperCase()}
 						</StyledTrButton>
-					</Tooltip>
+					</AppTooltip>
 				))}
 			</FooterItems>
 		</>
