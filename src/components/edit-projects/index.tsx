@@ -18,9 +18,9 @@ import {
 	Progress,
 	Table,
 	Tag,
-	Tooltip,
 	Typography,
 } from 'antd';
+import AppTooltip from 'components/app-tooltip';
 import type { ColumnsType } from 'antd/es/table';
 import type { TableRowSelection } from 'antd/es/table/interface';
 import {
@@ -138,6 +138,12 @@ const TableWrapper = styled.div`
 		opacity: 1;
 	}
 
+	@media (hover: none) {
+		.ant-table-tbody > tr > td.col-action {
+			opacity: 1;
+		}
+	}
+
 	[data-theme='dark'] & {
 		background: #1e1b33;
 		border-color: rgba(156, 142, 224, 0.2);
@@ -228,6 +234,12 @@ const BindingRow = styled.div`
 
 	&:hover .delete-btn {
 		opacity: 1;
+	}
+
+	@media (hover: none) {
+		.delete-btn {
+			opacity: 1;
+		}
 	}
 
 	[data-theme='dark'] & {
@@ -554,7 +566,7 @@ const BindingsEditor: FC<BindingsEditorProps> = ({ project, onUpdate }) => {
 							placeholder="2:255"
 							onChange={(e) => changeKey(el.id, e.target.value)}
 						/>
-						<Tooltip title="Remove binding">
+						<AppTooltip title="Remove binding">
 							<Button
 								className="delete-btn"
 								size="small"
@@ -563,21 +575,21 @@ const BindingsEditor: FC<BindingsEditorProps> = ({ project, onUpdate }) => {
 								icon={<DeleteOutlined />}
 								onClick={() => remove(index)}
 							/>
-						</Tooltip>
+						</AppTooltip>
 					</BindingRow>
 				))}
 			</BindingsList>
 			<BindingActionsRow>
-				<Tooltip title="Add a binding for the next verse">
+				<AppTooltip title="Add a binding for the next verse">
 					<Button size="small" type="primary" onClick={addNext}>
 						{`+ Next (${chapter}:${Number(verse) + 1})`}
 					</Button>
-				</Tooltip>
-				<Tooltip title="Add an empty binding row">
+				</AppTooltip>
+				<AppTooltip title="Add an empty binding row">
 					<Button size="small" onClick={addBlank}>
 						+ Blank
 					</Button>
-				</Tooltip>
+				</AppTooltip>
 			</BindingActionsRow>
 		</BindingsContainer>
 	);
@@ -919,7 +931,7 @@ const EditProjects: FC = () => {
 					? projects.find((p) => p.videoUrl === url && p.id !== record.id)
 					: undefined;
 				return (
-					<Tooltip
+					<AppTooltip
 						title={
 							duplicate ? `Already used by "${duplicate.title}"` : undefined
 						}
@@ -935,7 +947,7 @@ const EditProjects: FC = () => {
 							size="small"
 							status={duplicate ? 'error' : undefined}
 						/>
-					</Tooltip>
+					</AppTooltip>
 				);
 			},
 		},
@@ -961,7 +973,7 @@ const EditProjects: FC = () => {
 							{bindingCount}
 						</Tag>
 						{pct !== null && isFullSurah(record.title) && (
-							<Tooltip
+							<AppTooltip
 								title={`${bindingCount}/${versesCount ?? 0} bound (${
 									pct ?? 0
 								}%)`}
@@ -973,7 +985,7 @@ const EditProjects: FC = () => {
 									style={{ width: 40, margin: 0 }}
 									strokeColor={pct >= 100 ? '#52c41a' : '#faad14'}
 								/>
-							</Tooltip>
+							</AppTooltip>
 						)}
 					</div>
 				);
@@ -986,7 +998,7 @@ const EditProjects: FC = () => {
 			onCell: () => ({ className: 'col-action' }),
 			render: (_: unknown, record: ProjectConfig) =>
 				record.videoUrl ? (
-					<Tooltip title="Open in player">
+					<AppTooltip title="Open in player">
 						<a
 							href={`/qbind/${encodeURIComponent(record.videoUrl)}`}
 							target="_blank"
@@ -994,7 +1006,7 @@ const EditProjects: FC = () => {
 						>
 							<Button size="small" type="text" icon={<LinkOutlined />} />
 						</a>
-					</Tooltip>
+					</AppTooltip>
 				) : null,
 		},
 		{
@@ -1004,11 +1016,11 @@ const EditProjects: FC = () => {
 			onCell: () => ({ className: 'col-action' }),
 			render: (_: unknown, record: ProjectConfig) =>
 				record.videoUrl ? (
-					<Tooltip title="Edit in verse binding editor">
+					<AppTooltip title="Edit in verse binding editor">
 						<Link to={`/verse-binding/${encodeURIComponent(record.videoUrl)}`}>
 							<Button size="small" type="text" icon={<EditOutlined />} />
 						</Link>
-					</Tooltip>
+					</AppTooltip>
 				) : null,
 		},
 		{
@@ -1017,7 +1029,7 @@ const EditProjects: FC = () => {
 			width: 48,
 			onCell: () => ({ className: 'col-action' }),
 			render: (_: unknown, record: ProjectConfig) => (
-				<Tooltip title="Delete project">
+				<AppTooltip title="Delete project">
 					<Button
 						size="small"
 						type="text"
@@ -1025,7 +1037,7 @@ const EditProjects: FC = () => {
 						icon={<DeleteOutlined />}
 						onClick={() => setDeleteTarget(record)}
 					/>
-				</Tooltip>
+				</AppTooltip>
 			),
 		},
 	];
@@ -1041,7 +1053,7 @@ const EditProjects: FC = () => {
 				</TitleRow>
 				<HeaderActions>
 					{hasUnsavedChanges && <UnsavedBadge>● unsaved changes</UnsavedBadge>}
-					<Tooltip title="Find and replace text across project titles">
+					<AppTooltip title="Find and replace text across project titles">
 						<Button
 							size="small"
 							icon={<SwapOutlined />}
@@ -1054,19 +1066,19 @@ const EditProjects: FC = () => {
 						>
 							Find & Replace
 						</Button>
-					</Tooltip>
+					</AppTooltip>
 					<UploadProjects
 						loadProjects={setProjects}
 						onUploadSuccess={onImportSuccess}
 						onUploadError={onImportError}
 					>
-						<Tooltip title="Import projects from a JSON file">
+						<AppTooltip title="Import projects from a JSON file">
 							<Button size="small" icon={importIcon || <UploadOutlined />}>
 								Import
 							</Button>
-						</Tooltip>
+						</AppTooltip>
 					</UploadProjects>
-					<Tooltip title="Download all projects as a JSON file">
+					<AppTooltip title="Download all projects as a JSON file">
 						<Button
 							size="small"
 							icon={<DownloadOutlined />}
@@ -1074,8 +1086,8 @@ const EditProjects: FC = () => {
 						>
 							Export
 						</Button>
-					</Tooltip>
-					<Tooltip title="Save all changes to the database">
+					</AppTooltip>
+					<AppTooltip title="Save all changes to the database">
 						<Button
 							type="primary"
 							size="small"
@@ -1088,7 +1100,7 @@ const EditProjects: FC = () => {
 						>
 							Save All
 						</Button>
-					</Tooltip>
+					</AppTooltip>
 					<UserProfileMenu floating={false} />
 				</HeaderActions>
 			</PageHeader>
@@ -1114,7 +1126,7 @@ const EditProjects: FC = () => {
 						size="small"
 						style={{ width: 220 }}
 					/>
-					<Tooltip title="Match case">
+					<AppTooltip title="Match case">
 						<Button
 							size="small"
 							type={matchCase ? 'primary' : 'default'}
@@ -1122,13 +1134,13 @@ const EditProjects: FC = () => {
 						>
 							Aa
 						</Button>
-					</Tooltip>
+					</AppTooltip>
 					<FindMatchCount>
 						{findText
 							? `${matchCount} match${matchCount !== 1 ? 'es' : ''}`
 							: ''}
 					</FindMatchCount>
-					<Tooltip title="Replace all matches in project titles">
+					<AppTooltip title="Replace all matches in project titles">
 						<Button
 							size="small"
 							type="primary"
@@ -1137,7 +1149,7 @@ const EditProjects: FC = () => {
 						>
 							Replace All
 						</Button>
-					</Tooltip>
+					</AppTooltip>
 				</FindReplaceBar>
 			)}
 
@@ -1150,7 +1162,7 @@ const EditProjects: FC = () => {
 					style={{ width: 320 }}
 					size="small"
 				/>
-				<Tooltip title="Show only projects missing verses">
+				<AppTooltip title="Show only projects missing verses">
 					<Button
 						size="small"
 						type={incompleteFilter ? 'primary' : 'default'}
@@ -1158,12 +1170,12 @@ const EditProjects: FC = () => {
 					>
 						Unfinished
 					</Button>
-				</Tooltip>
+				</AppTooltip>
 				<ProjectCount>
 					{filteredProjects.length} / {projects.length} projects
 				</ProjectCount>
 				{selectedKeys.length > 0 && (
-					<Tooltip title="Delete the selected projects">
+					<AppTooltip title="Delete the selected projects">
 						<Button
 							danger
 							size="small"
@@ -1172,13 +1184,13 @@ const EditProjects: FC = () => {
 						>
 							Delete selected ({selectedKeys.length})
 						</Button>
-					</Tooltip>
+					</AppTooltip>
 				)}
-				<Tooltip title="New project">
+				<AppTooltip title="New project">
 					<Link to="/verse-binding/new" style={{ marginLeft: 'auto' }}>
 						<Button size="small" type="primary" icon={<PlusOutlined />} />
 					</Link>
-				</Tooltip>
+				</AppTooltip>
 			</ToolbarRow>
 
 			<TableWrapper>

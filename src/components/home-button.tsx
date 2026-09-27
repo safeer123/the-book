@@ -1,5 +1,5 @@
 import { BookOutlined } from '@ant-design/icons';
-import { Tooltip } from 'antd';
+import AppTooltip from 'components/app-tooltip';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
@@ -51,11 +51,11 @@ interface Props {
 
 const HomeButton = ({ floating = true }: Props) => {
 	const link = (
-		<Tooltip title="Home" placement="bottom">
+		<AppTooltip title="Home" placement="bottom">
 			<HomeLink to="/" aria-label="Home">
 				<BookOutlined />
 			</HomeLink>
-		</Tooltip>
+		</AppTooltip>
 	);
 
 	return floating ? <FloatingWrapper>{link}</FloatingWrapper> : link;

@@ -1,10 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, Button, Popover, Switch } from 'antd';
-import { LogoutOutlined } from '@ant-design/icons';
+import { DownloadOutlined, LogoutOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 import { useUserAuth } from 'auth/auth-context';
 import { DARK_POPOVER_STYLE, useAppTheme } from 'context/theme-context';
+import { isTouchDevice } from 'utils/device-utils';
+import { usePwa } from 'pwa/pwa-provider';
 
 // Same fixed top-right slot the global theme toggle occupies — this menu
 // takes over that slot (and hides the toggle, see below) once a user is
@@ -80,6 +82,8 @@ const UserProfileMenu = ({ floating = true }: Props) => {
 	const { user } = useUserAuth();
 	const { mode, toggleTheme } = useAppTheme();
 	const navigate = useNavigate();
+	const { canInstall, openInstallGuide } = usePwa();
+	const [menuOpen, setMenuOpen] = useState(false);
 
 	// The global toggle would otherwise sit in the exact same corner as this
 	// menu; hide it for as long as this menu is mounted and showing a user.
@@ -100,7 +104,11 @@ const UserProfileMenu = ({ floating = true }: Props) => {
 
 	const menu = (
 		<Popover
-			trigger="hover"
+			// Hover can't be dismissed on a touch screen (and costs iOS an
+			// extra tap), so tap to open/close there instead.
+			trigger={isTouchDevice ? 'click' : 'hover'}
+			open={menuOpen}
+			onOpenChange={setMenuOpen}
 			placement="bottomRight"
 			overlayInnerStyle={mode === 'dark' ? DARK_POPOVER_STYLE : undefined}
 			content={
@@ -120,6 +128,18 @@ const UserProfileMenu = ({ floating = true }: Props) => {
 							onChange={toggleTheme}
 						/>
 					</ThemeSwitchRow>
+					{canInstall && (
+						<Button
+							icon={<DownloadOutlined />}
+							size="small"
+							onClick={() => {
+								setMenuOpen(false);
+								openInstallGuide();
+							}}
+						>
+							Install app
+						</Button>
+					)}
 					<Button
 						icon={<LogoutOutlined />}
 						size="small"

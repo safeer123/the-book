@@ -14,10 +14,33 @@
 	text-align: center;
 }
 
+html {
+	/* Pinch zoom still works; this only drops double-tap-to-zoom (and its
+	   tap delay) so quick taps on buttons don't zoom the page. */
+	touch-action: manipulation;
+	/* Keep iOS from inflating text sizes on rotation. */
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
+}
+
 body {
 	padding: 0;
 	margin: 0;
 	overflow: hidden;
+}
+
+/* Touch screens: controls behave like app buttons, not web content — no
+   iOS link-preview/callout or text selection on a long-press (which is
+   also how AppTooltip shows its hint), and no grey tap flash. */
+@media (hover: none) {
+	button,
+	a,
+	[role='button'] {
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		user-select: none;
+		-webkit-tap-highlight-color: transparent;
+	}
 }
 
 .url-input {

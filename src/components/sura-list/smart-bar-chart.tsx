@@ -1,4 +1,4 @@
-import { Tooltip } from 'antd';
+import AppTooltip from 'components/app-tooltip';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { BarChartRecordItem } from 'types';
@@ -211,7 +211,11 @@ const SmartBarChart = ({
 			{data?.map((record, index) => {
 				const height = `${(100 * record.value) / maxValue}%`;
 				return (
-					<Tooltip key={record?.id} title={record.tooltip} placement="bottom">
+					<AppTooltip
+						key={record?.id}
+						title={record.tooltip}
+						placement="bottom"
+					>
 						<BarItemWrapper
 							ref={(el) => (barRefs.current[index] = el)}
 							className={
@@ -244,7 +248,7 @@ const SmartBarChart = ({
 								style={{ height }}
 							/>
 						</BarItemWrapper>
-					</Tooltip>
+					</AppTooltip>
 				);
 			})}
 			{indicatorRect && (

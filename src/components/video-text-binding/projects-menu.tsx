@@ -2,7 +2,8 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import styled from 'styled-components';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Input, Tooltip } from 'antd';
+import { Button, Input } from 'antd';
+import AppTooltip from 'components/app-tooltip';
 import type { InputRef } from 'antd';
 import { OrderedListOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProjectConfig } from 'types';
@@ -150,14 +151,14 @@ const ProjectsMenu = ({
 						style={{ flex: 1 }}
 					/>
 					{!viewerMode && (
-						<Tooltip title="New project" placement="bottom">
+						<AppTooltip title="New project" placement="bottom">
 							<Button
 								type="primary"
 								size="small"
 								icon={<PlusOutlined />}
 								onClick={() => newProject()}
 							/>
-						</Tooltip>
+						</AppTooltip>
 					)}
 				</div>
 			</MenuHeader>
@@ -199,7 +200,7 @@ const ProjectsMenu = ({
 							</span>
 						) : undefined;
 						return (
-							<Tooltip
+							<AppTooltip
 								key={p.id}
 								title={tooltipContent}
 								placement="right"
@@ -213,7 +214,7 @@ const ProjectsMenu = ({
 										<span style={{ color: '#bfbfbf' }}>—untitled—</span>
 									)}
 								</ProjectItem>
-							</Tooltip>
+							</AppTooltip>
 						);
 					})
 				)}

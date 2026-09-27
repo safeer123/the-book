@@ -10,7 +10,8 @@ import React, {
 // pinned TypeScript version, tripping a false-positive here even though the
 // export exists at runtime.
 // eslint-disable-next-line import/named
-import { ConfigProvider, theme as antdTheme, Tooltip } from 'antd';
+import { ConfigProvider, theme as antdTheme } from 'antd';
+import AppTooltip from 'components/app-tooltip';
 import styled from 'styled-components';
 
 export type ThemeMode = 'light' | 'dark';
@@ -116,7 +117,7 @@ export const AppThemeProvider: React.FC<{ children: ReactNode }> = ({
 				}}
 			>
 				{children}
-				<Tooltip
+				<AppTooltip
 					title={
 						mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
 					}
@@ -125,7 +126,7 @@ export const AppThemeProvider: React.FC<{ children: ReactNode }> = ({
 					<ToggleButton type="button" onClick={toggleTheme}>
 						{mode === 'dark' ? '☀️' : '🌙'}
 					</ToggleButton>
-				</Tooltip>
+				</AppTooltip>
 			</ConfigProvider>
 		</ThemeContext.Provider>
 	);

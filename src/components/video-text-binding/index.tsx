@@ -2,7 +2,8 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import styled from 'styled-components';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Popover, Tooltip } from 'antd';
+import { Popover } from 'antd';
+import AppTooltip from 'components/app-tooltip';
 import { DownOutlined, EditOutlined } from '@ant-design/icons';
 import EditBindingConfiguration from './edit-binding';
 import { ProjectConfig, VideoStatusInfo } from 'types';
@@ -303,27 +304,27 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 							</ProjectTitleDropdown>
 						</Popover>
 						{viewerMode && (
-							<Tooltip title="Pick random" placement="bottom">
+							<AppTooltip title="Pick random" placement="bottom">
 								<IconBtnMedium
 									type="text"
 									icon={<DiceIcon />}
 									onClick={pickRandomProject}
 								/>
-							</Tooltip>
+							</AppTooltip>
 						)}
 					</TopBarControls>
 
 					<SettingsArea>
 						{!viewerMode && (
-							<Tooltip title="Edit" placement="bottom">
+							<AppTooltip title="Edit" placement="bottom">
 								<SettingsBtn
 									onClick={() => setSettingsDrawerVisibility(true)}
 								/>
-							</Tooltip>
+							</AppTooltip>
 						)}
 
 						{viewerMode && isAdmin && projectConfig && (
-							<Tooltip title="Edit project" placement="bottom">
+							<AppTooltip title="Edit project" placement="bottom">
 								<IconBtnMedium
 									type="text"
 									icon={<EditOutlined />}
@@ -335,7 +336,7 @@ const VideoTextBinding = ({ viewerMode = false }: Props) => {
 										)
 									}
 								/>
-							</Tooltip>
+							</AppTooltip>
 						)}
 
 						<UserProfileMenu floating={false} />
