@@ -3,7 +3,7 @@
 	"name": "The Book",
 	"short_name": "The Book",
 	"description": "Read, listen, and study the Quran",
-	"start_url": "/",
+	"start_url": "/msuras",
 	"scope": "/",
 	"display": "standalone",
 	"orientation": "any",

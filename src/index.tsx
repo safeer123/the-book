@@ -2,6 +2,8 @@
 /* eslint-disable import/no-named-as-default-member */
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+// Must run before the router reads the URL.
+import 'pwa/launch-path';
 import RouterApp from './router';
 import { Helmet } from 'react-helmet';
 import { QueryClient, QueryClientProvider } from 'react-query';
