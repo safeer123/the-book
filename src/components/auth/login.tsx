@@ -32,6 +32,7 @@ import {
 	Title,
 } from './styles';
 import { useForceLightTheme } from './use-force-light-theme';
+import { useReturnTo, withReturnTo } from 'auth/return-to';
 
 const PRIMARY_COLOR = 'rgb(14, 2, 121)';
 
@@ -46,12 +47,13 @@ const SignInPage = () => {
 
 	const { googleSignIn, logIn } = useUserAuth();
 	const navigate = useNavigate();
+	const returnTo = useReturnTo();
 	useForceLightTheme();
 
 	const handleSubmit = async (values: FormValues) => {
 		try {
 			await logIn(values.email, values.password);
-			navigate('/');
+			navigate(returnTo, { replace: true });
 		} catch (errorObj) {
 			setError('Error signing in. Please check your email and password');
 			console.log('Error : ', errorObj);
@@ -61,7 +63,7 @@ const SignInPage = () => {
 	const handleGoogleSignIn = async () => {
 		try {
 			await googleSignIn();
-			navigate('/');
+			navigate(returnTo, { replace: true });
 		} catch (errorObj) {
 			setError('Error signing in with Google');
 			console.log('Error : ', errorObj);
@@ -138,7 +140,10 @@ const SignInPage = () => {
 					<SignUpLink>
 						<Typography.Text>
 							Don&apos;t have an account?{' '}
-							<Link to="/signup" style={{ color: PRIMARY_COLOR }}>
+							<Link
+								to={withReturnTo('/signup', returnTo)}
+								style={{ color: PRIMARY_COLOR }}
+							>
 								Sign Up
 							</Link>
 						</Typography.Text>

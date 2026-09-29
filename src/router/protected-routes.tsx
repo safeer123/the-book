@@ -1,7 +1,8 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { getAuth, User } from 'firebase/auth';
 import { Spin } from 'antd';
+import { useCurrentPath, withReturnTo } from 'auth/return-to';
 
 const ProtectedRoutes = () => {
 	const auth = getAuth();
@@ -10,7 +11,7 @@ const ProtectedRoutes = () => {
 		boolean,
 		Error | undefined
 	] = useAuthState(auth);
-	const location = useLocation();
+	const currentPath = useCurrentPath();
 
 	if (loading) {
 		return (
@@ -35,7 +36,8 @@ const ProtectedRoutes = () => {
 	return user ? (
 		<Outlet />
 	) : (
-		<Navigate to="/login" state={{ from: location }} />
+		// Replace, so "back" after signing in doesn't land on the sign-in page.
+		<Navigate replace to={withReturnTo('/login', currentPath)} />
 	);
 };
 

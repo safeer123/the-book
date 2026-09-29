@@ -7,19 +7,13 @@ import {
 	useSyncExternalStore,
 } from 'react';
 import styled from 'styled-components';
-import {
-	Link,
-	useLocation,
-	useNavigate,
-	useSearchParams,
-} from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Spin } from 'antd';
 import {
 	ArrowRightOutlined,
 	CloseCircleFilled,
 	CustomerServiceOutlined,
 	HistoryOutlined,
-	HomeOutlined,
 	SearchOutlined,
 } from '@ant-design/icons';
 import { useChapters } from 'data/use-chapters';
@@ -49,6 +43,11 @@ import {
 	markOpenedFromList,
 	parseVerseJump,
 } from './utils';
+
+// No button on its left, so line the title up with the search field.
+const ListTitle = styled(HeaderTitle)`
+	padding-left: 8px;
+`;
 
 const SearchWrap = styled.div`
 	position: sticky;
@@ -469,13 +468,10 @@ const SuraIndex = () => {
 	return (
 		<Page>
 			<Header>
-				<IconButton as={Link} to="/" aria-label="Home">
-					<HomeOutlined />
-				</IconButton>
-				<HeaderTitle>
+				<ListTitle>
 					<HeaderMain>The Quran</HeaderMain>
 					<HeaderSub>114 suras · read & listen</HeaderSub>
-				</HeaderTitle>
+				</ListTitle>
 				<IconButton
 					type="button"
 					onClick={toggleTheme}
