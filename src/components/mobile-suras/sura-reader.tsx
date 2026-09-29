@@ -18,6 +18,7 @@ import {
 import {
 	useLocation,
 	useNavigate,
+	useNavigationType,
 	useParams,
 	useSearchParams,
 } from 'react-router-dom';
@@ -416,6 +417,7 @@ const SuraReader = () => {
 		currentVerseKey,
 		isPlaying,
 		playPause,
+		prepare,
 	} = useMobilePlayer();
 	const { playFrom, notify } = useMobileSuras();
 
@@ -426,6 +428,9 @@ const SuraReader = () => {
 	const scrollerRef = useRef<HTMLElement>(null);
 	const positionedForRef = useRef<string | undefined>();
 	const followedKeyRef = useRef<string | undefined>();
+	const landingRef = useRef<{ chapterId: number; inApp: boolean }>();
+	const [engagedChapter, setEngagedChapter] = useState<number>();
+	const navigationType = useNavigationType();
 
 	const chapter = chapterData?.suraByKey?.[chapterId];
 	const versesCount = chapter?.verses_count || 0;
@@ -439,6 +444,11 @@ const SuraReader = () => {
 			Array.from({ length: versesCount }, (_, i) => `${chapterId}:${i + 1}`),
 		[chapterId, versesCount]
 	);
+
+	// So the first tap on play starts the recitation straight away.
+	useEffect(() => {
+		prepare(chapterId);
+	}, [prepare, chapterId]);
 
 	// Land on ?v= (from search, "continue reading", or a shared link) once
 	// the verses have rendered; otherwise start at the top of the sura.
@@ -482,14 +492,41 @@ const SuraReader = () => {
 		return () => observer.disconnect();
 	}, [verseData, versesCount, chapterId]);
 
+	// Only a visit that's actually read counts for "continue reading". A
+	// sura opened from within the app counts straight away; one that merely
+	// (re)loaded — a refresh, a restored browser tab, a shared link — only
+	// once it's touched or played. Otherwise a tab left open on an old sura
+	// put it back as the last read every time the browser reloaded it.
+	if (landingRef.current?.chapterId !== chapterId) {
+		landingRef.current = { chapterId, inApp: navigationType !== 'POP' };
+	}
+	const engaged =
+		landingRef.current.inApp ||
+		engagedChapter === chapterId ||
+		isThisChapterActive;
+	const markEngaged = () => {
+		if (engagedChapter !== chapterId) setEngagedChapter(chapterId);
+	};
+
 	useEffect(() => {
-		if (!versesCount) return undefined;
-		const timer = setTimeout(
-			() => saveLastRead({ chapterId, verse: inViewVerse }),
-			500
-		);
-		return () => clearTimeout(timer);
-	}, [chapterId, inViewVerse, versesCount]);
+		if (!versesCount || !engaged) return undefined;
+		if (isThisChapterActive) setEngagedChapter(chapterId);
+		let pending = true;
+		const save = () => {
+			pending = false;
+			saveLastRead({ chapterId, verse: inViewVerse });
+		};
+		const timer = setTimeout(save, 500);
+		// iOS can suspend or close the app before the timer fires.
+		const onHide = () => {
+			if (pending && document.visibilityState === 'hidden') save();
+		};
+		document.addEventListener('visibilitychange', onHide);
+		return () => {
+			clearTimeout(timer);
+			document.removeEventListener('visibilitychange', onHide);
+		};
+	}, [chapterId, inViewVerse, versesCount, engaged, isThisChapterActive]);
 
 	// Follow the recitation — but only while the listener is following it.
 	// If they've scrolled away to read elsewhere, don't yank them back (the
@@ -804,7 +841,13 @@ const SuraReader = () => {
 				</IconButton>
 			</Header>
 
-			<Scroller ref={scrollerRef} $playerOpen={Boolean(activeProject)}>
+			<Scroller
+				ref={scrollerRef}
+				$playerOpen={Boolean(activeProject)}
+				onPointerDown={markEngaged}
+				onWheel={markEngaged}
+				onKeyDown={markEngaged}
+			>
 				<Column>{content}</Column>
 			</Scroller>
 

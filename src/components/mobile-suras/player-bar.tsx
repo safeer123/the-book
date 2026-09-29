@@ -1,6 +1,4 @@
-import { useMemo } from 'react';
 import styled, { css, keyframes } from 'styled-components';
-import YouTube, { YouTubeProps } from 'react-youtube';
 import {
 	CaretRightFilled,
 	CloseOutlined,
@@ -54,18 +52,6 @@ const Bar = styled.div`
 		border-color: rgba(156, 142, 224, 0.28);
 		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
 	}
-`;
-
-// Audio-only, same as /mqbind: a phone-width bar has no room for a
-// legible video, and every pixel goes to the controls and the label.
-const HiddenPlayer = styled.div`
-	position: absolute;
-	left: -9999px;
-	width: 1px;
-	height: 1px;
-	overflow: hidden;
-	opacity: 0;
-	pointer-events: none;
 `;
 
 const Info = styled.button`
@@ -162,11 +148,7 @@ const PlayerBar = () => {
 	const {
 		activeProject,
 		currentVerseKey,
-		videoId,
-		startSeconds,
 		isPlaying,
-		onReady,
-		onStateChange,
 		playPause,
 		next,
 		prev,
@@ -182,20 +164,6 @@ const PlayerBar = () => {
 	const chapter = chapterId ? chapterData?.suraByKey?.[chapterId] : undefined;
 	const reciter = activeProject ? getReciterFromTitle(activeProject.title) : '';
 	const verseNum = verseNumOf(currentVerseKey);
-
-	const opts: YouTubeProps['opts'] = useMemo(
-		() => ({
-			playerVars: {
-				autoplay: 0,
-				controls: 0,
-				playsinline: 1,
-				start: Math.max(0, Math.floor(startSeconds)),
-			},
-			height: 1,
-			width: 1,
-		}),
-		[startSeconds]
-	);
 
 	if (!activeProject) return null;
 
@@ -226,19 +194,6 @@ const PlayerBar = () => {
 
 	return (
 		<Bar role="region" aria-label="Recitation player">
-			{/* Rendered in a fixed spot for as long as a project is active, so
-			    the iframe (and playback) survives route changes. */}
-			<HiddenPlayer>
-				{videoId && (
-					<YouTube
-						key={videoId}
-						videoId={videoId}
-						opts={opts}
-						onReady={onReady}
-						onStateChange={onStateChange}
-					/>
-				)}
-			</HiddenPlayer>
 			<Info type="button" onClick={jumpToCurrent} aria-label="Show verse">
 				<Reciter>{reciter || activeProject.title}</Reciter>
 				<Where>{whereText}</Where>

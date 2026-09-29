@@ -9,8 +9,10 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import { YouTubeEvent, YouTubePlayer } from 'react-youtube';
+import styled from 'styled-components';
+import YouTubePlayer from 'youtube-player';
 import PlayerStates from 'youtube-player/dist/constants/PlayerStates';
+import { YouTubePlayer as YouTubePlayerType } from 'youtube-player/dist/types';
 import { ProjectConfig } from 'types';
 import { useProjectStore } from 'components/video-text-binding/use-project-store';
 import { useVerseBinding } from 'components/video-text-binding/use-verse-binding';
@@ -32,15 +34,13 @@ export interface MobilePlayerValue {
 	isPlaying: boolean;
 	hasNext: boolean;
 	hasPrev: boolean;
-	videoId: string | undefined;
-	startSeconds: number;
+	// Get a sura's recitations ready to play on the next tap.
+	prepare: (chapterId: number) => void;
 	start: (project: ProjectConfig, verseKey: string) => void;
 	playPause: () => void;
 	next: () => void;
 	prev: () => void;
 	stop: () => void;
-	onReady: (e: YouTubeEvent<number>) => void;
-	onStateChange: (e: YouTubeEvent<number>) => void;
 }
 
 const MobilePlayerContext = createContext<MobilePlayerValue | undefined>(
@@ -58,18 +58,54 @@ export const useMobilePlayer = (): MobilePlayerValue => {
 const getVideoId = (videoUrl: string | undefined) =>
 	videoUrl?.split('v=')?.[1]?.split('&')?.[0];
 
+// The iframe API's own player object. Its methods run synchronously, unlike
+// youtube-player's promise-wrapped proxies, which matters for starting
+// playback inside a tap (see `prepare`).
+interface RawPlayer {
+	playVideo: () => void;
+	pauseVideo: () => void;
+	seekTo: (seconds: number, allowSeekAhead: boolean) => void;
+	getPlayerState: () => number;
+	getCurrentTime: () => number;
+}
+
+// Audio-only, same as /mqbind: a phone-width bar has no room for a
+// legible video.
+const HiddenPlayer = styled.div`
+	position: fixed;
+	left: -9999px;
+	top: 0;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	opacity: 0;
+	pointer-events: none;
+`;
+
 const noop = () => undefined;
+
+// Most suras have one or two recitations; beyond this many, the rest load
+// on demand rather than each holding an iframe.
+const MAX_CUED_PLAYERS = 4;
+
+interface PooledPlayer {
+	wrapper: YouTubePlayerType;
+	mount: HTMLDivElement;
+	raw?: RawPlayer;
+}
 
 export const MobilePlayerProvider = ({ children }: { children: ReactNode }) => {
 	const [activeProject, setActiveProject] = useState<
 		ProjectConfig | undefined
 	>();
-	const [startSeconds, setStartSeconds] = useState(0);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [playStatus, setPlayStatus] = useState<PlayerStates | undefined>();
 
-	const playerRef = useRef<YouTubePlayer | null>(null);
-	const pendingSeekRef = useRef<number | undefined>(undefined);
+	const hostRef = useRef<HTMLDivElement>(null);
+	// One hidden player per recitation of the sura being read, keyed by
+	// video id, plus whichever one is playing.
+	const poolRef = useRef(new Map<string, PooledPlayer>());
+	const activeIdRef = useRef<string | undefined>();
 
 	const { projects } = useProjectStore({
 		setProjectConfig: noop,
@@ -86,36 +122,113 @@ export const MobilePlayerProvider = ({ children }: { children: ReactNode }) => {
 	});
 	const currentVerseKey = activeProject ? verses[0]?.verse_key : undefined;
 	const isPlaying = playStatus === PlayerStates.PLAYING;
-	const videoId = useMemo(
-		() => getVideoId(activeProject?.videoUrl),
-		[activeProject?.videoUrl]
+
+	const activePlayer = () =>
+		activeIdRef.current
+			? poolRef.current.get(activeIdRef.current)?.raw
+			: undefined;
+
+	const createPlayer = useCallback((videoId: string) => {
+		const host = hostRef.current;
+		if (!host) return undefined;
+		const mount = document.createElement('div');
+		host.appendChild(mount);
+		const wrapper = YouTubePlayer(mount, {
+			videoId,
+			width: 1,
+			height: 1,
+			playerVars: { autoplay: 0, controls: 0, playsinline: 1 },
+		});
+		const entry: PooledPlayer = { wrapper, mount };
+		wrapper.on('ready', (e) => {
+			entry.raw = e.target as unknown as RawPlayer;
+		});
+		wrapper.on('stateChange', (e) => {
+			if (activeIdRef.current === videoId) {
+				setPlayStatus(e.data as PlayerStates);
+			}
+		});
+		poolRef.current.set(videoId, entry);
+		return entry;
+	}, []);
+
+	const disposePlayer = useCallback((videoId: string) => {
+		const entry = poolRef.current.get(videoId);
+		if (!entry) return;
+		poolRef.current.delete(videoId);
+		entry.wrapper.destroy();
+		entry.mount.remove();
+	}, []);
+
+	// Mobile browsers (iOS Safari above all) only let audio start from
+	// within a tap. Creating the player on the tap and calling play once
+	// it had loaded was too late, so the first tap only ever reached a
+	// paused player. Instead, the sura being read has its recitations
+	// loaded ahead of time, and a tap just plays one.
+	const prepare = useCallback(
+		(chapterId: number) => {
+			const wanted = new Set(
+				(recitationsByChapter.get(chapterId) || [])
+					.slice(0, MAX_CUED_PLAYERS)
+					.map((r) => getVideoId(r.project.videoUrl))
+					.filter((id): id is string => Boolean(id))
+			);
+			Array.from(poolRef.current.keys()).forEach((id) => {
+				if (!wanted.has(id) && id !== activeIdRef.current) disposePlayer(id);
+			});
+			wanted.forEach((id) => {
+				if (!poolRef.current.has(id)) createPlayer(id);
+			});
+		},
+		[recitationsByChapter, createPlayer, disposePlayer]
 	);
+
+	useEffect(() => {
+		const pool = poolRef.current;
+		return () => {
+			Array.from(pool.keys()).forEach(disposePlayer);
+		};
+	}, [disposePlayer]);
 
 	const start = useCallback(
 		(project: ProjectConfig, verseKey: string) => {
+			const videoId = getVideoId(project.videoUrl);
+			if (!videoId) return;
 			const t =
 				project.bindingConfig.find((b) => b.k.split(',').includes(verseKey))
 					?.t ?? 0;
-			if (activeProject?.videoUrl === project.videoUrl && playerRef.current) {
-				playerRef.current.seekTo(t, true);
-				playerRef.current.playVideo();
-				return;
+
+			const previousId = activeIdRef.current;
+			if (previousId && previousId !== videoId) {
+				poolRef.current.get(previousId)?.raw?.pauseVideo();
 			}
-			pendingSeekRef.current = t;
-			setStartSeconds(t);
+			activeIdRef.current = videoId;
+
+			const entry = poolRef.current.get(videoId) || createPlayer(videoId);
+			if (entry?.raw) {
+				entry.raw.seekTo(t, true);
+				entry.raw.playVideo();
+			} else if (entry) {
+				// Not loaded yet (a very quick tap, or a sura with more
+				// recitations than are kept ready): this queues until it is,
+				// and may need a tap on play as the browser sees no gesture.
+				entry.wrapper.seekTo(t, true);
+				entry.wrapper.playVideo();
+			}
+			setPlayStatus(undefined);
 			setCurrentTime(t);
 			setActiveProject(project);
 		},
-		[activeProject?.videoUrl]
+		[createPlayer]
 	);
 
 	const playPause = useCallback(() => {
-		const state =
-			playerRef.current?.getPlayerState() as unknown as PlayerStates;
-		if (state === PlayerStates.PLAYING) {
-			playerRef.current?.pauseVideo();
+		const player = activePlayer();
+		if (!player) return;
+		if (player.getPlayerState() === PlayerStates.PLAYING) {
+			player.pauseVideo();
 		} else {
-			playerRef.current?.playVideo();
+			player.playVideo();
 		}
 	}, []);
 
@@ -123,7 +236,7 @@ export const MobilePlayerProvider = ({ children }: { children: ReactNode }) => {
 		(step: number) => {
 			const t = timeToVerse(step);
 			// -1 is useVerseBinding's "no such verse"; t === 0 is a real verse.
-			if (t >= 0) playerRef.current?.seekTo(t, true);
+			if (t >= 0) activePlayer()?.seekTo(t, true);
 		},
 		[timeToVerse]
 	);
@@ -131,33 +244,17 @@ export const MobilePlayerProvider = ({ children }: { children: ReactNode }) => {
 	const prev = useCallback(() => seekStep(-1), [seekStep]);
 
 	const stop = useCallback(() => {
-		playerRef.current?.pauseVideo();
-		playerRef.current = null;
-		pendingSeekRef.current = undefined;
+		activePlayer()?.pauseVideo();
+		activeIdRef.current = undefined;
 		setActiveProject(undefined);
 		setPlayStatus(undefined);
 		setCurrentTime(0);
 	}, []);
 
-	const onReady = useCallback((e: YouTubeEvent<number>) => {
-		playerRef.current = e.target;
-		if (pendingSeekRef.current !== undefined) {
-			e.target.seekTo(pendingSeekRef.current, true);
-			pendingSeekRef.current = undefined;
-		}
-		e.target.playVideo();
-		setPlayStatus(e.target.getPlayerState() as unknown as PlayerStates);
-	}, []);
-
-	const onStateChange = useCallback((e: YouTubeEvent<number>) => {
-		if (!e.target) return;
-		setPlayStatus(e.target.getPlayerState() as unknown as PlayerStates);
-	}, []);
-
 	useEffect(() => {
 		if (!activeProject) return undefined;
 		const timer = setInterval(() => {
-			const t = playerRef.current?.getCurrentTime() as unknown as number;
+			const t = activePlayer()?.getCurrentTime();
 			if (t) setCurrentTime(t);
 		}, POLL_INTERVAL_MS);
 		return () => clearInterval(timer);
@@ -171,15 +268,12 @@ export const MobilePlayerProvider = ({ children }: { children: ReactNode }) => {
 			isPlaying,
 			hasNext: timeToVerse(1) >= 0,
 			hasPrev: timeToVerse(-1) >= 0,
-			videoId,
-			startSeconds,
+			prepare,
 			start,
 			playPause,
 			next,
 			prev,
 			stop,
-			onReady,
-			onStateChange,
 		}),
 		[
 			recitationsByChapter,
@@ -187,21 +281,21 @@ export const MobilePlayerProvider = ({ children }: { children: ReactNode }) => {
 			currentVerseKey,
 			isPlaying,
 			timeToVerse,
-			videoId,
-			startSeconds,
+			prepare,
 			start,
 			playPause,
 			next,
 			prev,
 			stop,
-			onReady,
-			onStateChange,
 		]
 	);
 
 	return (
 		<MobilePlayerContext.Provider value={value}>
 			{children}
+			{/* Outside any route, so the iframe (and playback) survives moving
+			    between the list and a sura. */}
+			<HiddenPlayer ref={hostRef} aria-hidden />
 		</MobilePlayerContext.Provider>
 	);
 };

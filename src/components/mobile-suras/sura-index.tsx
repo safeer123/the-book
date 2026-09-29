@@ -1,4 +1,11 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+	useSyncExternalStore,
+} from 'react';
 import styled from 'styled-components';
 import {
 	Link,
@@ -35,7 +42,9 @@ import {
 	BASE_PATH,
 	chapterOfProject,
 	filterChapters,
-	getLastRead,
+	getLastReadSnapshot,
+	parseLastRead,
+	subscribeLastRead,
 	listViewState,
 	markOpenedFromList,
 	parseVerseJump,
@@ -342,7 +351,11 @@ const SuraIndex = () => {
 	);
 	const [audioOnly, setAudioOnly] = useState(false);
 	const scrollerRef = useRef<HTMLElement>(null);
-	const lastRead = useMemo(getLastRead, []);
+	const lastReadRaw = useSyncExternalStore(
+		subscribeLastRead,
+		getLastReadSnapshot
+	);
+	const lastRead = useMemo(() => parseLastRead(lastReadRaw), [lastReadRaw]);
 
 	const chapters = useMemo(() => data?.chapters || [], [data?.chapters]);
 	const playingChapter = isPlaying ? chapterOfProject(activeProject) : 0;
