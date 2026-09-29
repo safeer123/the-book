@@ -86,9 +86,49 @@ export interface LastRead {
 	verse: number;
 }
 
-export const getLastRead = () => readJSON<LastRead>(LAST_READ_KEY);
-export const saveLastRead = (value: LastRead) =>
+// Lets the list's "continue reading" follow saves as they happen, and pick
+// up ones made in another tab (or while this one sat in the background).
+export const subscribeLastRead = (onChange: () => void) => {
+	const onStorage = (e: StorageEvent) => {
+		if (e.key === null || e.key === LAST_READ_KEY) onChange();
+	};
+	const onVisible = () => {
+		if (document.visibilityState === 'visible') onChange();
+	};
+	window.addEventListener('storage', onStorage);
+	window.addEventListener('pageshow', onChange);
+	window.addEventListener(LAST_READ_KEY, onChange);
+	document.addEventListener('visibilitychange', onVisible);
+	return () => {
+		window.removeEventListener('storage', onStorage);
+		window.removeEventListener('pageshow', onChange);
+		window.removeEventListener(LAST_READ_KEY, onChange);
+		document.removeEventListener('visibilitychange', onVisible);
+	};
+};
+
+// The raw string, so useSyncExternalStore gets a stable snapshot.
+export const getLastReadSnapshot = () => {
+	try {
+		return localStorage.getItem(LAST_READ_KEY);
+	} catch {
+		return null;
+	}
+};
+
+export const parseLastRead = (raw: string | null): LastRead | undefined => {
+	try {
+		const value = raw ? (JSON.parse(raw) as LastRead) : undefined;
+		return value && value.chapterId > 0 && value.verse > 0 ? value : undefined;
+	} catch {
+		return undefined;
+	}
+};
+
+export const saveLastRead = (value: LastRead) => {
 	writeJSON(LAST_READ_KEY, value);
+	window.dispatchEvent(new Event(LAST_READ_KEY));
+};
 
 export const getSavedTranslation = () => readJSON<string>(TRANSLATION_KEY);
 export const saveTranslation = (tr: string) => writeJSON(TRANSLATION_KEY, tr);
