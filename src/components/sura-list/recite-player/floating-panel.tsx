@@ -9,6 +9,8 @@ import {
 	StepForwardOutlined,
 	EyeInvisibleOutlined,
 	StopOutlined,
+	DownOutlined,
+	UpOutlined,
 } from '@ant-design/icons';
 import { ProjectConfig } from 'types';
 import { getReciterFromTitle } from 'utils/project-utils';
@@ -58,6 +60,39 @@ const FloatingButton = styled.button<{ $playing: boolean }>`
 
 	&:hover {
 		background: #4096ff;
+	}
+`;
+
+// Small chip on the play/pause button's corner that shows or hides the
+// panel, so the main button itself can pause/resume in a single tap.
+const PanelToggle = styled.button`
+	position: fixed;
+	top: 46px;
+	right: ${PANEL_RIGHT - 6}px;
+	z-index: 902;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	border: 1px solid rgba(0, 0, 0, 0.12);
+	background: #fff;
+	color: rgba(0, 0, 0, 0.75);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 10px;
+	line-height: 0;
+	padding: 0;
+	cursor: pointer;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+
+	&:hover {
+		color: #1677ff;
+	}
+
+	[data-theme='dark'] & {
+		background: #241f3d;
+		border-color: rgba(156, 142, 224, 0.4);
+		color: #f0ebff;
 	}
 `;
 
@@ -227,11 +262,24 @@ const FloatingRecitePanel = ({
 			<FloatingButton
 				type="button"
 				$playing={isPlaying}
-				onClick={() => setPanelOpen(!panelOpen)}
-				title={reciter || activeProject.title}
+				onClick={playPause}
+				title={`${isPlaying ? 'Pause' : 'Play'} · ${
+					reciter || activeProject.title
+				}`}
+				aria-label={isPlaying ? 'Pause recitation' : 'Play recitation'}
 			>
 				{isPlaying ? <PauseCircleFilled /> : <PlayCircleFilled />}
 			</FloatingButton>
+
+			<PanelToggle
+				type="button"
+				onClick={() => setPanelOpen(!panelOpen)}
+				title={panelOpen ? 'Hide player' : 'Show player'}
+				aria-label={panelOpen ? 'Hide player' : 'Show player'}
+				aria-expanded={panelOpen}
+			>
+				{panelOpen ? <UpOutlined /> : <DownOutlined />}
+			</PanelToggle>
 
 			<VideoSlot $visible={panelOpen}>
 				{videoId && (
