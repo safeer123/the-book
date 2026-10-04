@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import YouTube, { YouTubeProps } from 'react-youtube';
 import { Button } from 'antd';
@@ -24,6 +24,10 @@ const PANEL_WIDTH = 220;
 const VIDEO_WIDTH = 160;
 const VIDEO_HEIGHT = 90;
 const VIDEO_RIGHT = PANEL_RIGHT + (PANEL_WIDTH - VIDEO_WIDTH) / 2;
+
+// While recitation plays, the panel tucks itself away after this long
+// without the pointer on it (or on the buttons that control it).
+const AUTO_HIDE_MS = 5000;
 
 const pulse = keyframes`
 	0% { box-shadow: 0 0 0 0 rgba(22, 119, 255, 0.45); }
@@ -239,6 +243,23 @@ const FloatingRecitePanel = ({
 		[activeProject]
 	);
 
+	const [hovered, setHovered] = useState(false);
+	const hoverProps = {
+		onMouseEnter: () => setHovered(true),
+		onMouseLeave: () => setHovered(false),
+	};
+
+	// A panel that unmounts under the pointer never gets its mouseleave.
+	useEffect(() => {
+		if (!panelOpen) setHovered(false);
+	}, [panelOpen]);
+
+	useEffect(() => {
+		if (!panelOpen || !isPlaying || hovered) return undefined;
+		const timer = setTimeout(() => setPanelOpen(false), AUTO_HIDE_MS);
+		return () => clearTimeout(timer);
+	}, [panelOpen, isPlaying, hovered, setPanelOpen]);
+
 	// `start` only takes effect when the player is (re)created, so a fresh
 	// `key` forces a remount whenever the video changes, letting the native
 	// cue-at-start-time behave reliably instead of racing a post-ready seekTo.
@@ -263,6 +284,7 @@ const FloatingRecitePanel = ({
 				type="button"
 				$playing={isPlaying}
 				onClick={playPause}
+				{...hoverProps}
 				title={`${isPlaying ? 'Pause' : 'Play'} · ${
 					reciter || activeProject.title
 				}`}
@@ -277,11 +299,12 @@ const FloatingRecitePanel = ({
 				title={panelOpen ? 'Hide player' : 'Show player'}
 				aria-label={panelOpen ? 'Hide player' : 'Show player'}
 				aria-expanded={panelOpen}
+				{...hoverProps}
 			>
 				{panelOpen ? <UpOutlined /> : <DownOutlined />}
 			</PanelToggle>
 
-			<VideoSlot $visible={panelOpen}>
+			<VideoSlot $visible={panelOpen} {...hoverProps}>
 				{videoId && (
 					<YouTube
 						key={videoId}
@@ -294,7 +317,7 @@ const FloatingRecitePanel = ({
 			</VideoSlot>
 
 			{panelOpen && (
-				<Panel>
+				<Panel {...hoverProps}>
 					<VideoSpacer />
 					<TitleBlock title={activeProject.title}>
 						<ReciterName>{reciter || activeProject.title}</ReciterName>
