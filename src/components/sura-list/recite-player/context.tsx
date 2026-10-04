@@ -18,6 +18,7 @@ import {
 	buildChapterRecitations,
 	ChapterRecitation,
 } from 'utils/project-utils';
+import { useMediaKeys } from 'utils/use-media-keys';
 import FloatingRecitePanel from './floating-panel';
 
 const POLL_INTERVAL_MS = 200;
@@ -157,6 +158,14 @@ export const RecitePlayerProvider = ({ children }: { children: ReactNode }) => {
 		document.addEventListener('keydown', handler);
 		return () => document.removeEventListener('keydown', handler);
 	}, [activeProject, playPause, next, prev]);
+
+	useMediaKeys({
+		enabled: Boolean(activeProject),
+		isPlaying,
+		playPause,
+		next,
+		prev,
+	});
 
 	const stop = useCallback(() => {
 		playerRef.current?.pauseVideo();
