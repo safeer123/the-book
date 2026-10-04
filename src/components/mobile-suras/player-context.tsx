@@ -20,6 +20,7 @@ import {
 	buildChapterRecitations,
 	ChapterRecitation,
 } from 'utils/project-utils';
+import { useMediaKeys } from 'utils/use-media-keys';
 
 const POLL_INTERVAL_MS = 200;
 
@@ -242,6 +243,14 @@ export const MobilePlayerProvider = ({ children }: { children: ReactNode }) => {
 	);
 	const next = useCallback(() => seekStep(1), [seekStep]);
 	const prev = useCallback(() => seekStep(-1), [seekStep]);
+
+	useMediaKeys({
+		enabled: Boolean(activeProject),
+		isPlaying,
+		playPause,
+		next,
+		prev,
+	});
 
 	const stop = useCallback(() => {
 		activePlayer()?.pauseVideo();
