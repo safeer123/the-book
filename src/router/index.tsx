@@ -21,6 +21,7 @@ import { isPhone } from 'utils/device-utils';
 import UserProfileMenu from 'components/user-profile-menu';
 import HomeButton from 'components/home-button';
 import { useIsAdmin } from 'data/use-is-admin';
+import { useInstallNudge } from 'pwa/pwa-provider';
 
 const HomeWrapper = styled.div`
 	display: flex;
@@ -176,6 +177,7 @@ const mobileHomeLink = {
 
 const HomePage = () => {
 	const { data: isAdmin } = useIsAdmin();
+	useInstallNudge();
 
 	return (
 		<HomePageWrapper>

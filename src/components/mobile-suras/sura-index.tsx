@@ -13,11 +13,13 @@ import {
 	ArrowRightOutlined,
 	CloseCircleFilled,
 	CustomerServiceOutlined,
+	DownloadOutlined,
 	HistoryOutlined,
 	SearchOutlined,
 } from '@ant-design/icons';
 import { useChapters } from 'data/use-chapters';
 import { useAppTheme } from 'context/theme-context';
+import { usePwa } from 'pwa/pwa-provider';
 import { ChapterItem } from 'types';
 import { useMobilePlayer } from './player-context';
 import VerseMatches, { SectionLabel } from './verse-matches';
@@ -339,6 +341,7 @@ const SuraIndex = () => {
 	const { data, isLoading, isError } = useChapters();
 	const { recitationsByChapter, activeProject, isPlaying } = useMobilePlayer();
 	const { mode, toggleTheme } = useAppTheme();
+	const { canInstall, install } = usePwa();
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -472,6 +475,11 @@ const SuraIndex = () => {
 					<HeaderMain>The Quran</HeaderMain>
 					<HeaderSub>114 suras · read & listen</HeaderSub>
 				</ListTitle>
+				{canInstall && (
+					<IconButton type="button" onClick={install} aria-label="Install app">
+						<DownloadOutlined />
+					</IconButton>
+				)}
 				<IconButton
 					type="button"
 					onClick={toggleTheme}

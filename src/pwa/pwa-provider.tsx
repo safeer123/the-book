@@ -7,21 +7,20 @@ import {
 	useMemo,
 	useState,
 } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
 import { Button } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
-import { auth } from 'utils/init-firebase';
 import { isAndroid, isIOS, isMacSafari, isPhone } from 'utils/device-utils';
 import InstallGuideModal from './install-guide-modal';
-import { useInstallState } from './install-prompt';
+import InstallNudge from './install-nudge';
+import { promptInstall, useInstallState } from './install-prompt';
 import { applyUpdate, useUpdateAvailable } from './service-worker-registration';
 
-// Set once the guide has been shown on this device, so it only ever opens
-// by itself the first time someone signs in here. The profile menu's
-// "Install app" item reopens it on demand.
+// Set once the install nudge has been shown on this device, so it only
+// ever appears by itself on someone's first visit — signed in or not. The
+// "Install app" entries (profile menu, /msuras header) install on demand.
 const GUIDE_SEEN_KEY = 'pwa-install-guide-seen';
-// Let the post-login redirect settle before a modal appears over it.
+// Let the page (or a post-login redirect) settle before the nudge appears.
 const AUTO_OPEN_DELAY_MS = 1800;
 
 const readSeen = () => {
@@ -43,15 +42,28 @@ const markSeen = () => {
 interface PwaContextType {
 	// Not yet installed, and this browser has some way to install.
 	canInstall: boolean;
-	openInstallGuide: () => void;
+	// Android/Chromium: the browser's one-tap install dialog. Elsewhere
+	// (iOS, in-app browsers) there is none, so this opens the step guide.
+	install: () => void;
+	// Registers a page that wants the first-visit nudge; returns its cleanup.
+	requestNudge: () => () => void;
 }
 
 const PwaContext = createContext<PwaContextType>({
 	canInstall: false,
-	openInstallGuide: () => undefined,
+	install: () => undefined,
+	requestNudge: () => () => undefined,
 });
 
 export const usePwa = () => useContext(PwaContext);
+
+// Pages a first-time visitor typically lands on (/, /suras, /msuras) call
+// this so the "Install or skip" nudge shows there, and not over sign-in or
+// other utility pages.
+export const useInstallNudge = () => {
+	const { requestNudge } = usePwa();
+	useEffect(() => requestNudge(), [requestNudge]);
+};
 
 const UpdateBar = styled.div`
 	position: fixed;
@@ -113,42 +125,60 @@ export const PwaProvider = ({ children }: { children: ReactNode }) => {
 	const isMobileDevice = isIOS || isAndroid || isPhone;
 	const canInstall = !installed && (isMobileDevice || canPrompt || isMacSafari);
 
+	const [nudgeRequests, setNudgeRequests] = useState(0);
+	const [nudgeOpen, setNudgeOpen] = useState(false);
+
+	const requestNudge = useCallback(() => {
+		setNudgeRequests((n) => n + 1);
+		return () => setNudgeRequests((n) => n - 1);
+	}, []);
+
 	useEffect(() => {
 		// Don't nag desktop users whose browser can't install; they can still
 		// open the guide from the profile menu when it applies.
-		if (installed || readSeen() || !(isMobileDevice || canPrompt)) {
+		if (
+			!nudgeRequests ||
+			installed ||
+			readSeen() ||
+			!(isMobileDevice || canPrompt)
+		) {
 			return undefined;
 		}
-		let timer: number | undefined;
-		const unsubscribe = onAuthStateChanged(auth, (user) => {
-			window.clearTimeout(timer);
-			if (user && !readSeen()) {
-				timer = window.setTimeout(() => {
-					markSeen();
-					setGuideOpen(true);
-				}, AUTO_OPEN_DELAY_MS);
-			}
-		});
-		return () => {
-			window.clearTimeout(timer);
-			unsubscribe();
-		};
-	}, [installed, canPrompt, isMobileDevice]);
+		const timer = window.setTimeout(() => {
+			markSeen();
+			setNudgeOpen(true);
+		}, AUTO_OPEN_DELAY_MS);
+		return () => window.clearTimeout(timer);
+	}, [nudgeRequests, installed, canPrompt, isMobileDevice]);
+
+	const install = useCallback(() => {
+		setNudgeOpen(false);
+		if (canPrompt) {
+			promptInstall().catch(() => undefined);
+		} else {
+			setGuideOpen(true);
+		}
+	}, [canPrompt]);
 
 	// Installed from the browser's own UI while the guide was open.
 	useEffect(() => {
-		if (installed) setGuideOpen(false);
+		if (installed) {
+			setGuideOpen(false);
+			setNudgeOpen(false);
+		}
 	}, [installed]);
 
-	const openInstallGuide = useCallback(() => setGuideOpen(true), []);
 	const value = useMemo(
-		() => ({ canInstall, openInstallGuide }),
-		[canInstall, openInstallGuide]
+		() => ({ canInstall, install, requestNudge }),
+		[canInstall, install, requestNudge]
 	);
 
 	return (
 		<PwaContext.Provider value={value}>
 			{children}
+			{nudgeOpen && (
+				<InstallNudge onInstall={install} onSkip={() => setNudgeOpen(false)} />
+			)}
 			<InstallGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
 			<UpdateBanner />
 		</PwaContext.Provider>

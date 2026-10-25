@@ -12,6 +12,7 @@ import { TranslationVisibilityProvider } from 'context/translation-visibility-co
 import { RecitePlayerProvider } from './recite-player/context';
 import UserProfileMenu from 'components/user-profile-menu';
 import HomeButton from 'components/home-button';
+import { useInstallNudge } from 'pwa/pwa-provider';
 
 const Wrapper = styled.div`
 	padding: 0px 16px;
@@ -42,6 +43,7 @@ const SuraList = () => {
 	const [searchParams] = useSearchParams();
 	const lastScrollTopRef = useRef(0);
 	const lastMouseDownAtRef = useRef(0);
+	useInstallNudge();
 
 	const [searchKey, searchKeys, config, only] = useMemo(() => {
 		const key = searchParams.get('k') || '';
