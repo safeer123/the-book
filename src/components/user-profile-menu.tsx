@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, Button, Popover, Switch } from 'antd';
-import { DownloadOutlined, LogoutOutlined } from '@ant-design/icons';
+import {
+	DownloadOutlined,
+	LoginOutlined,
+	LogoutOutlined,
+	UserOutlined,
+} from '@ant-design/icons';
 import styled from 'styled-components';
 import { useUserAuth } from 'auth/auth-context';
 import { DARK_POPOVER_STYLE, useAppTheme } from 'context/theme-context';
@@ -10,7 +15,8 @@ import { usePwa } from 'pwa/pwa-provider';
 
 // Same fixed top-right slot the global theme toggle occupies — this menu
 // takes over that slot (and hides the toggle, see below) once a user is
-// signed in, so there's never two controls competing for the same corner.
+// signed in, or for a guest whose device can install the app, so there's
+// never two controls competing for the same corner.
 const FloatingWrapper = styled.div`
 	position: fixed;
 	top: 16px;
@@ -82,19 +88,23 @@ const UserProfileMenu = ({ floating = true }: Props) => {
 	const { user } = useUserAuth();
 	const { mode, toggleTheme } = useAppTheme();
 	const navigate = useNavigate();
-	const { canInstall, openInstallGuide } = usePwa();
+	const { canInstall, install } = usePwa();
 	const [menuOpen, setMenuOpen] = useState(false);
+	// Guests get a slimmer menu (theme, install, sign in) so "Install app"
+	// doesn't depend on signing in. Without anything to install there's
+	// nothing the global theme toggle doesn't already cover.
+	const visible = Boolean(user) || canInstall;
 
 	// The global toggle would otherwise sit in the exact same corner as this
-	// menu; hide it for as long as this menu is mounted and showing a user.
+	// menu; hide it for as long as this menu is mounted and showing.
 	useEffect(() => {
-		if (!user) return undefined;
+		if (!visible) return undefined;
 		const root = document.documentElement;
 		root.setAttribute('data-hide-theme-toggle', 'true');
 		return () => root.removeAttribute('data-hide-theme-toggle');
-	}, [user]);
+	}, [visible]);
 
-	if (!user) return null;
+	if (!visible) return null;
 
 	const avatarProps = {
 		src: user?.photoURL ? (
@@ -113,13 +123,19 @@ const UserProfileMenu = ({ floating = true }: Props) => {
 			overlayInnerStyle={mode === 'dark' ? DARK_POPOVER_STYLE : undefined}
 			content={
 				<ProfileMenuWrapper>
-					<UserDisplayName>
-						<Avatar {...avatarProps}>
-							{user?.displayName?.[0]?.toUpperCase()}
-						</Avatar>
-						{user?.displayName}
-					</UserDisplayName>
-					<UserEmail>{user?.email}</UserEmail>
+					{user ? (
+						<>
+							<UserDisplayName>
+								<Avatar {...avatarProps}>
+									{user.displayName?.[0]?.toUpperCase()}
+								</Avatar>
+								{user.displayName}
+							</UserDisplayName>
+							<UserEmail>{user.email}</UserEmail>
+						</>
+					) : (
+						<UserDisplayName>Not signed in</UserDisplayName>
+					)}
 					<ThemeSwitchRow>
 						{mode === 'dark' ? '🌙 Dark mode' : '☀️ Light mode'}
 						<Switch
@@ -134,25 +150,39 @@ const UserProfileMenu = ({ floating = true }: Props) => {
 							size="small"
 							onClick={() => {
 								setMenuOpen(false);
-								openInstallGuide();
+								install();
 							}}
 						>
 							Install app
 						</Button>
 					)}
-					<Button
-						icon={<LogoutOutlined />}
-						size="small"
-						onClick={() => navigate('/logout')}
-					>
-						Logout
-					</Button>
+					{user ? (
+						<Button
+							icon={<LogoutOutlined />}
+							size="small"
+							onClick={() => navigate('/logout')}
+						>
+							Logout
+						</Button>
+					) : (
+						<Button
+							icon={<LoginOutlined />}
+							size="small"
+							onClick={() => navigate('/login')}
+						>
+							Sign in
+						</Button>
+					)}
 				</ProfileMenuWrapper>
 			}
 		>
-			<StyledAvatar {...avatarProps}>
-				{user?.displayName?.[0]?.toUpperCase()}
-			</StyledAvatar>
+			{user ? (
+				<StyledAvatar {...avatarProps}>
+					{user.displayName?.[0]?.toUpperCase()}
+				</StyledAvatar>
+			) : (
+				<StyledAvatar icon={<UserOutlined />} aria-label="Menu" />
+			)}
 		</Popover>
 	);
 

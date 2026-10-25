@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useInstallNudge } from 'pwa/pwa-provider';
 import {
 	Outlet,
 	useNavigationType,
@@ -125,6 +126,8 @@ const Shell = () => {
 // bar) while the listener browses back to the list. Self-contained: it
 // reuses the app's data hooks but none of /suras' UI or state.
 const MobileSuras = () => {
+	useInstallNudge();
+
 	// The page has its own theme button; the global floating one would sit
 	// on top of the header's actions.
 	useEffect(() => {
