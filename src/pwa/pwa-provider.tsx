@@ -46,13 +46,19 @@ interface PwaContextType {
 	// (iOS, in-app browsers) there is none, so this opens the step guide.
 	install: () => void;
 	// Registers a page that wants the first-visit nudge; returns its cleanup.
-	requestNudge: () => () => void;
+	// An `anchored` page shows the nudge itself, pointing at its own install
+	// button (see InstallCoachMark), instead of the generic bottom card.
+	requestNudge: (anchored?: boolean) => () => void;
+	nudgeOpen: boolean;
+	skipNudge: () => void;
 }
 
 const PwaContext = createContext<PwaContextType>({
 	canInstall: false,
 	install: () => undefined,
 	requestNudge: () => () => undefined,
+	nudgeOpen: false,
+	skipNudge: () => undefined,
 });
 
 export const usePwa = () => useContext(PwaContext);
@@ -60,9 +66,9 @@ export const usePwa = () => useContext(PwaContext);
 // Pages a first-time visitor typically lands on (/, /suras, /msuras) call
 // this so the "Install or skip" nudge shows there, and not over sign-in or
 // other utility pages.
-export const useInstallNudge = () => {
+export const useInstallNudge = (anchored = false) => {
 	const { requestNudge } = usePwa();
-	useEffect(() => requestNudge(), [requestNudge]);
+	useEffect(() => requestNudge(anchored), [requestNudge, anchored]);
 };
 
 const UpdateBar = styled.div`
@@ -126,18 +132,21 @@ export const PwaProvider = ({ children }: { children: ReactNode }) => {
 	const canInstall = !installed && (isMobileDevice || canPrompt || isMacSafari);
 
 	const [nudgeRequests, setNudgeRequests] = useState(0);
+	const [anchoredRequests, setAnchoredRequests] = useState(0);
 	const [nudgeOpen, setNudgeOpen] = useState(false);
 
-	const requestNudge = useCallback(() => {
-		setNudgeRequests((n) => n + 1);
-		return () => setNudgeRequests((n) => n - 1);
+	const requestNudge = useCallback((anchored = false) => {
+		const setCount = anchored ? setAnchoredRequests : setNudgeRequests;
+		setCount((n) => n + 1);
+		return () => setCount((n) => n - 1);
 	}, []);
+	const skipNudge = useCallback(() => setNudgeOpen(false), []);
 
 	useEffect(() => {
 		// Don't nag desktop users whose browser can't install; they can still
 		// open the guide from the profile menu when it applies.
 		if (
-			!nudgeRequests ||
+			!(nudgeRequests || anchoredRequests) ||
 			installed ||
 			readSeen() ||
 			!(isMobileDevice || canPrompt)
@@ -149,7 +158,7 @@ export const PwaProvider = ({ children }: { children: ReactNode }) => {
 			setNudgeOpen(true);
 		}, AUTO_OPEN_DELAY_MS);
 		return () => window.clearTimeout(timer);
-	}, [nudgeRequests, installed, canPrompt, isMobileDevice]);
+	}, [nudgeRequests, anchoredRequests, installed, canPrompt, isMobileDevice]);
 
 	const install = useCallback(() => {
 		setNudgeOpen(false);
@@ -169,15 +178,15 @@ export const PwaProvider = ({ children }: { children: ReactNode }) => {
 	}, [installed]);
 
 	const value = useMemo(
-		() => ({ canInstall, install, requestNudge }),
-		[canInstall, install, requestNudge]
+		() => ({ canInstall, install, requestNudge, nudgeOpen, skipNudge }),
+		[canInstall, install, requestNudge, nudgeOpen, skipNudge]
 	);
 
 	return (
 		<PwaContext.Provider value={value}>
 			{children}
-			{nudgeOpen && (
-				<InstallNudge onInstall={install} onSkip={() => setNudgeOpen(false)} />
+			{nudgeOpen && !anchoredRequests && (
+				<InstallNudge onInstall={install} onSkip={skipNudge} />
 			)}
 			<InstallGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
 			<UpdateBanner />

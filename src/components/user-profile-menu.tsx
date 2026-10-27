@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, Button, Popover, Switch } from 'antd';
 import {
-	DownloadOutlined,
+	AppstoreAddOutlined,
 	LoginOutlined,
 	LogoutOutlined,
 	UserOutlined,
@@ -146,7 +146,7 @@ const UserProfileMenu = ({ floating = true }: Props) => {
 					</ThemeSwitchRow>
 					{canInstall && (
 						<Button
-							icon={<DownloadOutlined />}
+							icon={<AppstoreAddOutlined />}
 							size="small"
 							onClick={() => {
 								setMenuOpen(false);
