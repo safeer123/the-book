@@ -13,13 +13,14 @@ import {
 	ArrowRightOutlined,
 	CloseCircleFilled,
 	CustomerServiceOutlined,
-	DownloadOutlined,
+	AppstoreAddOutlined,
 	HistoryOutlined,
 	SearchOutlined,
 } from '@ant-design/icons';
 import { useChapters } from 'data/use-chapters';
 import { useAppTheme } from 'context/theme-context';
-import { usePwa } from 'pwa/pwa-provider';
+import { useInstallNudge, usePwa } from 'pwa/pwa-provider';
+import InstallCoachMark from 'pwa/install-coach-mark';
 import { ChapterItem } from 'types';
 import { useMobilePlayer } from './player-context';
 import VerseMatches, { SectionLabel } from './verse-matches';
@@ -342,6 +343,9 @@ const SuraIndex = () => {
 	const { recitationsByChapter, activeProject, isPlaying } = useMobilePlayer();
 	const { mode, toggleTheme } = useAppTheme();
 	const { canInstall, install } = usePwa();
+	const installButtonRef = useRef<HTMLButtonElement>(null);
+	// First visit: point at the install button rather than a generic card.
+	useInstallNudge(true);
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -476,10 +480,16 @@ const SuraIndex = () => {
 					<HeaderSub>114 suras · read & listen</HeaderSub>
 				</ListTitle>
 				{canInstall && (
-					<IconButton type="button" onClick={install} aria-label="Install app">
-						<DownloadOutlined />
+					<IconButton
+						ref={installButtonRef}
+						type="button"
+						onClick={install}
+						aria-label="Install app"
+					>
+						<AppstoreAddOutlined />
 					</IconButton>
 				)}
+				<InstallCoachMark anchorRef={installButtonRef} />
 				<IconButton
 					type="button"
 					onClick={toggleTheme}
