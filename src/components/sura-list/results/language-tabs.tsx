@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { TranslationData, TranslationItem } from 'data/use-translations';
 import { DEFAULT_TRANSLATION_ID } from 'data/constants';
 import { getTopHitTranslations, updateHitCount } from './top-hit-translations';
+import { useDebouncedValue } from 'utils/use-debounced-value';
 
 const { TabPane } = Tabs;
 const { Search } = Input;
@@ -169,24 +170,25 @@ const LanguageTabs = ({
 		setActiveKey(lang || '');
 	}, [selectedTrId, data]);
 
+	const [query, setQuery] = useState('');
+	const debouncedQuery = useDebouncedValue(query);
+
 	useEffect(() => {
-		setFilteredData(data);
-	}, [data]);
-
-	const onSearch: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-		const searchKey = e.target.value || '';
-
+		const q = debouncedQuery.toLowerCase();
 		const filtered: TranslationData['translationsByLang'] = {};
 		Object.entries(data || {}).forEach(([lang, translations]) => {
-			if (lang.toLowerCase().includes(searchKey.toLowerCase())) {
+			if (lang.toLowerCase().includes(q)) {
 				filtered[lang] = translations;
 			}
 		});
 		setFilteredData(filtered);
-		if (!filtered[activeKey]) {
-			setActiveKey(Object.entries(filtered || {})?.[0]?.[0] || '');
-		}
-	};
+		setActiveKey((key) =>
+			filtered[key] ? key : Object.keys(filtered)[0] || ''
+		);
+	}, [data, debouncedQuery]);
+
+	const onSearch: React.ChangeEventHandler<HTMLInputElement> = (e) =>
+		setQuery(e.target.value || '');
 
 	if (!filteredData) return <></>;
 

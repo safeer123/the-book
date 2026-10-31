@@ -49,6 +49,7 @@ import { UploadProjects } from 'components/video-text-binding/upload-projects';
 import UserProfileMenu from 'components/user-profile-menu';
 import HomeButton from 'components/home-button';
 import { useAppTheme } from 'context/theme-context';
+import { useDebouncedValue } from 'utils/use-debounced-value';
 
 const PROJECTS_KEY = 'verse-binding-projects';
 
@@ -604,6 +605,7 @@ const EditProjects: FC = () => {
 	const [projects, setProjects] = useState<ProjectConfig[]>([]);
 	const [savedSnapshot, setSavedSnapshot] = useState('');
 	const [search, setSearch] = useState('');
+	const debouncedSearch = useDebouncedValue(search);
 	const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 	const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
 	const [saveIcon, setSaveIcon] = useState<ReactNode | undefined>();
@@ -617,6 +619,7 @@ const EditProjects: FC = () => {
 	const [incompleteFilter, setIncompleteFilter] = useState(false);
 	const [findReplaceOpen, setFindReplaceOpen] = useState(false);
 	const [findText, setFindText] = useState('');
+	const debouncedFindText = useDebouncedValue(findText);
 	const [replaceText, setReplaceText] = useState('');
 	const [matchCase, setMatchCase] = useState(false);
 	const [focusedTitleRowId, setFocusedTitleRowId] = useState<string | null>(
@@ -665,8 +668,8 @@ const EditProjects: FC = () => {
 
 	const filteredProjects = useMemo(() => {
 		let list = projects;
-		if (search.trim()) {
-			const q = search.toLowerCase();
+		if (debouncedSearch.trim()) {
+			const q = debouncedSearch.toLowerCase();
 			list = list.filter((p) => p.title?.toLowerCase().includes(q));
 		}
 		if (incompleteFilter) {
@@ -678,7 +681,7 @@ const EditProjects: FC = () => {
 			});
 		}
 		return list;
-	}, [projects, search, incompleteFilter, chaptersData]);
+	}, [projects, debouncedSearch, incompleteFilter, chaptersData]);
 
 	const missingChapters = useMemo((): ChapterItem[] => {
 		if (!chaptersData?.chapters) return [];
@@ -721,13 +724,15 @@ const EditProjects: FC = () => {
 	}, [projects]);
 
 	const matchCount = useMemo(() => {
-		if (!findText) return 0;
-		const find = matchCase ? findText : findText.toLowerCase();
+		if (!debouncedFindText) return 0;
+		const find = matchCase
+			? debouncedFindText
+			: debouncedFindText.toLowerCase();
 		return projects.filter((p) => {
 			const title = matchCase ? p.title : p.title?.toLowerCase();
 			return title?.includes(find);
 		}).length;
-	}, [projects, findText, matchCase]);
+	}, [projects, debouncedFindText, matchCase]);
 
 	const replaceAll = useCallback(() => {
 		if (!findText) return;
@@ -859,9 +864,9 @@ const EditProjects: FC = () => {
 			render: (title: string, record) => {
 				const isMatch =
 					findReplaceOpen &&
-					!!findText &&
+					!!debouncedFindText &&
 					(matchCase ? title : title?.toLowerCase() ?? '').includes(
-						matchCase ? findText : findText.toLowerCase()
+						matchCase ? debouncedFindText : debouncedFindText.toLowerCase()
 					);
 				const isFocused = focusedTitleRowId === record.id;
 				return (
@@ -1136,7 +1141,7 @@ const EditProjects: FC = () => {
 						</Button>
 					</AppTooltip>
 					<FindMatchCount>
-						{findText
+						{debouncedFindText
 							? `${matchCount} match${matchCount !== 1 ? 'es' : ''}`
 							: ''}
 					</FindMatchCount>

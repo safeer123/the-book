@@ -16,6 +16,7 @@ import useSearch from 'data/use-search';
 import { ChapterToken, SearchConfig, VerseToken } from 'types';
 import { searchConfigFromURLParams } from 'utils/search-utils';
 import TextSizeToggle from './text-size-toggle';
+import { useDebouncedValue } from 'utils/use-debounced-value';
 
 const SearchPanelWrapper = styled.div`
 	display: flex;
@@ -121,7 +122,10 @@ const Search: React.FC = () => {
 
 	const [searchParams, setSearchParams] = useSearchParams();
 
-	const { result, loading } = useSearch({ searchKey, config });
+	// Every keystroke would otherwise rescan all ~6,200 verses.
+	const debouncedKey = useDebouncedValue(searchKey);
+	const { result, loading } = useSearch({ searchKey: debouncedKey, config });
+	const pending = debouncedKey !== searchKey;
 
 	const getChapterFromVerseKey = (verseKey: string) => {
 		return chapterData?.suraByKey?.[Number(verseKey.split(':')[0])];
@@ -177,11 +181,11 @@ const Search: React.FC = () => {
 
 		const [extSura, extSuraClickEnabled] = getExtStr(
 			filteredChapterItems,
-			searchKey
+			debouncedKey
 		);
 		const [extAya, extAyaClickEnabled] = getExtStr(
 			filteredVerseItems,
-			searchKey
+			debouncedKey
 		);
 
 		const opts = [
@@ -204,7 +208,7 @@ const Search: React.FC = () => {
 		];
 
 		return opts;
-	}, [searchKey, result, chapterData]);
+	}, [searchKey, debouncedKey, result, chapterData]);
 
 	const onSelect = (item: unknown) => {
 		const [typeToken, id] = parseOptionKey(item as string);
@@ -305,7 +309,7 @@ const Search: React.FC = () => {
 					value={searchKey}
 					open={dropdownVisible}
 					onDropdownVisibleChange={(state) => setDropdownVisible(state)}
-					notFoundContent={loading ? <Spin /> : null}
+					notFoundContent={loading || pending ? <Spin /> : null}
 				>
 					<Input.Search
 						size="large"

@@ -6,9 +6,9 @@ import useSearch from 'data/use-search';
 import { useChapters } from 'data/use-chapters';
 import { SearchConfig } from 'types';
 import { CenterBox } from './styles';
+import { useDebouncedValue } from 'utils/use-debounced-value';
 
 const PAGE_SIZE = 30;
-const DEBOUNCE_MS = 300;
 const SNIPPET_RADIUS = 70;
 const SEARCH_CONFIG: SearchConfig = { matchCase: false, fullWord: false };
 
@@ -154,16 +154,10 @@ interface Props {
 // Verses whose translation contains the query — the phone counterpart of
 // /suras' free-text search.
 const VerseMatches = ({ query, onOpen }: Props) => {
-	const [debounced, setDebounced] = useState(query.trim());
+	const debounced = useDebouncedValue(query.trim());
 	const [limit, setLimit] = useState(PAGE_SIZE);
 
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			setDebounced(query.trim());
-			setLimit(PAGE_SIZE);
-		}, DEBOUNCE_MS);
-		return () => clearTimeout(timer);
-	}, [query]);
+	useEffect(() => setLimit(PAGE_SIZE), [debounced]);
 
 	const { result, loading } = useSearch({
 		searchKey: debounced,
