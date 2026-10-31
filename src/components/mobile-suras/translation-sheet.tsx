@@ -12,6 +12,7 @@ import {
 import Sheet from './sheet';
 import { CenterBox } from './styles';
 import { normalizeForSearch } from './utils';
+import { useDebouncedValue } from 'utils/use-debounced-value';
 
 const SearchBox = styled.label`
 	display: flex;
@@ -138,13 +139,14 @@ const TranslationSheet = ({ open, onClose, onPicked }: Props) => {
 	const { data, isLoading, isError } = useTranslations();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [query, setQuery] = useState('');
+	const debouncedQuery = useDebouncedValue(query);
 	const selectedId = Number(searchParams.get('tr') || DEFAULT_TRANSLATION_ID);
 
 	// Recently used (shared with /suras' "top hits"), then the current
 	// translation's language, English, and the rest alphabetically.
 	const groups = useMemo(() => {
 		const all = data?.translations || [];
-		const q = normalizeForSearch(query);
+		const q = normalizeForSearch(debouncedQuery);
 		const matches = (t: TranslationItem) =>
 			!q ||
 			[t.name, t.author_name, t.language_name].some((f) =>
@@ -175,7 +177,7 @@ const TranslationSheet = ({ open, onClose, onPicked }: Props) => {
 		return recent.length
 			? [{ label: 'Recently used', items: recent }, ...langGroups]
 			: langGroups;
-	}, [data?.translations, query, selectedId]);
+	}, [data?.translations, debouncedQuery, selectedId]);
 
 	const pick = (item: TranslationItem) => {
 		updateHitCount(item);
@@ -202,7 +204,11 @@ const TranslationSheet = ({ open, onClose, onPicked }: Props) => {
 	} else if (isError) {
 		body = <CenterBox>Couldn&apos;t load translations.</CenterBox>;
 	} else if (!groups.length) {
-		body = <CenterBox>No translation matches &ldquo;{query}&rdquo;</CenterBox>;
+		body = (
+			<CenterBox>
+				No translation matches &ldquo;{debouncedQuery}&rdquo;
+			</CenterBox>
+		);
 	} else {
 		body = groups.map((group) => (
 			<div key={group.label}>

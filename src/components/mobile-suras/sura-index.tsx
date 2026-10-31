@@ -46,6 +46,7 @@ import {
 	markOpenedFromList,
 	parseVerseJump,
 } from './utils';
+import { useDebouncedValue } from 'utils/use-debounced-value';
 
 // No button on its left, so line the title up with the search field.
 const ListTitle = styled(HeaderTitle)`
@@ -355,6 +356,9 @@ const SuraIndex = () => {
 	const [query, setQuery] = useState(
 		() => searchParams.get('q') ?? listViewState.query
 	);
+	// The field follows every keystroke; the list, verse jump and URL follow
+	// this, so typing a word doesn't refilter (and re-render) per letter.
+	const debouncedQuery = useDebouncedValue(query);
 	const [audioOnly, setAudioOnly] = useState(false);
 	const scrollerRef = useRef<HTMLElement>(null);
 	const lastReadRaw = useSyncExternalStore(
@@ -367,15 +371,15 @@ const SuraIndex = () => {
 	const playingChapter = isPlaying ? chapterOfProject(activeProject) : 0;
 
 	const results = useMemo(() => {
-		const matched = filterChapters(chapters, query);
+		const matched = filterChapters(chapters, debouncedQuery);
 		return audioOnly
 			? matched.filter((c) => recitationsByChapter.has(c.id))
 			: matched;
-	}, [chapters, query, audioOnly, recitationsByChapter]);
+	}, [chapters, debouncedQuery, audioOnly, recitationsByChapter]);
 
 	const verseJump = useMemo(
-		() => parseVerseJump(query, chapters),
-		[query, chapters]
+		() => parseVerseJump(debouncedQuery, chapters),
+		[debouncedQuery, chapters]
 	);
 
 	// Come back to the same spot in the list after reading a sura.
@@ -388,20 +392,26 @@ const SuraIndex = () => {
 	// a shared link lands on the same results.
 	useEffect(() => {
 		listViewState.query = query;
-		if ((searchParams.get('q') || '') === query.trim()) return;
+	}, [query]);
+
+	useEffect(() => {
+		const q = debouncedQuery.trim();
+		if ((searchParams.get('q') || '') === q) return;
 		setSearchParams(
 			(prev) => {
-				if (query.trim()) prev.set('q', query.trim());
+				if (q) prev.set('q', q);
 				else prev.delete('q');
 				return prev;
 			},
 			{ replace: true }
 		);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [query]);
+	}, [debouncedQuery]);
 
 	const searchesVerses =
-		query.trim().length >= 3 && !/^\d/.test(query.trim()) && !verseJump;
+		debouncedQuery.trim().length >= 3 &&
+		!/^\d/.test(debouncedQuery.trim()) &&
+		!verseJump;
 
 	const open = (chapterId: number, verse?: number) => {
 		const params = new URLSearchParams(location.search);
@@ -415,10 +425,19 @@ const SuraIndex = () => {
 
 	const onSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		if (verseJump) {
-			open(verseJump.chapterId, verseJump.verse);
-		} else if (results.length === 1) {
-			open(results[0].id);
+		// Go may come before the debounced list catches up; act on what's
+		// actually in the field.
+		const jump = parseVerseJump(query, chapters);
+		const matched =
+			query === debouncedQuery
+				? results
+				: filterChapters(chapters, query).filter(
+						(c) => !audioOnly || recitationsByChapter.has(c.id)
+				  );
+		if (jump) {
+			open(jump.chapterId, jump.verse);
+		} else if (matched.length === 1) {
+			open(matched[0].id);
 		}
 	};
 
@@ -442,7 +461,7 @@ const SuraIndex = () => {
 		body = (
 			<CenterBox>
 				<SearchOutlined style={{ fontSize: 28 }} />
-				No sura matches &ldquo;{query}&rdquo;
+				No sura matches &ldquo;{debouncedQuery}&rdquo;
 			</CenterBox>
 		);
 	} else {
@@ -569,7 +588,7 @@ const SuraIndex = () => {
 								<ArrowRightOutlined />
 							</FeatureCard>
 						)}
-						{!query && lastReadChapter && lastRead && (
+						{!debouncedQuery && lastReadChapter && lastRead && (
 							<FeatureCard
 								type="button"
 								onClick={() => open(lastRead.chapterId, lastRead.verse)}

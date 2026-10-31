@@ -1,10 +1,11 @@
 import { Button, Input, Popover } from 'antd';
 import type { InputRef } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
-import { FC, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useChapters } from 'data/use-chapters';
 import { DARK_POPOVER_STYLE, useAppTheme } from 'context/theme-context';
+import { useDebouncedValue } from 'utils/use-debounced-value';
 
 const ContentWrapper = styled.div`
 	width: 300px;
@@ -60,21 +61,31 @@ const ChapterSelector: FC<Props> = ({
 	const { data: chapterData } = useChapters();
 	const { mode } = useAppTheme();
 
-	const filteredChapters = useMemo(() => {
-		const q = search.toLowerCase();
-		return (chapterData?.chapters || []).filter((c) => {
-			if (!q) return true;
-			return (
-				`${c.id}`.startsWith(q) ||
-				c.name_simple.toLowerCase().includes(q) ||
-				c.translated_name.name.toLowerCase().includes(q)
-			);
-		});
-	}, [chapterData, search]);
+	const debouncedSearch = useDebouncedValue(search);
+
+	const filterChapters = useCallback(
+		(text: string) => {
+			const q = text.toLowerCase();
+			return (chapterData?.chapters || []).filter((c) => {
+				if (!q) return true;
+				return (
+					`${c.id}`.startsWith(q) ||
+					c.name_simple.toLowerCase().includes(q) ||
+					c.translated_name.name.toLowerCase().includes(q)
+				);
+			});
+		},
+		[chapterData]
+	);
+
+	const filteredChapters = useMemo(
+		() => filterChapters(debouncedSearch),
+		[filterChapters, debouncedSearch]
+	);
 
 	useEffect(() => {
 		setActiveIndex(-1);
-	}, [search]);
+	}, [debouncedSearch]);
 
 	useEffect(() => {
 		if (open) {
@@ -109,9 +120,16 @@ const ChapterSelector: FC<Props> = ({
 		} else if (e.key === 'ArrowUp') {
 			e.preventDefault();
 			setActiveIndex((i) => Math.max(i - 1, 0));
-		} else if (e.key === 'Enter' && filteredChapters.length > 0) {
+		} else if (e.key === 'Enter') {
+			// Typed and hit Enter before the list caught up: pick from what's
+			// in the box now, not the stale list.
+			const list =
+				search === debouncedSearch ? filteredChapters : filterChapters(search);
+			if (!list.length) return;
 			e.preventDefault();
-			select(filteredChapters[activeIndex >= 0 ? activeIndex : 0].id);
+			const index =
+				search === debouncedSearch && activeIndex >= 0 ? activeIndex : 0;
+			select(list[index].id);
 		} else if (e.key === 'Escape') {
 			setOpen(false);
 		}

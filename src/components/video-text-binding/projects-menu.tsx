@@ -10,6 +10,7 @@ import { ProjectConfig } from 'types';
 import { useChapters } from 'data/use-chapters';
 import { formatDuration } from './utils';
 import AllSurahsModal from './all-surahs-modal';
+import { useDebouncedValue } from 'utils/use-debounced-value';
 
 const { Search } = Input;
 
@@ -119,6 +120,7 @@ const ProjectsMenu = ({
 	open,
 }: Props) => {
 	const [searchInput, setSearchInput] = useState('');
+	const debouncedSearch = useDebouncedValue(searchInput);
 	const [allSurahsOpen, setAllSurahsOpen] = useState(false);
 	const searchRef = useRef<InputRef>(null);
 	const { data: chaptersData } = useChapters();
@@ -133,9 +135,9 @@ const ProjectsMenu = ({
 
 	const filteredProjects = useMemo(() => {
 		return (projects || []).filter((p) =>
-			p?.title?.toLowerCase()?.includes(searchInput.toLowerCase())
+			p?.title?.toLowerCase()?.includes(debouncedSearch.toLowerCase())
 		);
-	}, [projects, searchInput]);
+	}, [projects, debouncedSearch]);
 
 	return (
 		<ProjectsMenuWrapper>

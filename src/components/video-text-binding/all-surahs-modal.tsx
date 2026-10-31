@@ -12,6 +12,7 @@ import {
 	isFullSurah,
 } from 'utils/project-utils';
 import { formatDuration } from './utils';
+import { useDebouncedValue } from 'utils/use-debounced-value';
 
 interface Props {
 	open: boolean;
@@ -64,6 +65,7 @@ const FilterBtn = styled.button<{ $active: boolean }>`
 
 const AllSurahsModal = ({ open, onClose, projects }: Props) => {
 	const [search, setSearch] = useState('');
+	const debouncedSearch = useDebouncedValue(search);
 	const [placeFilter, setPlaceFilter] = useState<PlaceFilter>('all');
 	const { data: chaptersData } = useChapters();
 
@@ -90,8 +92,8 @@ const AllSurahsModal = ({ open, onClose, projects }: Props) => {
 			chapters = chapters.filter((c) => c.revelation_place === placeFilter);
 		}
 
-		if (!search.trim()) return chapters;
-		const q = search.toLowerCase();
+		if (!debouncedSearch.trim()) return chapters;
+		const q = debouncedSearch.toLowerCase();
 		return chapters.filter((c) => {
 			if (
 				c.name_simple.toLowerCase().includes(q) ||
@@ -105,7 +107,7 @@ const AllSurahsModal = ({ open, onClose, projects }: Props) => {
 				r.reciter.toLowerCase().includes(q)
 			);
 		});
-	}, [chaptersData, search, placeFilter, recitationsMap]);
+	}, [chaptersData, debouncedSearch, placeFilter, recitationsMap]);
 
 	const columns: ColumnsType<ChapterItem> = [
 		{
