@@ -2,9 +2,14 @@ import React, { createContext, useState, useContext, ReactNode } from 'react';
 
 export type VerseTextSize = 'big' | 'small';
 
+/** Which part of a verse is hidden. Arabic and translation are never hidden together. */
+export type HiddenVerseText = 'none' | 'arabic' | 'translation';
+
 interface TranslationVisibilityContextType {
+	hiddenText: HiddenVerseText;
+	setHiddenText: (value: HiddenVerseText) => void;
 	hideTranslations: boolean;
-	toggleHideTranslations: () => void;
+	hideArabic: boolean;
 	textSize: VerseTextSize;
 	setTextSize: (size: VerseTextSize) => void;
 }
@@ -16,18 +21,16 @@ const TranslationVisibilityContext = createContext<
 export const TranslationVisibilityProvider: React.FC<{
 	children: ReactNode;
 }> = ({ children }) => {
-	const [hideTranslations, setHideTranslations] = useState(false);
+	const [hiddenText, setHiddenText] = useState<HiddenVerseText>('none');
 	const [textSize, setTextSize] = useState<VerseTextSize>('big');
-
-	const toggleHideTranslations = () => {
-		setHideTranslations((prev) => !prev);
-	};
 
 	return (
 		<TranslationVisibilityContext.Provider
 			value={{
-				hideTranslations,
-				toggleHideTranslations,
+				hiddenText,
+				setHiddenText,
+				hideTranslations: hiddenText === 'translation',
+				hideArabic: hiddenText === 'arabic',
 				textSize,
 				setTextSize,
 			}}

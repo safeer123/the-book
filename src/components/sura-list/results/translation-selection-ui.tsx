@@ -1,6 +1,9 @@
-import { Spin, Switch } from 'antd';
+import { Segmented, Spin } from 'antd';
 import { useTranslations } from 'data/use-translations';
-import { useTranslationVisibility } from '../../../context/translation-visibility-context';
+import {
+	HiddenVerseText,
+	useTranslationVisibility,
+} from '../../../context/translation-visibility-context';
 import LanguageTabs from './language-tabs';
 import { capitalizeObjectKeys } from './utils';
 import { TranslationFooter } from './styles';
@@ -27,38 +30,43 @@ interface TranslationSelectionUIProps {
 
 const TranslationSelectionUI = ({ compact }: TranslationSelectionUIProps) => {
 	const { data, isLoading } = useTranslations();
-	const { hideTranslations, toggleHideTranslations } =
-		useTranslationVisibility();
+	const { hiddenText, setHiddenText } = useTranslationVisibility();
 
 	if (isLoading || data?.translationsByLang === undefined) {
 		return <Spin />;
 	}
 
-	const hideToggle = compact ? (
-		<>
-			<CompactToggleLabel>Hide:</CompactToggleLabel>
-			<Switch
-				size="small"
-				checked={hideTranslations}
-				onChange={toggleHideTranslations}
-			/>
-		</>
-	) : null;
+	const hideSelector = (
+		<Segmented
+			size={compact ? 'small' : 'middle'}
+			value={hiddenText}
+			onChange={(value) => setHiddenText(value as HiddenVerseText)}
+			options={[
+				{ value: 'none', label: 'None' },
+				{ value: 'arabic', label: 'Arabic' },
+				{ value: 'translation', label: 'Translation' },
+			]}
+		/>
+	);
 
 	return (
 		<>
 			<LanguageTabs
 				data={capitalizeObjectKeys(data?.translationsByLang || {})}
 				compact={compact}
-				extraTopBarContent={hideToggle}
+				extraTopBarContent={
+					compact ? (
+						<>
+							<CompactToggleLabel>Hide:</CompactToggleLabel>
+							{hideSelector}
+						</>
+					) : null
+				}
 			/>
 			{!compact && (
 				<TranslationFooter>
-					<HideTranslationsLabel>Hide Translations:</HideTranslationsLabel>
-					<Switch
-						checked={hideTranslations}
-						onChange={toggleHideTranslations}
-					/>
+					<HideTranslationsLabel>Hide:</HideTranslationsLabel>
+					{hideSelector}
 				</TranslationFooter>
 			)}
 		</>
