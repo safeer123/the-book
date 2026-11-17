@@ -66,7 +66,7 @@ const Results = ({
 
 	const { isLoading: tafsirMetaInfoLoading } = useTafsirInfoById();
 	const { currentVerseKey } = useRecitePlayer();
-	const { textSize } = useTranslationVisibility();
+	const { textSize, hideArabic } = useTranslationVisibility();
 
 	const onTextSelectionUpdate = useCallback(
 		debounce(() => {
@@ -161,20 +161,22 @@ const Results = ({
 									</VerseActionsRail>
 								)}
 								<VerseMain>
-									<ArabicVerseWrapper key={verseKey}>
-										<cite dir="rtl">
-											<ArabicVerseText
-												$small={textSize === 'small'}
-												className={ARABIC_VERSE_CLASSNAME}
-											>
-												{verseData?.ayaByKey?.[verseKey]?.text_uthmani}
-												<VerseNumber
-													number={verseKey.split(':')[1]}
-													onClick={() => toVersePage(verseKey)}
-												/>
-											</ArabicVerseText>
-										</cite>
-									</ArabicVerseWrapper>
+									{!hideArabic && (
+										<ArabicVerseWrapper key={verseKey}>
+											<cite dir="rtl">
+												<ArabicVerseText
+													$small={textSize === 'small'}
+													className={ARABIC_VERSE_CLASSNAME}
+												>
+													{verseData?.ayaByKey?.[verseKey]?.text_uthmani}
+													<VerseNumber
+														number={verseKey.split(':')[1]}
+														onClick={() => toVersePage(verseKey)}
+													/>
+												</ArabicVerseText>
+											</cite>
+										</ArabicVerseWrapper>
+									)}
 
 									<VerseTranslation
 										trText={verseData?.ayaByKey?.[verseKey]?.translation || ''}
@@ -225,25 +227,27 @@ const Results = ({
 										</VerseActionsRail>
 									)}
 									<VerseMain>
-										<ArabicVerseWrapper>
-											<cite dir="rtl">
-												<ArabicVerseText
-													$small={textSize === 'small'}
-													className={`${ARABIC_VERSE_CLASSNAME}${
-														verse?.text_uthmani?.length >
-														ARABIC_VERSE_LENGTH_LIMIT
-															? ` ${ARABIC_VERSE_SMALL_CLASSNAME}`
-															: ''
-													}`}
-												>
-													{verse?.text_uthmani}
-													<VerseNumber
-														number={verse.verse_key.split(':')[1]}
-														onClick={() => toVersePage(verse.verse_key)}
-													/>
-												</ArabicVerseText>
-											</cite>
-										</ArabicVerseWrapper>
+										{!hideArabic && (
+											<ArabicVerseWrapper>
+												<cite dir="rtl">
+													<ArabicVerseText
+														$small={textSize === 'small'}
+														className={`${ARABIC_VERSE_CLASSNAME}${
+															verse?.text_uthmani?.length >
+															ARABIC_VERSE_LENGTH_LIMIT
+																? ` ${ARABIC_VERSE_SMALL_CLASSNAME}`
+																: ''
+														}`}
+													>
+														{verse?.text_uthmani}
+														<VerseNumber
+															number={verse.verse_key.split(':')[1]}
+															onClick={() => toVersePage(verse.verse_key)}
+														/>
+													</ArabicVerseText>
+												</cite>
+											</ArabicVerseWrapper>
+										)}
 
 										<VerseTranslation
 											trText={verse?.translation || ''}
@@ -274,6 +278,7 @@ const Results = ({
 		selectedVerses,
 		currentVerseKey,
 		textSize,
+		hideArabic,
 	]);
 
 	const { items, isSingleChapterView } = collapseData;
